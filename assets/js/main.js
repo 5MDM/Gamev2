@@ -1,2 +1,2 @@
-import "./window.js"
+import "./window.js";
 import "./app.js";
