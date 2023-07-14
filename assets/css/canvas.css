@@ -1,0 +1,7 @@
+#c {
+  background-color: #333333;
+  width: var(--cw);
+  height: var(--ch);
+  margin: auto;
+}
+
