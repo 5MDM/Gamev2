@@ -57,6 +57,26 @@ export function $$(name, opts) {
   return el;
 }
 
+export function stopLoop(func) {
+  var s = false;
+  function loop() {
+    if(!s) {
+      func();
+      requestAnimationFrame(loop);
+    }
+  }
+  loop();
+  
+  function start() {
+    s = false;
+    requestAnimationFrame(loop);
+  }
+  
+  function stop() {s = true}
+  
+  return {start, stop};
+}
+
 export function stepLoop(f) {
   function step() {f(step)}
   return step();
