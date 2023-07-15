@@ -1,6 +1,8 @@
 import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace} from "three";
 import {canvasWidth, canvasHeight} from "../window.js";
 
+export const RADIAN_HALF = 1.570796;
+
 export function newCamera(o = {}) {
   return new PerspectiveCamera(
     o.fov || 80,

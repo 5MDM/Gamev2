@@ -1,12 +1,13 @@
 import {newCamera, newBox, newBoxGeometry, loadImg} from "../lib/framework.js";
 import {Scene, MeshBasicMaterial, Mesh} from "three";
 import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
-import {stopLoop} from "../lib/util.js";
+import {stopLoop, $} from "../lib/util.js";
+import {ControlCamera} from "../lib/camera.js";
+import {cam} from "./camera.js";
 
-const cam = newCamera();
 const scene = new Scene();
 setCurrentScene(scene);
-setCurrentCamera(cam);
+setCurrentCamera(cam.camera);
 
 const boxG = newBoxGeometry(1);
 const material = new MeshBasicMaterial({
@@ -22,6 +23,6 @@ stopLoop(() => {
   block.rotation.z += 0.02;
 });
 
-cam.position.z = 5;
+cam.camera.position.z = 5;
 
 renderLoop();

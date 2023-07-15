@@ -24,16 +24,33 @@
     
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/canvas.css">
+    <link rel="stylesheet" href="/assets/css/ui.css">
     
     <script type="importmap" src="/imports.json"></script>
     <script defer src="/assets/js/module-loader.js"></script>
   </head>
   <body>
-    <div id="loading-c">
-      <img id="loading" alt="loading" src="/assets/images/loading.gif">
-    </div>
-    <canvas id="c">
-      Game is not supported
-    </canvas>
+    <main class="no-select">
+      <div id="loading-c">
+        <img id="loading" alt="loading" src="/assets/images/loading.gif">
+      </div>
+      <div id="ui">
+        <div id="gui">
+          <div id="movement">
+            <div>
+              <img id="up" alt="up" src="/assets/images/game/arrow.png">
+            </div>
+            <div>
+              <img id="left" alt="left" src="/assets/images/game/arrow.png">
+              <img id="down" alt="down" src="/assets/images/game/arrow.png">
+              <img id="right" alt="right" src="/assets/images/game/arrow.png">
+            </div>
+          </div>
+          </div>
+      </div>
+      <canvas id="c">
+        Game is not supported
+      </canvas>
+    </main>
   </body>
 </html>

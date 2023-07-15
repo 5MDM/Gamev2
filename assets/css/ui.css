@@ -1,0 +1,44 @@
+#ui {
+  display: flex;
+  position: absolute;
+  width: var(--w);
+  height: var(--h);
+  pointer-events: none;
+}
+
+#ui > * {
+  margin: auto;
+  width: var(--cw);
+  height: var(--ch);
+}
+
+#ui > #gui {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#ui > #gui > #movement {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  margin: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#ui > #gui > #movement > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+
+#ui > #gui > #movement img {
+  pointer-events: auto;
+}
+
+#ui > #gui #left {transform: rotate(270deg)}
+#ui > #gui #down {transform: rotate(180deg)}
+#ui > #gui #right {transform: rotate(90deg)}

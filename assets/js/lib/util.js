@@ -57,8 +57,8 @@ export function $$(name, opts) {
   return el;
 }
 
-export function stopLoop(func) {
-  var s = false;
+export function stopLoop(func, ss = true) {
+  var s = !ss;
   function loop() {
     if(!s) {
       func();
@@ -94,4 +94,8 @@ export function timeoutLoop(arr, s) {
     }
     i++;
   });
+}
+
+export function clamp(min, num, max) {
+  return Math.min(Math.max(num, min), max);
 }

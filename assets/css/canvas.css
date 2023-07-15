@@ -3,5 +3,6 @@
   width: var(--cw);
   height: var(--ch);
   margin: auto;
+  pointer-events: auto;
 }
 
