@@ -98,13 +98,23 @@ export class ControlCamera {
   
   enable() {
     this.canPan = true;
-    this.el.addEventListener("pointerdown", e => this.down(e));
+    this.el
+    .addEventListener("pointerdown", e => this.down(e));
+    
+    // Use targetTouches instead of
+    // regular touches or else it glitches
     this.el.addEventListener("touchmove", 
-      e => this.move(e.touches[e.touches.length-1]),
+      e => this.move(
+        e.targetTouches[e.targetTouches.length-1]
+      ),
     );
-    //this.el.addEventListener("touchmove", e => {console.log(e.touches);})
-    this.el.addEventListener("mousemove", e => this.down(e))
-    this.el.addEventListener("pointerup", e => this.up(e));
+    
+    this.el
+    .addEventListener("mousemove", e => this.down(e));
+    
+    this.el
+    .addEventListener("pointerup", e => this.up(e));
+    
     return this;
   }
   
