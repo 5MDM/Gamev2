@@ -23,7 +23,9 @@
   left: 0;
   bottom: 0;
   margin: 50px;
-  display: flex;
+  
+  /* none/flex */
+  display: none;
   flex-direction: column;
   gap: 10px;
 }

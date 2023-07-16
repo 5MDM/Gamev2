@@ -1,6 +1,0 @@
-{
-  "imports": {
-    "three":
-"https://unpkg.com/three@0.154.0/build/three.module.min.js"
-  }
-}
