@@ -2,6 +2,11 @@ export const canvasPaddingHeight = 50;
 export const canvasPaddingWidth = 10;
 export const canvasWidth = innerWidth - canvasPaddingWidth;
 export const canvasHeight = innerHeight - canvasPaddingHeight;
+export function isTouchDevice() {
+  return (("ontouchstart" in window) ||
+     (navigator.maxTouchPoints > 0) ||
+     (navigator.msMaxTouchPoints > 0));
+}
 
 addEventListener("touchend", e => e.preventDefault());
 
