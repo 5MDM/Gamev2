@@ -1,5 +1,5 @@
 import {newBoxGeometry, loadImg} from "../lib/framework.js";
-import {MeshBasicMaterial} from "three";
+import {MeshBasicMaterial, Mesh} from "three";
 
 export const blockGeometry = newBoxGeometry(1);
 
@@ -10,6 +10,10 @@ async function mm(e) {
 }
 
 export const blockpr = fetch("/assets/js/game/blocks.json");
+
+export function newBlock(e) {
+  return new Mesh(blockGeometry, e);
+}
 
 export const blockData = new Promise(res => {
   const nameArr = {};
@@ -22,10 +26,11 @@ export const blockData = new Promise(res => {
       arr.push(await mm(block.texture));
       
       nameArr[block.name] = i;
-      res({
-        data: arr,
-        name: nameArr,
-      });
     }
+    
+    res({
+      data: arr,
+      name: nameArr,
+    });
   });
 });

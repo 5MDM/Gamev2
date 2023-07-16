@@ -4,7 +4,7 @@ import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
 import {stopLoop, $} from "../lib/util.js";
 import {ControlCamera} from "../lib/camera.js";
 import {cam} from "./camera.js";
-import {generateWorld} from "../lib/world-generation.js";
+import {generateWorld} from "./world-generation.js";
 
 import {blockData, blockGeometry} from "./blocks.js";
 const bd = await blockData;

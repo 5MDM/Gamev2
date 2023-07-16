@@ -3,5 +3,15 @@
     "name": "Grass",
     "tool_type": "shovel",
     "texture": "grass.png"
+  },
+  {
+    "name": "Stone",
+    "tool_type": "pickaxe",
+    "texture": "stone.png"
+  },
+  {
+    "name": "Sand",
+    "tool_type": "shovel",
+    "texture": "sand.png"
   }
 ]
