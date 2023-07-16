@@ -12,9 +12,9 @@ cam.enable();
 cam.onPointerMove = function(e) {
   cam.rx += e.x * 0.01;
   cam.ry = clamp(
-    -Math.PI / 3,
+    -Math.PI / 2 + 0.1,
     cam.ry + (e.y * 0.01),
-     Math.PI / 3,
+    Math.PI / 3,
   );
 };
 
@@ -25,9 +25,9 @@ canvas.addEventListener("mousemove", e => {
 
   cam.rx += dx * (0.005 * sensitivity / 100);
   cam.ry = clamp(
-    -Math.PI / 3,
+    -Math.PI / 2 + 0.1,
     cam.ry + (dy * (0.005 * sensitivity / 100)),
-     Math.PI / 3,
+    Math.PI / 3,
   );
 })
 canvas.addEventListener("click", e => {

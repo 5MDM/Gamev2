@@ -43,6 +43,8 @@ export function loadImg(img) {
       // very faded
       e.colorSpace = SRGBColorSpace;
       res(e);
-    }, undefined, err => {throw err});
+    }, undefined, () => console.error(
+      `loadImg error with image "${img}"`
+    ));
   });
 }

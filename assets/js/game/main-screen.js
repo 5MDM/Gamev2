@@ -4,25 +4,15 @@ import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
 import {stopLoop, $} from "../lib/util.js";
 import {ControlCamera} from "../lib/camera.js";
 import {cam} from "./camera.js";
-import "../lib/world-generation.js";
+import {generateWorld} from "../lib/world-generation.js";
 
-const scene = new Scene();
+import {blockData, blockGeometry} from "./blocks.js";
+const bd = await blockData;
+
+export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 
-const boxG = newBoxGeometry(1);
-const material = new MeshBasicMaterial({
-  map: await loadImg("/assets/images/game/grass.png"),
-});
-const block = new Mesh(boxG, material);
-
-scene.add(block);
-
-stopLoop(() => {
-  block.rotation.x += 0.01;
-  block.rotation.z += 0.02;
-});
-
-cam.camera.position.z = 5;
+generateWorld(scene);
 
 renderLoop();
