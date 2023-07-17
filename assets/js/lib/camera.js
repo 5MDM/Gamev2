@@ -1,5 +1,6 @@
 import {newCamera, RADIAN_HALF} from "./framework.js";
-import {Quaternion, Vector3} from "three";
+import {stopLoop} from "./util.js";
+import {Quaternion, Vector3, Box3} from "three";
 
 export function setQuaternion(mathX, mathY) {
   const qx = new Quaternion();
@@ -184,9 +185,22 @@ export class MovementCamera extends ControlCamera {
 }
 
 export class PhysicsCamera extends MovementCamera {
+  gravityEnabled = false;
+  gravityInertia = 0;
+  lastY;
+  currentBoundings = [];
+  
   constructor(o) {
     super(o);
   }
+  
+  _gravityLoop = stopLoop(() => {
+    this.camera.position.y -= 0.05 + this.gravityInertia;
+    if(this.lastY != this.camera.position.y) {
+      this.gravityInertia += 0.005;
+    }
+    this.lastY = this.camera.position.y;
+  }, false);
   
   bindPhysics(world) {
     this.world = world;
@@ -197,14 +211,16 @@ export class PhysicsCamera extends MovementCamera {
     return this.world[x]?.[z]?.[y];
   }
   
-  check(x, z, y) {
-    const block = this._get(x, y, z);
-    console.log(block);
+  check() {
+    //const {x, y, z} = this.camera.position();
+    const bb = new Box3().setFromObject(this.camera);
+    // Get bounding volumes here
+    // for(const i of this.currentBoundings) {}
+    //if(bb.intersectsBox)
   }
   
   moveUp(s = 0.05) {
-    const {x, z, y} = this.camera.position;
-    this.check(x, z, y);
+    this.check();
     super.moveUp(s);
   }
   
@@ -226,5 +242,10 @@ export class PhysicsCamera extends MovementCamera {
   
   moveBelow(s = 0.04) {
     super.moveBelow(s);
+  }
+  
+  enableGravity() {
+    this.gravityEnabled = true;
+    this._gravityLoop.start();
   }
 }

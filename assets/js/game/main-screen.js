@@ -12,5 +12,6 @@ setCurrentCamera(cam.camera);
 
 const world = generateWorld(scene);
 cam.bindPhysics(world);
+//cam.enableGravity();
 
 renderLoop();

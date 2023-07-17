@@ -9,10 +9,11 @@ const getCoord = createNoise2D();
 function getElevation(x, y) {
   x = Math.round(x / 2);
   y = Math.round(y / 2);
-  return (Math.round(getCoord(x, y) * 10) / 10) / 3;
+  return Math.round((getCoord(x, y) / 3) * 10) / 10;
 }
 
 const CHUNK_SIZE = 10;
+const BVOLUME_SIZE = 5;
 const grassM = bd.data[bd.name["Grass"]];
 const stoneM = bd.data[bd.name["Stone"]];
 
@@ -53,31 +54,29 @@ export function generateWorld(scene) {
   for(let i = CHUNK_SIZE; i > 0; i--) {
     // goes sideways / x-axis
     const yc = i - CHUNK_SIZE / 2;
-    world[yc] = {};
+    // world[yc] = {};
     
     for(let z = CHUNK_SIZE; z > 0; z--) {
       // goes down / y-axis
       const xc = z - CHUNK_SIZE / 2;
-      world[yc][xc] = {};
+      // world[yc][xc] = {};
       const elev = getElevation(xc, yc) - 5;
       const grassBlock = newBlock(grassM);
       
       grassBlock.position.x = xc;
       grassBlock.position.z = yc;
       grassBlock.position.y = elev;
-      world[yc][xc][elev] = grassBlock;
+      // world[yc][xc][elev] = grassBlock;
       scene.add(grassBlock);
       
       const stoneBlock = newBlock(stoneM);
       stoneBlock.position.x = xc;
       stoneBlock.position.z = yc;
       stoneBlock.position.y = elev - 1;
-      world[yc][xc][elev - 1] = stoneBlock;
+      // world[yc][xc][elev - 1] = stoneBlock;
       scene.add(stoneBlock);
     }
   }
-  
-  worldLog(world);
   
   finishGeneration();
   return world;

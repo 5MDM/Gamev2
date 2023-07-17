@@ -18,7 +18,7 @@ cam.onPointerMove = function(e) {
   );
 };
 
-const canvas = $("#c")
+const canvas = $("#c");
 canvas.addEventListener("mousemove", e => {
   const dx = e.movementX;
   const dy = e.movementY;
@@ -29,10 +29,11 @@ canvas.addEventListener("mousemove", e => {
     cam.ry + (dy * (0.005 * sensitivity / 100)),
     Math.PI / 3,
   );
-})
-canvas.addEventListener("click", e => {
+});
+
+canvas.addEventListener("click", e => 
   canvas.requestPointerLock()
-})
+);
 /*
 const up = stopLoop(() => cam.moveUp(), false);
 const left = stopLoop(() => cam.moveLeft(), false);
@@ -79,9 +80,6 @@ if(isTouchDevice()) {
   
   $("#ui > #gui > #movement #right")
   .addEventListener("pointerup", e => right = false);
-
-  $("#ui > #gui > #movement")
-  .addEventListener("gesturestart", e => e.preventDefault());
  
   addEventListener("visibilitychange", e => {
     up = false;
@@ -95,6 +93,9 @@ if(isTouchDevice()) {
   $("#ui > #gui > #movement")
   .addEventListener("touchstart", e => e.preventDefault());
   
+  $("#ui > #gui > #movement")
+  .addEventListener("gesturestart", e => e.preventDefault());
+  
   // up/down
   $("#ui > #gui > #v-movement #up")
   .addEventListener("pointerdown", e => vup = true);
@@ -107,6 +108,16 @@ if(isTouchDevice()) {
   
   $("#ui > #gui > #v-movement #down")
   .addEventListener("pointerup", e => vdown = false);
+  
+  $("#ui > #gui > #v-movement")
+  .addEventListener("touchstart", e => e.preventDefault());
+  
+  $("#ui > #gui > #v-movement")
+  .addEventListener("gesturestart", e => e.preventDefault());
+  
+  // shift
+  $("#ui > #gui > #v-movement #shift")
+  .addEventListener("pointerup", e => cam.enableGravity());
 }
 
 const pressedKeys = {
