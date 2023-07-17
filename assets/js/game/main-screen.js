@@ -1,8 +1,5 @@
-import {newCamera, newBox, newBoxGeometry, loadImg} from "../lib/framework.js";
-import {Scene, MeshBasicMaterial, Mesh} from "three";
+import {Scene} from "three";
 import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
-import {stopLoop, $} from "../lib/util.js";
-import {ControlCamera} from "../lib/camera.js";
 import {cam} from "./camera.js";
 import {generateWorld} from "./world-generation.js";
 
@@ -14,5 +11,6 @@ setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 
 const world = generateWorld(scene);
+cam.bindPhysics(world);
 
 renderLoop();

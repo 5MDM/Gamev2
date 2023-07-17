@@ -1,10 +1,10 @@
-import {MovementCamera} from "../lib/camera.js";
+import {PhysicsCamera} from "../lib/camera.js";
 import {$, clamp, stopLoop} from "../lib/util.js";
 import {isTouchDevice} from "../window.js"
 
 const sensitivity = 100
 
-export const cam = new MovementCamera();
+export const cam = new PhysicsCamera();
 cam.bind($("#c"));
 cam.setDefault(0, 0);
 cam.enable();
@@ -43,15 +43,19 @@ var up = false;
 var left = false;
 var down = false;
 var right = false;
+var vup = false;
+var vdown = false;
 
 stopLoop(() => {
   if(up) cam.moveUp();
   if(left) cam.moveLeft();
   if(down) cam.moveDown();
   if(right) cam.moveRight();
+  if(vup) cam.moveAbove();
+  if(vdown) cam.moveBelow();
 });
 
-if (isTouchDevice()) {
+if(isTouchDevice()) {
   $("#ui > #gui > #movement #up")
   .addEventListener("pointerdown", e => up = true);
   
@@ -84,10 +88,25 @@ if (isTouchDevice()) {
     left = false;
     down = false;
     right = false;
+    vup = false;
+    vdown = false;
   });
 
   $("#ui > #gui > #movement")
   .addEventListener("touchstart", e => e.preventDefault());
+  
+  // up/down
+  $("#ui > #gui > #v-movement #up")
+  .addEventListener("pointerdown", e => vup = true);
+  
+  $("#ui > #gui > #v-movement #up")
+  .addEventListener("pointerup", e => vup = false);
+  
+  $("#ui > #gui > #v-movement #down")
+  .addEventListener("pointerdown", e => vdown = true);
+  
+  $("#ui > #gui > #v-movement #down")
+  .addEventListener("pointerup", e => vdown = false);
 }
 
 const pressedKeys = {

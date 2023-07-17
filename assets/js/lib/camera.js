@@ -172,6 +172,15 @@ export class MovementCamera extends ControlCamera {
     s = this.onMovement(s);
     this.camera.translateX(s);
   }
+  
+  moveAbove(s = 0.04) {
+    s = this.onMovement(s);
+    this.camera.position.y += s;
+  }
+  
+  moveBelow(s = 0.04) {
+    this.moveAbove(-s);
+  }
 }
 
 export class PhysicsCamera extends MovementCamera {
@@ -184,12 +193,18 @@ export class PhysicsCamera extends MovementCamera {
     return this;
   }
   
-  check() {
-    
+  _get(x, y, z) {
+    return this.world[x]?.[z]?.[y];
+  }
+  
+  check(x, z, y) {
+    const block = this._get(x, y, z);
+    console.log(block);
   }
   
   moveUp(s = 0.05) {
-    
+    const {x, z, y} = this.camera.position;
+    this.check(x, z, y);
     super.moveUp(s);
   }
   
@@ -203,5 +218,13 @@ export class PhysicsCamera extends MovementCamera {
   
   moveRight(s = 0.05) {
     super.moveRight(s);
+  }
+  
+  moveAbove(s = 0.04) {
+    super.moveAbove(s);
+  }
+  
+  moveBelow(s = 0.04) {
+    super.moveBelow(s);
   }
 }
