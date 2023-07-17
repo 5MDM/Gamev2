@@ -174,44 +174,34 @@ export class MovementCamera extends ControlCamera {
   }
 }
 
-export const message = {
-  show: function (message, type = "info", time = 3000, { width = "50%", height = "10%" } = {}) {
-    if (!message) throw mderr(`Expected string as message, got ${message}`);
-    const types = [
-      "info",
-      "warning",
-      "error"
-    ];
-    if (!types.includes(type)) throw mderr(`Invalid type ${type}`);
-    time = parseInt(time)
-    if (!time || time < 1) throw mderr(`Invalid time ${time}`)
-    const box = $("#message");
-    box.style.display = "block";
-    box.style.width = width;
-    box.style.height = height;
-    box.innerHTML = message;
-    switch(type) {
-      case "info":
-        box.style.backgroundColor = "#7a7a7a";
-        box.style.color = "white";
-      break;
-      case "warning":
-        box.style.backgroundColor = "#aeb800";
-        box.style.color = "black";
-      break;
-      case "error":
-        box.style.backgroundColor = "#ff1c03";
-        box.style.color = "black";
-      break;
-    }
-    setTimeout(() => {
-      box.style.display = "none";
-    }, time)
-  },
-  hide: () => {
-    $("#message").style.display = "none";
-  },
-  get: () => {
-    return $("#message").innerText
+export class PhysicsCamera extends MovementCamera {
+  constructor(o) {
+    super(o);
+  }
+  
+  bindPhysics(world) {
+    this.world = world;
+    return this;
+  }
+  
+  check() {
+    
+  }
+  
+  moveUp(s = 0.05) {
+    
+    super.moveUp(s);
+  }
+  
+  moveLeft(s = 0.05) {
+    super.moveLeft(s);
+  }
+  
+  moveDown(s = 0.05) {
+    super.moveDown(s);
+  }
+  
+  moveRight(s = 0.05) {
+    super.moveRight(s);
   }
 }

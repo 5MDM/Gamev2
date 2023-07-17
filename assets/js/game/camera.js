@@ -149,4 +149,4 @@ document.addEventListener("keyup", e => {
       pressedKeys.right = false;
       break;
   }
-})
+});
