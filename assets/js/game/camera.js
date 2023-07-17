@@ -33,39 +33,58 @@ canvas.addEventListener("mousemove", e => {
 canvas.addEventListener("click", e => {
   canvas.requestPointerLock()
 })
-
+/*
 const up = stopLoop(() => cam.moveUp(), false);
 const left = stopLoop(() => cam.moveLeft(), false);
 const down = stopLoop(() => cam.moveDown(), false);
 const right = stopLoop(() => cam.moveRight(), false);
+*/
+var up = false;
+var left = false;
+var down = false;
+var right = false;
+
+stopLoop(() => {
+  if(up) cam.moveUp();
+  if(left) cam.moveLeft();
+  if(down) cam.moveDown();
+  if(right) cam.moveRight();
+});
 
 if (isTouchDevice()) {
   $("#ui > #gui > #movement #up")
-  .addEventListener("pointerdown", e => up.start());
+  .addEventListener("pointerdown", e => up = true);
   
   $("#ui > #gui > #movement #up")
-  .addEventListener("pointerup", e => up.stop());
+  .addEventListener("pointerup", e => up = false);
   
   $("#ui > #gui > #movement #left")
-  .addEventListener("pointerdown", e => left.start());
+  .addEventListener("pointerdown", e => left = true);
   
   $("#ui > #gui > #movement #left")
-  .addEventListener("pointerup", e => left.stop());
+  .addEventListener("pointerup", e => left = false);
   
   $("#ui > #gui > #movement #down")
-  .addEventListener("pointerdown", e => down.start());
+  .addEventListener("pointerdown", e => down = true);
   
   $("#ui > #gui > #movement #down")
-  .addEventListener("pointerup", e => down.stop());
+  .addEventListener("pointerup", e => down = false);
   
   $("#ui > #gui > #movement #right")
-  .addEventListener("pointerdown", e => right.start());
+  .addEventListener("pointerdown", e => right = true);
   
   $("#ui > #gui > #movement #right")
-  .addEventListener("pointerup", e => right.stop());
+  .addEventListener("pointerup", e => right = false);
 
   $("#ui > #gui > #movement")
   .addEventListener("gesturestart", e => e.preventDefault());
+ 
+  addEventListener("visibilitychange", e => {
+    up = false;
+    left = false;
+    down = false;
+    right = false;
+  });
 
   $("#ui > #gui > #movement")
   .addEventListener("touchstart", e => e.preventDefault());
@@ -75,8 +94,8 @@ const pressedKeys = {
   up: false,
   left: false,
   down: false,
-  right: false
-}
+  right: false,
+};
 
 document.addEventListener("keydown", e => {
   switch (e.code) {
@@ -84,48 +103,49 @@ document.addEventListener("keydown", e => {
     case "ArrowUp":
       if (pressedKeys.up) break;
       pressedKeys.up = true;
-      up.start();
+      up = true;
       break;
     case "KeyA":
     case "ArrowLeft":
       if (pressedKeys.left) break;
       pressedKeys.left = true;
-      left.start();
+      left = true;
       break;
     case "KeyS":
     case "ArrowDown":
       if (pressedKeys.down) break;
       pressedKeys.down = true;
-      down.start();
+      down = true;
       break;
     case "KeyD":
     case "ArrowRight":
       if (pressedKeys.right) break;
       pressedKeys.right = true;
-      right.start();
+      right = true;
       break;
   }
-})
+});
+
 document.addEventListener("keyup", e => {
   switch (e.code) {
     case "KeyW":
     case "ArrowUp":
-      up.stop();
+      up = false;
       pressedKeys.up = false;
       break;
     case "KeyA":
     case "ArrowLeft":
-      left.stop();
+      left = false;
       pressedKeys.left = false;
       break;
     case "KeyS":
     case "ArrowDown":
-      down.stop();
+      down = false;
       pressedKeys.down = false;
       break;
     case "KeyD":
     case "ArrowRight":
-      right.stop();
+      right = false;
       pressedKeys.right = false;
       break;
   }
