@@ -13,6 +13,6 @@ export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 
-generateWorld(scene);
+const world = generateWorld(scene);
 
 renderLoop();

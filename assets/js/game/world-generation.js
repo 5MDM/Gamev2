@@ -50,14 +50,13 @@ export function generateWorld(scene) {
   const arr = [];
   const world = {};
   
-  for(let i = CHUNK_SIZE; i >= 0; i--) {
+  for(let i = CHUNK_SIZE; i > 0; i--) {
     // goes sideways / x-axis
     const yc = i - CHUNK_SIZE / 2;
     world[yc] = {};
     
-    for(let z = CHUNK_SIZE; z >= 0; z--) {
+    for(let z = CHUNK_SIZE; z > 0; z--) {
       // goes down / y-axis
-      
       const xc = z - CHUNK_SIZE / 2;
       world[yc][xc] = {};
       const elev = getElevation(xc, yc) - 5;
@@ -81,4 +80,5 @@ export function generateWorld(scene) {
   worldLog(world);
   
   finishGeneration();
+  return world;
 }

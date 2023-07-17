@@ -140,27 +140,35 @@ export class MovementCamera extends ControlCamera {
   
   onMovement = function(s) {return s};
   
-  moveUp(s = 0.03) {
-    const forward = 
-    this.camera.getWorldDirection(
-      new Vector3(0, 0, -1)
-    );
-    this.camera.translateZ(
-      (4 - (Math.cos(forward.y) * 3)) * (-s)
-    );
-    this.camera.position.y = 0;
+  rawMoveUp(s = 0.05) {
+    const cameraDirection = new Vector3();
+    this.camera.getWorldDirection(cameraDirection);
+    cameraDirection.y = 0;
+  
+    const delta = cameraDirection.multiplyScalar(s);
+    this.camera.position.add(delta);
   }
   
-  moveLeft(s = 0.03) {
+  moveUp(s = 0.05) {
+    const cameraDirection = new Vector3();
+    this.camera.getWorldDirection(cameraDirection);
+    cameraDirection.y = 0; // Disregard y-axis
+    cameraDirection.normalize(); // THIS IS IMPORTANT
+  
+    const delta = cameraDirection.multiplyScalar(s);
+    this.camera.position.add(delta);
+  }
+  
+  moveLeft(s = 0.05) {
     s = this.onMovement(s);
     this.camera.translateX(-s);
   }
   
-  moveDown(s = 0.03) {
+  moveDown(s = 0.05) {
     this.moveUp(-s);
   }
   
-  moveRight(s = 0.03) {
+  moveRight(s = 0.05) {
     s = this.onMovement(s);
     this.camera.translateX(s);
   }
