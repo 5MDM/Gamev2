@@ -1,6 +1,6 @@
 import {newCamera, RADIAN_HALF} from "./framework.js";
 import {stopLoop} from "./util.js";
-import {Quaternion, Vector3, Box3} from "three";
+import {Quaternion, Vector3, Box3, Box3Helper} from "three";
 
 export function setQuaternion(mathX, mathY) {
   const qx = new Quaternion();
@@ -201,9 +201,9 @@ export class PhysicsCamera extends MovementCamera {
     this.lastY = this.camera.position.y;
   }, false);
   
-  bindPhysics({world, volumeGroups}) {
-    this.world = world;
-    this.volumeGroups = volumeGroups;
+  bindPhysics({tree, blocks}) {
+    this.quadtree = tree;
+    this.blockList = blocks;
     return this;
   }
   
@@ -212,13 +212,20 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   check() {
-    const bb = new Box3().setFromObject(this.camera);
-    for(const i of this.volumeGroups) {
-      const ib = new Box3().setFromObject(i);
-      if(bb.intersectsBox(ib)) console.log("in");
-      
+    for(const object of this.blockList) {
+      const objectBB = new Box3().setFromObject(object);
+      var near = this.quadtree.retrieve(objectBB);
+      console.log(near)
+      for(let i = 0; i < near; i++) {
+        var nearby = near[i];
+        
+        if(objectBB.intersectsBox(nearby)) {
+          //object.materia.color.set(0x00ff00);
+          console.log("hit")
+          break;
+        }
+      }
     }
-    //if(bb.intersectsBox)
   }
   
   moveUp(s = 0.05) {

@@ -28,10 +28,15 @@ export const blockArray = new Promise(res => {
 });
 
 export function generateWorld(scene) {
-  var color = Math.random() * 0xffffff;
+  const blocks = [];
+  const treeBox = new Box3(
+    new Vector3(0.5, -7, 0.5),
+    new Vector3(CHUNK_SIZE+0.5, -4, CHUNK_SIZE+0.5),
+  );
   
-  const world = {};
-  const volumeGroups = [];
+  const tree = new Quadtree(treeBox);
+  
+  var color = Math.random() * 0xffffff;
   
   for(let i = CHUNK_SIZE; i > 0; i--) {
     // goes sideways / x-axis
@@ -43,19 +48,9 @@ export function generateWorld(scene) {
     }
   }
   
-  // call this function for every block made
-  const treeBox = new Box3(
-    //new Vector3(-CHUNK_SIZE / 2, -CHUNK_SIZE / 2, -CHUNK_SIZE / 2),
-    new Vector3(0.5, -7, 0.5),
-    new Vector3(CHUNK_SIZE+0.5, -4, CHUNK_SIZE+0.5),
-  );
-  
-  const tree = new Quadtree(treeBox);
-  
-  scene.add(new Box3Helper(treeBox, 0xffff00));
-  
   function add_block(block) {
-    
+    tree.insert(new Box3().setFromObject(block));
+    blocks.push(block);
     scene.add(block);
   }
   
@@ -79,5 +74,5 @@ export function generateWorld(scene) {
   }
   
   finishGeneration();
-  return {world, volumeGroups};
+  return {tree, blocks};
 }

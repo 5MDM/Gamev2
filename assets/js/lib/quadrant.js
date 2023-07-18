@@ -10,6 +10,7 @@ export class Quadtree {
   constructor(boundary, capacity = 4) {
     this.boundary = boundary;
     this.capacity = capacity;
+    return this;
   }
   
   // object: new THREE.Box3()
