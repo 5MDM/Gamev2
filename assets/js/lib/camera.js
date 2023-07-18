@@ -188,7 +188,6 @@ export class PhysicsCamera extends MovementCamera {
   gravityEnabled = false;
   gravityInertia = 0;
   lastY;
-  currentBoundings = [];
   
   constructor(o) {
     super(o);
@@ -202,8 +201,9 @@ export class PhysicsCamera extends MovementCamera {
     this.lastY = this.camera.position.y;
   }, false);
   
-  bindPhysics(world) {
+  bindPhysics({world, volumeGroups}) {
     this.world = world;
+    this.volumeGroups = volumeGroups;
     return this;
   }
   
@@ -212,10 +212,12 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   check() {
-    //const {x, y, z} = this.camera.position();
     const bb = new Box3().setFromObject(this.camera);
-    // Get bounding volumes here
-    // for(const i of this.currentBoundings) {}
+    for(const i of this.volumeGroups) {
+      const ib = new Box3().setFromObject(i);
+      if(bb.intersectsBox(ib)) console.log("in");
+      
+    }
     //if(bb.intersectsBox)
   }
   

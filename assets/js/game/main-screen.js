@@ -10,8 +10,8 @@ export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 
-const world = generateWorld(scene);
-cam.bindPhysics(world);
+const gworld = generateWorld(scene);
+cam.bindPhysics(gworld);
 //cam.enableGravity();
 
 renderLoop();
