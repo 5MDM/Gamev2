@@ -31,9 +31,10 @@ export function generateWorld(scene) {
   const blocks = [];
   const treeBox = new Box3(
     new Vector3(0.5, -7, 0.5),
-    new Vector3(CHUNK_SIZE+0.5, -4, CHUNK_SIZE+0.5),
+    new Vector3(CHUNK_SIZE+0.5, -2, CHUNK_SIZE+0.5),
   );
   
+  scene.add(new Box3Helper(treeBox, 0xff0000));
   const tree = new Quadtree(treeBox);
   
   var color = Math.random() * 0xffffff;

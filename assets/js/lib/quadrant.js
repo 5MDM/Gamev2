@@ -1,5 +1,6 @@
 import {Vector3, Box3} from "three";
 
+var counter = 0;
 export class Quadtree {
   objects = [];
   subdivided = false;
@@ -66,17 +67,23 @@ export class Quadtree {
     const foundObjects = [];
     
     // if object is not in boundary
-    if(!this.boundary.intersectsBox(object))
+    if(!this.boundary.intersectsBox(object)) {
       return foundObjects;
+    }
     
-    for(let i = 0; i < this.objects.length; i++)
+    for(let i = 0; i < this.objects.length; i++) {
       if(object !== this.objects[i] 
-      && object.intersectsBox(this.objects[i]))
+      && object.intersectsBox(this.objects[i])) {
+        console.log("Found")
         foundObjects.push(this.objects[i]);
+      }
+    }
     
-    if(this.subdivided)
-      for(let i = 0; i < this.children.length; i++)
+    if(this.subdivided) {
+      for(let i = 0; i < this.children.length; i++) {
         foundObjects.push(...this.children[i].retrieve(object));
+      }
+    }
     
     return foundObjects;
   }
@@ -95,23 +102,23 @@ var quadtreeBoundary = new Box3(
 var quadtree = new Quadtree(quadtreeBoundary);
 
 // Check for collisions
+// Check for collisions with the player
 function checkCollisions() {
-  scene.children.forEach(function(object) {
-    if(object !== player 
-    && object.geometry instanceof THREE.BoxGeometry) {
+  var playerBB = new THREE.Box3().setFromObject(player);
+  var nearbyObjects = quadtree.retrieve(playerBB);
+
+  nearbyObjects.forEach(function(object) {
+    if (object !== player && object.geometry instanceof THREE.BoxGeometry) {
       var objectBB = new THREE.Box3().setFromObject(object);
 
-      var nearbyObjects = quadtree.retrieve(objectBB);
-
-      for (var i = 0; i < nearbyObjects.length; i++) {
-        var nearbyObject = nearbyObjects[i];
-        if (objectBB.intersectsBox(nearbyObject)) {
-          object.material.color.set(0x00ff00); // Collided with another object
-          break;
-        }
+      if (playerBB.intersectsBox(objectBB)) {
+        object.material.color.set(0x00ff00); // Collided with the player
+      } else {
+        object.material.color.set(0xff0000); // Not collided with the player
       }
     }
   });
+
+  requestAnimationFrame(checkCollisions);
 }
-// Render loop
 */

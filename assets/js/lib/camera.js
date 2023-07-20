@@ -139,18 +139,22 @@ export class MovementCamera extends ControlCamera {
     super(o);
   }
   
-  onMovement = function(s) {return s};
+  onMove = function() {};
+  preMove = function(s) {return s}
   
   rawMoveUp(s = 0.05) {
+    s = this.preMove(s);
     const cameraDirection = new Vector3();
     this.camera.getWorldDirection(cameraDirection);
     cameraDirection.y = 0;
   
     const delta = cameraDirection.multiplyScalar(s);
     this.camera.position.add(delta);
+    this.onMove();
   }
   
   moveUp(s = 0.05) {
+    s = this.preMove(s);
     const cameraDirection = new Vector3();
     this.camera.getWorldDirection(cameraDirection);
     cameraDirection.y = 0; // Disregard y-axis
@@ -158,11 +162,13 @@ export class MovementCamera extends ControlCamera {
   
     const delta = cameraDirection.multiplyScalar(s);
     this.camera.position.add(delta);
+    this.onMove();
   }
   
   moveLeft(s = 0.05) {
-    s = this.onMovement(s);
+    s = this.preMove(s);
     this.camera.translateX(-s);
+    this.onMove();
   }
   
   moveDown(s = 0.05) {
@@ -170,13 +176,15 @@ export class MovementCamera extends ControlCamera {
   }
   
   moveRight(s = 0.05) {
-    s = this.onMovement(s);
+    s = this.preMove(s);
     this.camera.translateX(s);
+    this.onMove();
   }
   
   moveAbove(s = 0.04) {
-    s = this.onMovement(s);
+    s = this.preMove(s);
     this.camera.position.y += s;
+    this.onMove();
   }
   
   moveBelow(s = 0.04) {
@@ -207,25 +215,14 @@ export class PhysicsCamera extends MovementCamera {
     return this;
   }
   
-  _get(x, y, z) {
-    return this.world[x]?.[z]?.[y];
+  bindPlayer(obj) {
+    this.playerObj = obj;
+    return this;
   }
   
   check() {
-    for(const object of this.blockList) {
-      const objectBB = new Box3().setFromObject(object);
-      var near = this.quadtree.retrieve(objectBB);
-      console.log(near)
-      for(let i = 0; i < near; i++) {
-        var nearby = near[i];
-        
-        if(objectBB.intersectsBox(nearby)) {
-          //object.materia.color.set(0x00ff00);
-          console.log("hit")
-          break;
-        }
-      }
-    }
+    const player = new Box3().setFromObject(this.playerObj);
+    const nearObj = this.quadtree.retrieve(player);
   }
   
   moveUp(s = 0.05) {
@@ -234,22 +231,27 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   moveLeft(s = 0.05) {
+    this.check();
     super.moveLeft(s);
   }
   
   moveDown(s = 0.05) {
+    this.check();
     super.moveDown(s);
   }
   
   moveRight(s = 0.05) {
+    this.check();
     super.moveRight(s);
   }
   
   moveAbove(s = 0.04) {
+    this.check();
     super.moveAbove(s);
   }
   
   moveBelow(s = 0.04) {
+    this.check();
     super.moveBelow(s);
   }
   
