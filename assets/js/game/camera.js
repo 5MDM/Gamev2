@@ -23,10 +23,10 @@ canvas.addEventListener("mousemove", e => {
   const dx = e.movementX;
   const dy = e.movementY;
 
-  cam.rx += dx * (0.005 * sensitivity / 100);
+  cam.rx -= dx * (0.005 * sensitivity / 100);
   cam.ry = clamp(
     -Math.PI / 2 + 0.1,
-    cam.ry + (dy * (0.005 * sensitivity / 100)),
+    cam.ry - (dy * (0.005 * sensitivity / 100)),
     Math.PI / 3,
   );
 });

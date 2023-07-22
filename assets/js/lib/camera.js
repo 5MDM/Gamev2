@@ -210,7 +210,7 @@ export class PhysicsCamera extends MovementCamera {
   }, false);
   
   bindPhysics({tree, blocks}) {
-    this.quadtree = tree;
+    this.octree = tree;
     this.blockList = blocks;
     return this;
   }
@@ -221,8 +221,7 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   check() {
-    const player = new Box3().setFromObject(this.playerObj);
-    const nearObj = this.quadtree.retrieve(player);
+    
   }
   
   moveUp(s = 0.05) {

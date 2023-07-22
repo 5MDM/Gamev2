@@ -3,7 +3,7 @@ import {blockData, newBlock} from "./blocks.js";
 import {Mesh, Group, Box3, Vector3, Box3Helper} from "three";
 import {newBox} from "../lib/framework.js";
 import {cam} from "./camera.js";
-import {Quadtree} from "../lib/quadrant.js";
+import {Octree} from "../lib/quadrant.js";
 const bd = await blockData;
 
 // Seed: 0
@@ -34,8 +34,14 @@ export function generateWorld(scene) {
     new Vector3(CHUNK_SIZE+0.5, -2, CHUNK_SIZE+0.5),
   );
   
-  scene.add(new Box3Helper(treeBox, 0xff0000));
-  const tree = new Quadtree(treeBox);
+  const tree = new Octree({
+    width: CHUNK_SIZE,
+    height: 5,
+    depth: CHUNK_SIZE,
+    x: 0,
+    y: -7,
+    z: 0,
+  });
   
   var color = Math.random() * 0xffffff;
   
@@ -50,7 +56,14 @@ export function generateWorld(scene) {
   }
   
   function add_block(block) {
-    tree.insert(new Box3().setFromObject(block));
+    tree.insert({
+      x: block.position.x,
+      y: block.position.y,
+      z: block.position.z,
+      width: 1,
+      height: 1,
+      depth: 1,
+    });
     blocks.push(block);
     scene.add(block);
   }

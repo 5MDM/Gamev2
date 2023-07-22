@@ -1,124 +1,103 @@
 import {Vector3, Box3} from "three";
 
-var counter = 0;
-export class Quadtree {
-  objects = [];
-  subdivided = false;
-  children = [];
-  
-  // boundary: new THREE.Box3()
-  // capacity: positive number
-  constructor(boundary, capacity = 4) {
-    this.boundary = boundary;
-    this.capacity = capacity;
+class Box {
+  constructor({x, y, z, width, height, depth}) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.width = width;
+    this.height = height;
+    this.depth = depth;
     return this;
   }
   
-  // object: new THREE.Box3()
-  // ^ object.setFromObject(<insert mesh>) is recommended
-  insert(object) {
-    if(!this.boundary.containsPoint(object))
-      return false;
+  intersectsBox(e) {
+    const x1 = this.x;
+    const y1 = this.y;
+    const z1 = this.z;
+    const w1 = this.width;
+    const h1 = this.height;
+    const d1 = this.depth;
     
-    // Normal insert
-    if(this.objects.length < this.capacity) {
-      this.objects.push(object);
+    const x2 = e.x;
+    const y2 = e.y;
+    const z2 = e.z;
+    const w2 = e.width;
+    const h2 = e.height;
+    const d2 = e.depth;
+    
+    if(x1 < x2 + w2 
+    && x1 + w1 > x2 
+    && y1 < y2 + h2 
+    && y1 + h1 > y2 
+    && z1 < z2 + d2 
+    && z1 + d1 > z2) {
       return true;
     }
-
-    if(!this.subdivided) this.subdivide();
     
-    for(let i = 0; i < this.children.length; i++)
-      if(this.children[i].insert(object)) return true;
-
     return false;
+  }
+}
+
+export class Octree {
+  constructor(bounds) {
+    this.bounds = new Box(bounds);
+    this.children = [];
+    this.box = null;
   }
 
   subdivide() {
-    const box = this.boundary;
-    const center = new Vector3();
-    box.getCenter(center);
-    
-    const min = box.min;
-    const max = box.max;
+    const {x, y, z, width, height, depth} = this.bounds;
 
-    const nw = new Box3(min, center);
-    const ne = new Box3(
-      new Vector3(center.x, min.y, min.z),
-      new Vector3(max.x, center.y, center.z),
-    );
+    const halfWidth = width / 2;
+    const halfHeight = height / 2;
+    const halfDepth = depth / 2;
     
-    const sw = new Box3(
-      new Vector3(min.x, center.y, center.z),
-      new Vector3(center.x, max.y, max.z),
-    );
+    const o1 = 
+    new Octree({x, y, z, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o2 = 
+    new Octree({x: x + halfWidth, y, z, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o3 =
+    new Octree({x, y: y + halfHeight, z, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o4 =
+    new Octree({x: x + halfWidth, y: y + halfHeight, z, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o5 =
+    new Octree({x, y, z: z + halfDepth, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o6 =
+    new Octree({x: x + halfWidth, y, z: z + halfDepth, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o7 =
+    new Octree({x, y: y + halfHeight, z: z + halfDepth, width: halfWidth, height: halfHeight, depth: halfDepth});
+    const o8 =
+    new Octree({x: x + halfWidth, y: y + halfHeight, z: z + halfDepth, width: halfWidth, height: halfHeight, depth: halfDepth});
     
-    const se = new Box3(center, max);
-
-    this.children.push(new Quadtree(nw, this.capacity));
-    this.children.push(new Quadtree(ne, this.capacity));
-    this.children.push(new Quadtree(sw, this.capacity));
-    this.children.push(new Quadtree(se, this.capacity));
-
-    this.subdivided = true;
+    this.children.push(o1);
+    this.children.push(o2);
+    this.children.push(o3);
+    this.children.push(o4);
+    this.children.push(o5);
+    this.children.push(o6);
+    this.children.push(o7);
+    this.children.push(o8);
   }
 
-  retrieve(object) {
-    const foundObjects = [];
+  insert(b) {
+    const box = new Box(b);
+    if(!this.bounds.intersectsBox(box)) return false;
     
-    // if object is not in boundary
-    if(!this.boundary.intersectsBox(object)) {
-      return foundObjects;
-    }
-    
-    for(let i = 0; i < this.objects.length; i++) {
-      if(object !== this.objects[i] 
-      && object.intersectsBox(this.objects[i])) {
-        console.log("Found")
-        foundObjects.push(this.objects[i]);
+    if(this.bounds.width != 1) this.subdivide();
+
+    if(this.children.length == 0) {
+      if(!this.box) {
+        this.box = box;
+        return true;
       }
+      this.subdivide();
     }
-    
-    if(this.subdivided) {
-      for(let i = 0; i < this.children.length; i++) {
-        foundObjects.push(...this.children[i].retrieve(object));
-      }
+
+    for(let child of this.children) {
+      if(child.insert(box)) return true;
     }
-    
-    return foundObjects;
+
+    return false;
   }
 }
-/*
-// Create objects
-var numObjects = 100;
-var objectSize = 1;
-var objectMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-
-var quadtreeBoundary = new Box3(
-  new Vector3(-50, -50, -50),
-  new Vector3(50, 50, 50),
-);
-
-var quadtree = new Quadtree(quadtreeBoundary);
-
-// Check for collisions
-// Check for collisions with the player
-function checkCollisions() {
-  var playerBB = new THREE.Box3().setFromObject(player);
-  var nearbyObjects = quadtree.retrieve(playerBB);
-
-  nearbyObjects.forEach(function(object) {
-    if (object !== player && object.geometry instanceof THREE.BoxGeometry) {
-      var objectBB = new THREE.Box3().setFromObject(object);
-
-      if (playerBB.intersectsBox(objectBB)) {
-        object.material.color.set(0x00ff00); // Collided with the player
-      } else {
-        object.material.color.set(0xff0000); // Not collided with the player
-      }
-    }
-  });
-
-  requestAnimationFrame(checkCollisions);
-}
-*/
