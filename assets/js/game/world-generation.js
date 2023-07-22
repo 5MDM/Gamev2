@@ -12,7 +12,7 @@ const getCoord = createNoise2D();
 function getElevation(x, y) {
   x = Math.round(x / 2);
   y = Math.round(y / 2);
-  return Math.round((getCoord(x, y) / 3) * 10) / 10;
+  return Math.round((getCoord(x, y) / 2) * 10) / 10;
 }
 
 const CHUNK_SIZE = 8;
@@ -29,10 +29,6 @@ export const blockArray = new Promise(res => {
 
 export function generateWorld(scene) {
   const blocks = [];
-  const treeBox = new Box3(
-    new Vector3(0.5, -7, 0.5),
-    new Vector3(CHUNK_SIZE+0.5, -2, CHUNK_SIZE+0.5),
-  );
   
   const tree = new Octree({
     width: CHUNK_SIZE,
@@ -42,8 +38,6 @@ export function generateWorld(scene) {
     y: -7,
     z: 0,
   });
-  
-  var color = Math.random() * 0xffffff;
   
   for(let i = CHUNK_SIZE; i > 0; i--) {
     // goes sideways / x-axis
@@ -70,16 +64,14 @@ export function generateWorld(scene) {
   
   function add_blocks({xc, yc}) {
     const elev = getElevation(xc, yc) - 5;
-    //const grassBlock = newBlock(grassM);
-    const grassBlock = newBox({color, size: 1});
+    const grassBlock = newBlock(grassM);
     
     grassBlock.position.x = xc;
     grassBlock.position.z = yc;
     grassBlock.position.y = elev;
     add_block(grassBlock);
     
-    //const stoneBlock = newBlock(stoneM);
-    const stoneBlock = newBox({color, size: 1});
+    const stoneBlock = newBlock(stoneM);
     stoneBlock.position.x = xc;
     stoneBlock.position.z = yc;
     stoneBlock.position.y = elev - 1;

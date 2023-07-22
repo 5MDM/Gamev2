@@ -1,4 +1,4 @@
-import {Vector3, Box3} from "three";
+import {Vector3, Box3, Mesh} from "three";
 
 class Box {
   constructor({x, y, z, width, height, depth}) {
@@ -84,20 +84,53 @@ export class Octree {
     const box = new Box(b);
     if(!this.bounds.intersectsBox(box)) return false;
     
-    if(this.bounds.width != 1) this.subdivide();
-
-    if(this.children.length == 0) {
+    if(this.bounds.width != 1) {
+      this.subdivide();
+      for(let child of this.children) {
+        if(child.insert(box)) return true;
+      }
+    } else {
       if(!this.box) {
         this.box = box;
         return true;
+      } else {
+        console.warn("Why is the box even full");
       }
-      this.subdivide();
-    }
-
-    for(let child of this.children) {
-      if(child.insert(box)) return true;
     }
 
     return false;
   }
+  
+  get(a) {
+    var e;
+    if(a instanceof Mesh) {
+      // hardcoded
+      e = new Box({
+        x: a.position.x,
+        y: a.position.y,
+        z: a.position.z,
+        width: 0.2,
+        height: 1,
+        depth: 0.2,
+      });
+    } else {
+      e = a;
+    }
+    
+    const found = [];
+    if(!this.bounds.intersectsBox(e)) return found;
+    if(this.bounds.width == 1) {
+      if(this.bounds.intersectsBox(e)) found.push(this.box);
+    } else {
+      for(const child of this.children) {
+        found.push(...child.get(e));
+      }
+    }
+    
+    return found;
+  }
 }
+
+const MDBox = Box;
+
+export {MDBox};

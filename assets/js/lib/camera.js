@@ -220,38 +220,40 @@ export class PhysicsCamera extends MovementCamera {
     return this;
   }
   
-  check() {
-    
+  collided() {
+    const col = this.octree.get(this.playerObj);
+    if(col.length != 0) return true;
+    return false;
   }
   
   moveUp(s = 0.05) {
-    this.check();
     super.moveUp(s);
+    if(this.collided()) super.moveDown(s);
   }
   
   moveLeft(s = 0.05) {
-    this.check();
     super.moveLeft(s);
+    if(this.collided()) super.moveRight(s);
   }
   
   moveDown(s = 0.05) {
-    this.check();
     super.moveDown(s);
+    if(this.collided()) super.moveAbove(s);
   }
   
   moveRight(s = 0.05) {
-    this.check();
     super.moveRight(s);
+    if(this.collided()) super.moveLeft(s);
   }
   
   moveAbove(s = 0.04) {
-    this.check();
     super.moveAbove(s);
+    if(this.collided()) super.moveBelow(s);
   }
   
   moveBelow(s = 0.04) {
-    this.check();
     super.moveBelow(s);
+    if(this.collided()) super.moveAbove(s);
   }
   
   enableGravity() {
