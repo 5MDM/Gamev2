@@ -20,6 +20,7 @@ cam.onPointerMove = function(e) {
 
 const canvas = $("#c");
 canvas.addEventListener("mousemove", e => {
+  if (document.pointerLockElement != canvas) return;
   const dx = e.movementX;
   const dy = e.movementY;
 
@@ -120,38 +121,29 @@ if(isTouchDevice()) {
   .addEventListener("pointerup", e => cam.enableGravity());
 }
 
-const pressedKeys = {
-  up: false,
-  left: false,
-  down: false,
-  right: false,
-};
-
 document.addEventListener("keydown", e => {
   switch (e.code) {
     case "KeyW":
     case "ArrowUp":
-      if (pressedKeys.up) break;
-      pressedKeys.up = true;
       up = true;
       break;
     case "KeyA":
     case "ArrowLeft":
-      if (pressedKeys.left) break;
-      pressedKeys.left = true;
       left = true;
       break;
     case "KeyS":
     case "ArrowDown":
-      if (pressedKeys.down) break;
-      pressedKeys.down = true;
       down = true;
       break;
     case "KeyD":
     case "ArrowRight":
-      if (pressedKeys.right) break;
-      pressedKeys.right = true;
       right = true;
+      break;
+    case "Space":
+      vup = true;
+      break;
+    case "ShiftLeft":
+      vdown = true;
       break;
   }
 });
@@ -161,22 +153,48 @@ document.addEventListener("keyup", e => {
     case "KeyW":
     case "ArrowUp":
       up = false;
-      pressedKeys.up = false;
       break;
     case "KeyA":
     case "ArrowLeft":
       left = false;
-      pressedKeys.left = false;
       break;
     case "KeyS":
     case "ArrowDown":
       down = false;
-      pressedKeys.down = false;
       break;
     case "KeyD":
     case "ArrowRight":
       right = false;
-      pressedKeys.right = false;
+      break;
+    case "Space":
+      vup = false;
+      break;
+    case "ShiftLeft":
+      vdown = false;
       break;
   }
 });
+
+var lastKeypressTime = 0;
+var keyState = false;
+// Detect double press space for enabling gravity
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") {
+    if (keyState) return;
+    keyState = true;
+    let keypressTime = Date.now();
+    if (keypressTime - lastKeypressTime <= 250) {
+      // Double space bar pressed
+      cam.enableGravity();
+
+      lastKeypressTime = 0;
+    } else {
+      lastKeypressTime = keypressTime;
+    }
+  } else {
+    lastKeypressTime = 0;
+  }
+})
+document.addEventListener("keyup", e => {
+  if (e.code === "Space") keyState = false;
+})
