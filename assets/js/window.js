@@ -7,6 +7,9 @@ export function isTouchDevice() {
      (navigator.maxTouchPoints > 0) ||
      (navigator.msMaxTouchPoints > 0));
 }
+export function supportsPointerLock() {
+  return "pointerLockElement" in document
+}
 
 addEventListener("touchend", e => e.preventDefault());
 

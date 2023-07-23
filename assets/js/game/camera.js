@@ -1,8 +1,9 @@
 import {PhysicsCamera} from "../lib/camera.js";
 import {$, clamp, stopLoop} from "../lib/util.js";
-import {isTouchDevice} from "../window.js"
+import {isTouchDevice, supportsPointerLock} from "../window.js"
 
 const sensitivity = 100
+var paused = false;
 
 export const cam = new PhysicsCamera();
 cam.bind($("#c"));
@@ -19,7 +20,9 @@ cam.onPointerMove = function(e) {
 };
 
 const canvas = $("#c");
+const overlay = $("#overlay");
 canvas.addEventListener("mousemove", e => {
+  if (document.pointerLockElement != canvas) return;
   const dx = e.movementX;
   const dy = e.movementY;
 
@@ -31,15 +34,58 @@ canvas.addEventListener("mousemove", e => {
   );
 });
 
-canvas.addEventListener("click", e => 
-  canvas.requestPointerLock()
-);
-/*
-const up = stopLoop(() => cam.moveUp(), false);
-const left = stopLoop(() => cam.moveLeft(), false);
-const down = stopLoop(() => cam.moveDown(), false);
-const right = stopLoop(() => cam.moveRight(), false);
-*/
+if(supportsPointerLock()) {
+  paused = true;
+  overlay.style.display = "block";
+  $(".resume-text").innerText = "Start Game";
+}
+$("#resume").addEventListener("click", e => {
+  if (!resumeButtonEnabled) return;
+  if (supportsPointerLock()) canvas.requestPointerLock();
+  overlay.style.display = "none";
+  forcePointerUnlocked = true;
+  paused = false;
+});
+
+document.addEventListener("pointerlockerror", e => {
+  paused = true;
+  overlay.style.display = "block";
+})
+var forcePointerUnlocked = true;
+const resumeButton = $("#resume");
+const lockProgressBar = $("#lock-timer");
+var resumeButtonEnabled = true;
+document.addEventListener("pointerlockchange", async e => {
+  if (document.pointerLockElement != canvas) {
+    // Pointer unlocked
+    paused = true;
+    $(".resume-text").innerText = "Resume Game";
+    overlay.style.display = "block";
+    if (forcePointerUnlocked) {
+      // Pressed escape or switched tabs to let browser handle unlock
+      resumeButtonEnabled = false;
+      lockProgressBar.style.width = "0%";
+      resumeButton.style.backgroundColor = "#202020";
+      resumeButton.style.color = "white";
+      resumeButton.style.cursor = "default";
+      const wait = ms => new Promise(res => setTimeout(res, ms))
+      var timerPercent = 0;
+      for (let i = 0; i < 100; i++) {
+        timerPercent += 1;
+        lockProgressBar.style.width = `${timerPercent}%`;
+        await wait(1200 / 100);
+      }
+      resumeButton.style.cursor = "pointer";
+      resumeButton.style.color = "black";
+      resumeButtonEnabled = true;
+    } else {
+      // Pressed backquote to use code to unlock cursor
+      resumeButton.style.backgroundColor = "#808080";
+      resumeButton.style.color = "black";
+      resumeButton.style.cursor = "pointer";
+    }
+  }
+})
 var up = false;
 var left = false;
 var down = false;
@@ -48,6 +94,7 @@ var vup = false;
 var vdown = false;
 
 stopLoop(() => {
+  if(paused) return;
   if(up) cam.moveUp();
   if(left) cam.moveLeft();
   if(down) cam.moveDown();
@@ -120,38 +167,34 @@ if(isTouchDevice()) {
   .addEventListener("pointerup", e => cam.enableGravity());
 }
 
-const pressedKeys = {
-  up: false,
-  left: false,
-  down: false,
-  right: false,
-};
-
 document.addEventListener("keydown", e => {
   switch (e.code) {
     case "KeyW":
     case "ArrowUp":
-      if (pressedKeys.up) break;
-      pressedKeys.up = true;
       up = true;
       break;
     case "KeyA":
     case "ArrowLeft":
-      if (pressedKeys.left) break;
-      pressedKeys.left = true;
       left = true;
       break;
     case "KeyS":
     case "ArrowDown":
-      if (pressedKeys.down) break;
-      pressedKeys.down = true;
       down = true;
       break;
     case "KeyD":
     case "ArrowRight":
-      if (pressedKeys.right) break;
-      pressedKeys.right = true;
       right = true;
+      break;
+    case "Space":
+      vup = true;
+      break;
+    case "ShiftLeft":
+      vdown = true;
+      break;
+    case "Backquote":
+      if (!supportsPointerLock()) break;
+      forcePointerUnlocked = false;
+      document.exitPointerLock();
       break;
   }
 });
@@ -161,22 +204,48 @@ document.addEventListener("keyup", e => {
     case "KeyW":
     case "ArrowUp":
       up = false;
-      pressedKeys.up = false;
       break;
     case "KeyA":
     case "ArrowLeft":
       left = false;
-      pressedKeys.left = false;
       break;
     case "KeyS":
     case "ArrowDown":
       down = false;
-      pressedKeys.down = false;
       break;
     case "KeyD":
     case "ArrowRight":
       right = false;
-      pressedKeys.right = false;
+      break;
+    case "Space":
+      vup = false;
+      break;
+    case "ShiftLeft":
+      vdown = false;
       break;
   }
 });
+
+var lastKeypressTime = 0;
+var keyState = false;
+// Detect double press space for enabling gravity
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") {
+    if (keyState) return;
+    keyState = true;
+    let keypressTime = Date.now();
+    if (keypressTime - lastKeypressTime <= 250) {
+      // Double space bar pressed
+      cam.enableGravity();
+
+      lastKeypressTime = 0;
+    } else {
+      lastKeypressTime = keypressTime;
+    }
+  } else {
+    lastKeypressTime = 0;
+  }
+})
+document.addEventListener("keyup", e => {
+  if (e.code === "Space") keyState = false;
+})
