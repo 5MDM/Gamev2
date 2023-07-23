@@ -63,7 +63,6 @@ document.addEventListener("pointerlockchange", async e => {
     overlay.style.display = "block";
     if (forcePointerUnlocked) {
       // Pressed escape or switched tabs to let browser handle unlock
-      // resumeButton.style.display = "none";
       resumeButtonEnabled = false;
       lockProgressBar.style.width = "0%";
       resumeButton.style.backgroundColor = "#202020";
@@ -81,19 +80,12 @@ document.addEventListener("pointerlockchange", async e => {
       resumeButtonEnabled = true;
     } else {
       // Pressed backquote to use code to unlock cursor
-      // resumeButton.style.display = "block";
       resumeButton.style.backgroundColor = "#808080";
       resumeButton.style.color = "black";
       resumeButton.style.cursor = "pointer";
     }
   }
 })
-/*
-const up = stopLoop(() => cam.moveUp(), false);
-const left = stopLoop(() => cam.moveLeft(), false);
-const down = stopLoop(() => cam.moveDown(), false);
-const right = stopLoop(() => cam.moveRight(), false);
-*/
 var up = false;
 var left = false;
 var down = false;
