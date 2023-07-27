@@ -99,3 +99,32 @@ export function timeoutLoop(arr, s) {
 export function clamp(min, num, max) {
   return Math.min(Math.max(num, min), max);
 }
+
+export class HSL {
+  constructor(h = 0, s = 100, l = 50) {
+    this.h = h;
+    this.s = s;
+    this.l = l;
+    return this;
+  }
+  
+  toHex() {
+    const h = this.h;
+    const s = this.s;
+    const l = this.l / 100;
+    const a = s * Math.min(l, 1 - l) / 100;
+    
+    function f(n) {
+      const k = (n + h / 30) % 12;
+      const color = 
+      l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, "0");
+    };
+    
+    return `${f(0)}${f(8)}${f(4)}`;
+  }
+  
+  toNum() {return parseInt(this.toHex())}
+}

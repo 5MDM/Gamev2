@@ -1,4 +1,35 @@
-import {Vector3, Box3, Mesh} from "three";
+import {Vector3, Box3, Mesh, Box3Helper} from "three";
+import {HSL} from "./util.js";
+
+var debugMode = false;
+var crashCounter = 0;
+var objLimit = 50000;
+function increment() {
+  if(++crashCounter > objLimit)
+  throw new Error(
+    "Octree: too many objects"
+  );
+}
+
+var scene;
+export function setDebugScene(s) {
+  debugMode = true;
+  scene = s;
+}
+
+function renderBox(e, color) {
+  if(!debugMode) return;
+  const hw = e.width / 2;
+  const hh = e.height / 2;
+  const hd = e.depth / 2;
+  
+  const box = new Box3(
+    new Vector3(e.x-hw, e.y-hh, e.z-hd),
+    new Vector3(e.x+hw, e.y+hh, e.z+hd),
+  );
+  
+  scene.add(new Box3Helper(box));
+}
 
 class Box {
   constructor({x, y, z, width, height, depth}) {
@@ -8,6 +39,8 @@ class Box {
     this.width = width;
     this.height = height;
     this.depth = depth;
+    increment();
+    renderBox(this, 0xfff000);
     return this;
   }
   
@@ -105,14 +138,14 @@ export class Octree {
     var e;
     if(a instanceof Mesh) {
       // hardcoded
-      e = new Box({
+      e = {
         x: a.position.x,
         y: a.position.y,
         z: a.position.z,
         width: 0.2,
         height: 1,
         depth: 0.2,
-      });
+      };
     } else {
       e = a;
     }
