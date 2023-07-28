@@ -11,7 +11,7 @@ const bd = await blockData;
 export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
-setDebugScene(scene);
+// setDebugScene(scene);
 
 const gworld = generateWorld(scene);
 cam.bindPhysics(gworld);

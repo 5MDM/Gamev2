@@ -173,10 +173,7 @@ export class Octree {
 
   insert(b) {
     const box = new Box(b);
-    if(!this.bounds.intersectsBox(box)) {
-      if(this.bounds.width == 2) this.bounds.intersectsBoxDebug(box);
-      return false;
-    }
+    if(!this.bounds.intersectsBox(box)) return false;
     
     if(this.bounds.width > 1) {
       this.subdivide();
@@ -213,8 +210,9 @@ export class Octree {
     
     const found = [];
     if(!this.bounds.intersectsBox(e)) return found;
-    if(this.bounds.width <= 1) {
-      if(this.bounds.intersectsBox(e)) found.push(this.box);
+    if(this.bounds.width == 1) {
+      if(this.bounds.intersectsBox(e)
+      && this.box != null) found.push(this.box);
     } else {
       for(const child of this.children) {
         found.push(...child.get(e));
