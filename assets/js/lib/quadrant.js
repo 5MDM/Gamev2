@@ -1,5 +1,6 @@
 import {Vector3, Box3, Mesh, Box3Helper} from "three";
 import {HSL} from "./util.js";
+import {newBox} from "./framework.js";
 
 var debugMode = false;
 var crashCounter = 0;
@@ -19,16 +20,16 @@ export function setDebugScene(s) {
 
 function renderBox(e, color) {
   if(!debugMode) return;
-  const hw = e.width / 2;
-  const hh = e.height / 2;
-  const hd = e.depth / 2;
+  const hx = e.width / 2;
+  const hy = e.height / 2;
+  const hz = e.depth / 2;
   
   const box = new Box3(
-    new Vector3(e.x-hw, e.y-hh, e.z-hd),
-    new Vector3(e.x+hw, e.y+hh, e.z+hd),
+    new Vector3(e.x-hx, e.y-hy, e.z-hz),
+    new Vector3(e.x+hx, e.y+hy, e.z+hz),
   );
   
-  scene.add(new Box3Helper(box));
+  scene.add(new Box3Helper(box, color));
 }
 
 class Box {
@@ -42,6 +43,63 @@ class Box {
     increment();
     renderBox(this, 0xfff000);
     return this;
+  }
+  
+  intersectsBoxDebug(e) {
+    const x1 = this.x;
+    const y1 = this.y;
+    const z1 = this.z;
+    const w1 = this.width;
+    const h1 = this.height;
+    const d1 = this.depth;
+    
+    const x2 = e.x;
+    const y2 = e.y;
+    const z2 = e.z;
+    const w2 = e.width;
+    const h2 = e.height;
+    const d2 = e.depth;
+    
+    function check(arr) {
+      for(const i in arr) {
+        if(!arr[i]) {
+          switch(parseInt(i)) {
+            case 0: 
+            console.log(`0: ${x1} < ${x2} + ${w2}`); break;
+            case 1:
+            console.log(`1: ${x1} + ${w1} > ${x2}`); break;
+            case 2:
+            console.log(`2: ${y1} < ${y2} + ${h2}`); break;
+            case 3:
+            console.log(`3: ${y1} + ${h1} > ${y2}`); break;
+            case 4:
+            console.log(`4: ${z1} < ${z2} + ${d2}`); break;
+            case 5:
+            console.log(`5: ${z1} + ${d1} > ${z2}`); break;
+          }
+        }
+      }
+    }
+    
+    if(x1 < x2 + w2 
+    && x1 + w1 > x2 
+    && y1 < y2 + h2 
+    && y1 + h1 > y2 
+    && z1 < z2 + d2 
+    && z1 + d1 > z2) {
+      return true;
+    }
+    
+    check([
+      x1 < x2 + w2,
+      x1 + w1 > x2,
+      y1 < y2 + h2,
+      y1 + h1 > y2,
+      z1 < z2 + d2,
+      z1 + d1 > z2,
+    ]);
+    
+    return false;
   }
   
   intersectsBox(e) {
@@ -115,9 +173,12 @@ export class Octree {
 
   insert(b) {
     const box = new Box(b);
-    if(!this.bounds.intersectsBox(box)) return false;
+    if(!this.bounds.intersectsBox(box)) {
+      if(this.bounds.width == 2) this.bounds.intersectsBoxDebug(box);
+      return false;
+    }
     
-    if(this.bounds.width != 1) {
+    if(this.bounds.width > 1) {
       this.subdivide();
       for(let child of this.children) {
         if(child.insert(box)) return true;
@@ -152,7 +213,7 @@ export class Octree {
     
     const found = [];
     if(!this.bounds.intersectsBox(e)) return found;
-    if(this.bounds.width == 1) {
+    if(this.bounds.width <= 1) {
       if(this.bounds.intersectsBox(e)) found.push(this.box);
     } else {
       for(const child of this.children) {

@@ -15,7 +15,7 @@ function getElevation(x, y) {
   return Math.round((getCoord(x, y) / 2) * 10) / 10;
 }
 
-const CHUNK_SIZE = 2;
+const CHUNK_SIZE = 4;
 const grassM = bd.data[bd.name["Grass"]];
 const stoneM = bd.data[bd.name["Stone"]];
 
@@ -39,10 +39,10 @@ export function generateWorld(scene) {
     z: 0,
   });
   
-  for(let i = CHUNK_SIZE; i > 0; i--) {
+  for(let i = 0; i < CHUNK_SIZE; i++) {
     // goes sideways / x-axis
     const yc = i;
-    for(let z = CHUNK_SIZE; z > 0; z--) {
+    for(let z = 0; z < CHUNK_SIZE; z++) {
       // goes down / y-axis
       const xc = z;
       add_blocks({xc, yc});
