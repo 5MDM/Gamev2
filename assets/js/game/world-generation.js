@@ -15,7 +15,7 @@ function getElevation(x, y) {
   return Math.round((getCoord(x, y) / 2) * 10) / 10;
 }
 
-const CHUNK_SIZE = 4;
+const CHUNK_SIZE = 8;
 const grassM = bd.data[bd.name["Grass"]];
 const stoneM = bd.data[bd.name["Stone"]];
 
@@ -66,14 +66,14 @@ export function generateWorld(scene) {
     const elev = getElevation(xc, yc) - 5;
     const grassBlock = newBlock(grassM);
     
-    grassBlock.position.x = xc;
-    grassBlock.position.z = yc;
+    grassBlock.position.x = xc+0.4;
+    grassBlock.position.z = yc+0.4;
     grassBlock.position.y = elev;
     add_block(grassBlock);
     
     const stoneBlock = newBlock(stoneM);
-    stoneBlock.position.x = xc;
-    stoneBlock.position.z = yc;
+    stoneBlock.position.x = xc+0.4;
+    stoneBlock.position.z = yc+0.4;
     stoneBlock.position.y = elev - 1;
     // world[yc][xc][elev - 1] = stoneBlock;
     add_block(stoneBlock);
