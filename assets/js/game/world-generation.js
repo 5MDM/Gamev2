@@ -75,7 +75,6 @@ export function generateWorld(scene) {
     stoneBlock.position.x = xc+0.4;
     stoneBlock.position.z = yc+0.4;
     stoneBlock.position.y = elev - 1;
-    // world[yc][xc][elev - 1] = stoneBlock;
     add_block(stoneBlock);
   }
   

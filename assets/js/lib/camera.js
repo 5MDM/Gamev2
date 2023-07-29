@@ -193,20 +193,32 @@ export class MovementCamera extends ControlCamera {
 }
 
 export class PhysicsCamera extends MovementCamera {
-  gravityEnabled = false;
-  gravityInertia = 0;
-  lastY;
-  
   constructor(o) {
     super(o);
   }
   
-  _gravityLoop = stopLoop(() => {
-    this.camera.position.y -= 0.05 + this.gravityInertia;
-    if(this.lastY != this.camera.position.y) {
+  gravityEnabled = false;
+  gravityInertia = 0;
+  totalGravity = 0;
+  _getGravityInertia() {
+    if(this.gravityInertia < 0.02) {
       this.gravityInertia += 0.005;
+    } else if(this.gravityInertia < 0.08) {
+      this.gravityInertia += 0.01;
+    } else if(this.gravityInertia < 0.2) {
+      this.gravityInertia += 0.02;
     }
-    this.lastY = this.camera.position.y;
+  }
+  
+  _gravityLoop = stopLoop(() => {
+    this._getGravityInertia();
+    this.totalGravity = 0.01 + this.gravityInertia;
+    
+    super.moveBelow(this.totalGravity);
+    if(this.collided()) {
+      super.moveAbove(this.totalGravity);
+      this.gravityInertia = 0;
+    }
   }, false);
   
   bindPhysics({tree, blocks}) {
