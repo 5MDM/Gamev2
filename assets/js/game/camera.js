@@ -170,8 +170,19 @@ if(isTouchDevice()) {
     const jumpPressTime = Date.now();
     if (jumpPressTime - lastJumpPressTime <= 250) {
       // Double jump
-      if (cam.gravityEnabled) cam.disableGravity();
-      else cam.enableGravity();
+      if (cam.gravityEnabled) {
+        cam.disableGravity();
+        $("#v-movement > #up").style.visibility = "visible";
+        $("#v-movement > #down").style.visibility = "visible";
+        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+      } else {
+        cam.enableGravity();
+        $("#v-movement > #up").style.visibility = "hidden";
+        $("#v-movement > #down").style.visibility = "hidden";
+        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        vup = false;
+        vdown = false;
+      }
 
       lastJumpPressTime = 0;
     } else {
@@ -250,8 +261,19 @@ document.addEventListener("keydown", e => {
     const keypressTime = Date.now();
     if (keypressTime - lastKeypressTime <= 250) {
       // Double space bar pressed
-      if (cam.gravityEnabled) cam.disableGravity();
-      else cam.enableGravity();
+      if (cam.gravityEnabled) {
+        cam.disableGravity();
+        $("#v-movement > #up").style.visibility = "visible";
+        $("#v-movement > #down").style.visibility = "visible";
+        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+      } else {
+        cam.enableGravity();
+        $("#v-movement > #up").style.visibility = "hidden";
+        $("#v-movement > #down").style.visibility = "hidden";
+        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        vup = false;
+        vdown = false;
+      }
 
       lastKeypressTime = 0;
     } else {
