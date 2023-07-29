@@ -199,10 +199,11 @@ document.addEventListener("keydown", e => {
       right = true;
       break;
     case "Space":
-      vup = true;
+      if (cam.gravityEnabled) cam.jump();
+      else vup = true;
       break;
     case "ShiftLeft":
-      vdown = true;
+      if (!cam.gravityEnabled) vdown = true;
       break;
     case "Backquote":
       if (!supportsPointerLock()) break;
