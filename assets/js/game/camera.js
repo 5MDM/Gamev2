@@ -164,7 +164,7 @@ if(isTouchDevice()) {
   
   // shift
   $("#ui > #gui > #v-movement #shift")
-  .addEventListener("pointerup", e => {
+  .addEventListener("touchstart", e => {
     if(!cam.gravityEnabled) {
       cam.enableGravity();
     } else {
