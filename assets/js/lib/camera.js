@@ -276,6 +276,11 @@ export class PhysicsCamera extends MovementCamera {
     this._gravityLoop.start();
   }
   
+  disableGravity() {
+    this.gravityEnabled = false;
+    this._gravityLoop.stop();
+  }
+  
   _jumpInertia = 0.25;
   _jumpLoop = stopLoop(({stop}) => {
     this.moveAbove(this._jumpInertia);

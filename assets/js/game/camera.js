@@ -162,13 +162,20 @@ if(isTouchDevice()) {
   $("#ui > #gui > #v-movement")
   .addEventListener("gesturestart", e => e.preventDefault());
   
+  var lastJumpPressTime = 0;
   // shift
   $("#ui > #gui > #v-movement #shift")
   .addEventListener("touchstart", e => {
-    if(!cam.gravityEnabled) {
-      cam.enableGravity();
+    if (cam.gravityEnabled) cam.jump();
+    const jumpPressTime = Date.now();
+    if (jumpPressTime - lastJumpPressTime <= 250) {
+      // Double jump
+      if (cam.gravityEnabled) cam.disableGravity();
+      else cam.enableGravity();
+
+      lastJumpPressTime = 0;
     } else {
-      cam.jump();
+      lastJumpPressTime = jumpPressTime;
     }
   });
 }
@@ -239,10 +246,11 @@ document.addEventListener("keydown", e => {
   if (e.code === "Space") {
     if (keyState) return;
     keyState = true;
-    let keypressTime = Date.now();
+    const keypressTime = Date.now();
     if (keypressTime - lastKeypressTime <= 250) {
       // Double space bar pressed
-      cam.enableGravity();
+      if (cam.gravityEnabled) cam.disableGravity();
+      else cam.enableGravity();
 
       lastKeypressTime = 0;
     } else {
