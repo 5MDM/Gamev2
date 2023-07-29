@@ -201,23 +201,26 @@ export class PhysicsCamera extends MovementCamera {
   gravityInertia = 0;
   totalGravity = 0;
   _getGravityInertia() {
-    if(this.gravityInertia < 0.02) {
-      this.gravityInertia += 0.005;
-    } else if(this.gravityInertia < 0.08) {
-      this.gravityInertia += 0.01;
-    } else if(this.gravityInertia < 0.2) {
-      this.gravityInertia += 0.02;
+    var g = this.gravityInertia;
+    if(g < 0.01) {
+      g += 0.001;
+    } else if(g < 0.08) {
+      g += 0.005;
     }
+    
+    this.gravityInertia = g;
   }
   
   _gravityLoop = stopLoop(() => {
     this._getGravityInertia();
     this.totalGravity = 0.01 + this.gravityInertia;
     
-    super.moveBelow(this.totalGravity);
+    this.playerObj.position.y -= this.totalGravity;
     if(this.collided()) {
-      super.moveAbove(this.totalGravity);
+      this.playerObj.position.y += this.totalGravity;
       this.gravityInertia = 0;
+    } else {
+      super.moveBelow(this.totalGravity);
     }
   }, false);
   
@@ -271,5 +274,25 @@ export class PhysicsCamera extends MovementCamera {
   enableGravity() {
     this.gravityEnabled = true;
     this._gravityLoop.start();
+  }
+  
+  _jumpInertia = 0.25;
+  _jumpLoop = stopLoop(({stop}) => {
+    this.moveAbove(this._jumpInertia);
+    if(this._jumpInertia >= 0) {
+      this._jumpInertia -= 0.02;
+    } else {
+      this._jumpInertia = 0.25;
+      stop();
+    }
+  }, false);
+  
+  jump() {
+    this.playerObj.position.y -= 0.5;
+    if(this.collided()) {
+      this.gravityInertia = 0;
+      this._jumpLoop.start();
+    }
+    this.playerObj.position.y += 0.5;
   }
 }

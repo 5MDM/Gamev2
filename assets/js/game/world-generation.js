@@ -6,7 +6,7 @@ import {cam} from "./camera.js";
 import {Octree} from "../lib/quadrant.js";
 const bd = await blockData;
 
-// Seed: 0
+// Seed: random
 const getCoord = createNoise2D();
 
 function getElevation(x, y) {

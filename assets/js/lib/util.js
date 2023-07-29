@@ -59,20 +59,20 @@ export function $$(name, opts) {
 
 export function stopLoop(func, ss = true) {
   var s = !ss;
-  function loop() {
-    if(!s) {
-      func();
-      requestAnimationFrame(loop);
-    }
-  }
-  loop();
-  
   function start() {
     s = false;
     requestAnimationFrame(loop);
   }
   
   function stop() {s = true}
+  
+  function loop() {
+    if(!s) {
+      func({start, stop});
+      requestAnimationFrame(loop);
+    }
+  }
+  loop();
   
   return {start, stop};
 }
