@@ -203,7 +203,7 @@ export class PhysicsCamera extends MovementCamera {
   _gravityLoop = stopLoop(() => {
     this.gravityInertia += 0.005;
     super.moveBelow(this.gravityInertia)
-    if(this.gravityInertia > .1) this.canJump = false;
+    if(this.gravityInertia > .01) this.canJump = false;
   }, false);
   
   bindPhysics({tree, blocks}) {
@@ -263,13 +263,14 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   disableGravity() {
+    this.gravityInertia = 0;
     this.gravityEnabled = false;
     this._gravityLoop.stop();
   }
   
   canJump = true;
-  _jumpVelocity = 0.3;
-  _gravity = 1;
+  _jumpVelocity = 0.2;
+  _gravity = 0.5;
   _jumpTime = 0;
   _jumpLoop = stopLoop(({stop}) => {
     this.canJump = false;
