@@ -201,18 +201,19 @@ export class PhysicsCamera extends MovementCamera {
   gravityInertia = 0;
   totalGravity = 0;
   _getGravityInertia() {
-    // var g = this.gravityInertia;
+    var g = this.gravityInertia;
+    g += 0.005;
     // if(g < 0.01) {
     //   g += 0.001;
-    // } else if(g < 0.08) {
+    // } else if(g < .2) {
     //   g += 0.005;
     // }
     
-    // this.gravityInertia = g;
+    this.gravityInertia = g;
   }
   
   _gravityLoop = stopLoop(() => {
-    // this._getGravityInertia();
+    this._getGravityInertia();
     // this.totalGravity = 0.01 + this.gravityInertia;
     
     // this.playerObj.position.y -= this.totalGravity;
@@ -222,7 +223,7 @@ export class PhysicsCamera extends MovementCamera {
     // } else {
     //   super.moveBelow(this.totalGravity);
     // }
-    super.moveBelow(0.1)
+    super.moveBelow(this.gravityInertia)
   }, false);
   
   bindPhysics({tree, blocks}) {
@@ -264,7 +265,11 @@ export class PhysicsCamera extends MovementCamera {
   
   moveAbove(s = 0.04) {
     super.moveAbove(s);
-    if(this.collided()) super.moveBelow(s);
+    if(this.collided()) {
+      super.moveBelow(s);
+      this.gravityInertia = 0;
+      this.canJump = true;
+    };
   }
   
   moveBelow(s = 0.04) {
@@ -282,10 +287,12 @@ export class PhysicsCamera extends MovementCamera {
     this._gravityLoop.stop();
   }
   
+  canJump = true;
   _jumpVelocity = 0.3;
-  _gravity = 0.5;
+  _gravity = 1;
   _jumpTime = 0;
   _jumpLoop = stopLoop(({stop}) => {
+    this.canJump = false;
     var deltaY = this._jumpVelocity - this._gravity * this._jumpTime
     this.moveAbove(deltaY);
     this._jumpTime += 0.015;
@@ -296,11 +303,9 @@ export class PhysicsCamera extends MovementCamera {
   }, false);
   
   jump() {
-    // this.playerObj.position.y -= 0.05;
-    // if(this.collided()) {
+    if(this.canJump) {
       this.gravityInertia = 0;
       this._jumpLoop.start();
-    // }
-    // this.playerObj.position.y += 0.05;
+    }
   }
 }
