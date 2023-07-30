@@ -199,31 +199,11 @@ export class PhysicsCamera extends MovementCamera {
   
   gravityEnabled = false;
   gravityInertia = 0;
-  totalGravity = 0;
-  _getGravityInertia() {
-    var g = this.gravityInertia;
-    g += 0.005;
-    // if(g < 0.01) {
-    //   g += 0.001;
-    // } else if(g < .2) {
-    //   g += 0.005;
-    // }
-    
-    this.gravityInertia = g;
-  }
   
   _gravityLoop = stopLoop(() => {
-    this._getGravityInertia();
-    // this.totalGravity = 0.01 + this.gravityInertia;
-    
-    // this.playerObj.position.y -= this.totalGravity;
-    // if(this.collided()) {
-    //   this.playerObj.position.y += this.totalGravity;
-    //   this.gravityInertia = 0;
-    // } else {
-    //   super.moveBelow(this.totalGravity);
-    // }
+    this.gravityInertia += 0.005;
     super.moveBelow(this.gravityInertia)
+    if(this.gravityInertia > .1) this.canJump = false;
   }, false);
   
   bindPhysics({tree, blocks}) {
