@@ -201,27 +201,28 @@ export class PhysicsCamera extends MovementCamera {
   gravityInertia = 0;
   totalGravity = 0;
   _getGravityInertia() {
-    var g = this.gravityInertia;
-    if(g < 0.01) {
-      g += 0.001;
-    } else if(g < 0.08) {
-      g += 0.005;
-    }
+    // var g = this.gravityInertia;
+    // if(g < 0.01) {
+    //   g += 0.001;
+    // } else if(g < 0.08) {
+    //   g += 0.005;
+    // }
     
-    this.gravityInertia = g;
+    // this.gravityInertia = g;
   }
   
   _gravityLoop = stopLoop(() => {
-    this._getGravityInertia();
-    this.totalGravity = 0.01 + this.gravityInertia;
+    // this._getGravityInertia();
+    // this.totalGravity = 0.01 + this.gravityInertia;
     
-    this.playerObj.position.y -= this.totalGravity;
-    if(this.collided()) {
-      this.playerObj.position.y += this.totalGravity;
-      this.gravityInertia = 0;
-    } else {
-      super.moveBelow(this.totalGravity);
-    }
+    // this.playerObj.position.y -= this.totalGravity;
+    // if(this.collided()) {
+    //   this.playerObj.position.y += this.totalGravity;
+    //   this.gravityInertia = 0;
+    // } else {
+    //   super.moveBelow(this.totalGravity);
+    // }
+    super.moveBelow(0.1)
   }, false);
   
   bindPhysics({tree, blocks}) {
@@ -281,23 +282,25 @@ export class PhysicsCamera extends MovementCamera {
     this._gravityLoop.stop();
   }
   
-  _jumpInertia = 0.25;
+  _jumpVelocity = 0.3;
+  _gravity = 0.5;
+  _jumpTime = 0;
   _jumpLoop = stopLoop(({stop}) => {
-    this.moveAbove(this._jumpInertia);
-    if(this._jumpInertia >= 0) {
-      this._jumpInertia -= 0.02;
-    } else {
-      this._jumpInertia = 0.25;
+    var deltaY = this._jumpVelocity - this._gravity * this._jumpTime
+    this.moveAbove(deltaY);
+    this._jumpTime += 0.015;
+    if(deltaY <= 0) {
+      this._jumpTime = 0;
       stop();
     }
   }, false);
   
   jump() {
-    this.playerObj.position.y -= 0.5;
-    if(this.collided()) {
+    // this.playerObj.position.y -= 0.05;
+    // if(this.collided()) {
       this.gravityInertia = 0;
       this._jumpLoop.start();
-    }
-    this.playerObj.position.y += 0.5;
+    // }
+    // this.playerObj.position.y += 0.05;
   }
 }
