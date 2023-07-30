@@ -266,6 +266,7 @@ document.addEventListener("keydown", e => {
         $("#v-movement > #up").style.visibility = "visible";
         $("#v-movement > #down").style.visibility = "visible";
         $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+        vup = true;
       } else {
         cam.enableGravity();
         $("#v-movement > #up").style.visibility = "hidden";

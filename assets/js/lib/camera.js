@@ -199,29 +199,11 @@ export class PhysicsCamera extends MovementCamera {
   
   gravityEnabled = false;
   gravityInertia = 0;
-  totalGravity = 0;
-  _getGravityInertia() {
-    var g = this.gravityInertia;
-    if(g < 0.01) {
-      g += 0.001;
-    } else if(g < 0.08) {
-      g += 0.005;
-    }
-    
-    this.gravityInertia = g;
-  }
   
   _gravityLoop = stopLoop(() => {
-    this._getGravityInertia();
-    this.totalGravity = 0.01 + this.gravityInertia;
-    
-    this.playerObj.position.y -= this.totalGravity;
-    if(this.collided()) {
-      this.playerObj.position.y += this.totalGravity;
-      this.gravityInertia = 0;
-    } else {
-      super.moveBelow(this.totalGravity);
-    }
+    this.gravityInertia += 0.005;
+    super.moveBelow(this.gravityInertia)
+    if(this.gravityInertia > .01) this.canJump = false;
   }, false);
   
   bindPhysics({tree, blocks}) {
@@ -263,7 +245,11 @@ export class PhysicsCamera extends MovementCamera {
   
   moveAbove(s = 0.04) {
     super.moveAbove(s);
-    if(this.collided()) super.moveBelow(s);
+    if(this.collided()) {
+      super.moveBelow(s);
+      this.gravityInertia = 0;
+      this.canJump = true;
+    };
   }
   
   moveBelow(s = 0.04) {
@@ -274,30 +260,35 @@ export class PhysicsCamera extends MovementCamera {
   enableGravity() {
     this.gravityEnabled = true;
     this._gravityLoop.start();
+    this._jumpVelocity = 0.2;
   }
   
   disableGravity() {
+    this.gravityInertia = 0;
     this.gravityEnabled = false;
     this._gravityLoop.stop();
+    this._jumpVelocity = 0.1;
   }
   
-  _jumpInertia = 0.25;
+  canJump = true;
+  _jumpVelocity = 0.2;
+  _gravity = 0.5;
+  _jumpTime = 0;
   _jumpLoop = stopLoop(({stop}) => {
-    this.moveAbove(this._jumpInertia);
-    if(this._jumpInertia >= 0) {
-      this._jumpInertia -= 0.02;
-    } else {
-      this._jumpInertia = 0.25;
+    this.canJump = false;
+    var deltaY = this._jumpVelocity - this._gravity * this._jumpTime
+    this.moveAbove(deltaY);
+    this._jumpTime += 0.015;
+    if(deltaY <= 0) {
+      this._jumpTime = 0;
       stop();
     }
   }, false);
   
   jump() {
-    this.playerObj.position.y -= 0.5;
-    if(this.collided()) {
+    if(this.canJump) {
       this.gravityInertia = 0;
       this._jumpLoop.start();
     }
-    this.playerObj.position.y += 0.5;
   }
 }
