@@ -162,13 +162,31 @@ if(isTouchDevice()) {
   $("#ui > #gui > #v-movement")
   .addEventListener("gesturestart", e => e.preventDefault());
   
+  var lastJumpPressTime = 0;
   // shift
   $("#ui > #gui > #v-movement #shift")
-  .addEventListener("pointerup", e => {
-    if(!cam.gravityEnabled) {
-      cam.enableGravity();
+  .addEventListener("touchstart", e => {
+    if (cam.gravityEnabled) cam.jump();
+    const jumpPressTime = Date.now();
+    if (jumpPressTime - lastJumpPressTime <= 250) {
+      // Double jump
+      if (cam.gravityEnabled) {
+        cam.disableGravity();
+        $("#v-movement > #up").style.visibility = "visible";
+        $("#v-movement > #down").style.visibility = "visible";
+        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+      } else {
+        cam.enableGravity();
+        $("#v-movement > #up").style.visibility = "hidden";
+        $("#v-movement > #down").style.visibility = "hidden";
+        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        vup = false;
+        vdown = false;
+      }
+
+      lastJumpPressTime = 0;
     } else {
-      cam.jump();
+      lastJumpPressTime = jumpPressTime;
     }
   });
 }
@@ -192,10 +210,11 @@ document.addEventListener("keydown", e => {
       right = true;
       break;
     case "Space":
-      vup = true;
+      if (cam.gravityEnabled) cam.jump();
+      else vup = true;
       break;
     case "ShiftLeft":
-      vdown = true;
+      if (!cam.gravityEnabled) vdown = true;
       break;
     case "Backquote":
       if (!supportsPointerLock()) break;
@@ -239,10 +258,22 @@ document.addEventListener("keydown", e => {
   if (e.code === "Space") {
     if (keyState) return;
     keyState = true;
-    let keypressTime = Date.now();
+    const keypressTime = Date.now();
     if (keypressTime - lastKeypressTime <= 250) {
       // Double space bar pressed
-      cam.enableGravity();
+      if (cam.gravityEnabled) {
+        cam.disableGravity();
+        $("#v-movement > #up").style.visibility = "visible";
+        $("#v-movement > #down").style.visibility = "visible";
+        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+      } else {
+        cam.enableGravity();
+        $("#v-movement > #up").style.visibility = "hidden";
+        $("#v-movement > #down").style.visibility = "hidden";
+        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        vup = false;
+        vdown = false;
+      }
 
       lastKeypressTime = 0;
     } else {
