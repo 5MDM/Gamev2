@@ -92,15 +92,25 @@ var down = false;
 var right = false;
 var vup = false;
 var vdown = false;
+var sprinting = false;
 
 stopLoop(() => {
   if(paused) return;
-  if(up) cam.moveUp();
-  if(left) cam.moveLeft();
-  if(down) cam.moveDown();
-  if(right) cam.moveRight();
-  if(vup) cam.moveAbove();
-  if(vdown) cam.moveBelow();
+  if (cam.gravityEnabled) { // Walking
+    if(up) cam.moveUp(sprinting ? 0.1 : 0.05);
+    if(down) cam.moveDown();
+    if(left) cam.moveLeft();
+    if(right) cam.moveRight();
+    if(vup) cam.moveAbove();
+    if(vdown) cam.moveBelow();
+  } else { // Flying
+    if(up) cam.moveUp(sprinting ? 0.15 : 0.1);
+    if(down) cam.moveDown(0.1);
+    if(left) cam.moveLeft(0.1);
+    if(right) cam.moveRight(0.1);
+    if(vup) cam.moveAbove(sprinting ? 0.15 : 0.1);
+    if(vdown) cam.moveBelow(sprinting ? 0.15 : 0.1);
+  }
 });
 
 if(isTouchDevice()) {
@@ -135,6 +145,7 @@ if(isTouchDevice()) {
     right = false;
     vup = false;
     vdown = false;
+    sprinting = false;
   });
 
   $("#ui > #gui > #movement")
@@ -215,6 +226,9 @@ document.addEventListener("keydown", e => {
       break;
     case "ShiftLeft":
       if (!cam.gravityEnabled) vdown = true;
+      break;
+    case "KeyR":
+      sprinting = !sprinting;
       break;
     case "Backquote":
       if (!supportsPointerLock()) break;

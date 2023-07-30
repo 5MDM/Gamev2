@@ -15,7 +15,7 @@ function getElevation(x, y) {
   return Math.round((getCoord(x, y) / 2) * 10) / 10;
 }
 
-const CHUNK_SIZE = 8;
+const CHUNK_SIZE = 16;
 const grassM = bd.data[bd.name["Grass"]];
 const stoneM = bd.data[bd.name["Stone"]];
 

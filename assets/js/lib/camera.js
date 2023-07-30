@@ -201,7 +201,7 @@ export class PhysicsCamera extends MovementCamera {
   gravityInertia = 0;
   
   _gravityLoop = stopLoop(() => {
-    this.gravityInertia += 0.005;
+    this.gravityInertia += 0.004;
     super.moveBelow(this.gravityInertia)
     if(this.gravityInertia > .01) this.canJump = false;
   }, false);
@@ -229,7 +229,7 @@ export class PhysicsCamera extends MovementCamera {
   }
   
   moveLeft(s = 0.05) {
-    super.moveLeft(s);
+    super.moveLeft(s);this.collided
     if(this.collided()) super.moveRight(s);
   }
   
