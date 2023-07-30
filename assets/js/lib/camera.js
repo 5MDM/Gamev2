@@ -260,12 +260,14 @@ export class PhysicsCamera extends MovementCamera {
   enableGravity() {
     this.gravityEnabled = true;
     this._gravityLoop.start();
+    this._jumpVelocity = 0.2;
   }
   
   disableGravity() {
     this.gravityInertia = 0;
     this.gravityEnabled = false;
     this._gravityLoop.stop();
+    this._jumpVelocity = 0.1;
   }
   
   canJump = true;
