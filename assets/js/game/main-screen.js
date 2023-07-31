@@ -20,7 +20,7 @@ renderLoop();
 // player
 export const camBox = newBox({
   width: 0.2,
-  height: 1,
+  height: 3,
   depth: 0.2,
   color: 0xf0f0f0,
 });
@@ -28,12 +28,12 @@ scene.add(camBox);
 cam.bindPlayer(camBox);
 
 camBox.position.x = cam.camera.position.x;
-camBox.position.y = cam.camera.position.y-1;
+camBox.position.y = cam.camera.position.y-2.5;
 camBox.position.z = cam.camera.position.z;
 
 cam.onMove = function(s) {
   camBox.position.x = cam.camera.position.x;
-  camBox.position.y = cam.camera.position.y-1;
+  camBox.position.y = cam.camera.position.y-2.5;
   camBox.position.z = cam.camera.position.z;
   return s;
 }

@@ -299,7 +299,7 @@ export class Octree {
    * @returns {Array<Object>} 
    *         An array of boxes that intersect with the given object in the octree
    */
-  get(a) {
+  get(a, size) {
     var e;
     if(a instanceof Mesh) {
       // hardcoded
@@ -307,9 +307,9 @@ export class Octree {
         x: a.position.x,
         y: a.position.y,
         z: a.position.z,
-        width: 0.2,
-        height: 1,
-        depth: 0.2,
+        width: size.width,
+        height: size.height,
+        depth: size.depth,
       };
     } else {
       e = a;

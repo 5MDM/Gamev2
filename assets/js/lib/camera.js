@@ -405,13 +405,11 @@ export class PhysicsCamera extends MovementCamera {
    * Binds the physics parameters to the camera
    * @param {Object} param0 - The physics parameters
    * @param {import("./quadrant.js").Octree} param0.tree - The octree for the collision detection
-   * @param {Array<import("three").Mesh>} param0.blocks - The list of blocks for the collision detection
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPhysics({tree, blocks}) {
-    this.octree = tree;
-    this.blockList = blocks;
+  bindPhysics({trees}) {
+    this.octrees = trees;
     return this;
   }
   
@@ -432,8 +430,17 @@ export class PhysicsCamera extends MovementCamera {
    *         True if there is a collision, false otherwise
    */
   collided() {
-    const col = this.octree.get(this.playerObj);
-    if(col.length != 0) return true;
+    for(const tree of this.octrees) {
+      const col = 
+      tree.get(this.playerObj, {
+        width: 0.2,
+        height: 5,
+        depth: 0.2,
+      });
+      
+      if(col.length != 0) return true;
+    }
+    
     return false;
   }
   

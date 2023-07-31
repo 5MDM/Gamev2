@@ -12,7 +12,7 @@ const getCoord = createNoise2D();
 function getElevation(x, y) {
   x = Math.round(x / 2);
   y = Math.round(y / 2);
-  return Math.round((getCoord(x, y) / 2) * 10) / 10;
+  return Math.floor(getCoord(x, y) / 5);
 }
 
 const CHUNK_SIZE = 8;
@@ -28,28 +28,18 @@ export const blockArray = new Promise(res => {
 });
 
 export function generateWorld(scene) {
-  const blocks = [];
+  const trees = [];
+  trees.push(loadChunk(0, 0));
+  trees.push(loadChunk(1, 0));
+  trees.push(loadChunk(-1, 0));
+  trees.push(loadChunk(0, 1));
+  trees.push(loadChunk(1, 1));
+  trees.push(loadChunk(-1, 1));
+  trees.push(loadChunk(0, -1));
+  trees.push(loadChunk(1, -1));
+  trees.push(loadChunk(-1, -1));
   
-  const tree = new Octree({
-    width: CHUNK_SIZE,
-    height: 5,
-    depth: CHUNK_SIZE,
-    x: 0,
-    y: -7,
-    z: 0,
-  });
-  
-  for(let i = 0; i < CHUNK_SIZE; i++) {
-    // goes sideways / x-axis
-    const yc = i;
-    for(let z = 0; z < CHUNK_SIZE; z++) {
-      // goes down / y-axis
-      const xc = z;
-      add_blocks({xc, yc});
-    }
-  }
-  
-  function add_block(block) {
+  function add_block(block, tree) {
     tree.insert({
       x: block.position.x,
       y: block.position.y,
@@ -58,26 +48,53 @@ export function generateWorld(scene) {
       height: 1,
       depth: 1,
     });
-    blocks.push(block);
+    
     scene.add(block);
   }
   
-  function add_blocks({xc, yc}) {
+  function add_blocks({xc, yc, tree}) {
     const elev = getElevation(xc, yc) - 5;
     const grassBlock = newBlock(grassM);
     
     grassBlock.position.x = xc+0.4;
     grassBlock.position.z = yc+0.4;
     grassBlock.position.y = elev;
-    add_block(grassBlock);
+    add_block(grassBlock, tree);
     
     const stoneBlock = newBlock(stoneM);
     stoneBlock.position.x = xc+0.4;
     stoneBlock.position.z = yc+0.4;
     stoneBlock.position.y = elev - 1;
-    add_block(stoneBlock);
+    add_block(stoneBlock, tree);
+  }
+  
+  function loadChunk(chunkX, chunkY) {
+    
+    const x = chunkX * CHUNK_SIZE;
+    const y = chunkY * CHUNK_SIZE;
+    
+    const tree = new Octree({
+      width: CHUNK_SIZE,
+      height: 5,
+      depth: CHUNK_SIZE,
+      x: x,
+      y: -7,
+      z: y,
+    });
+    
+    for(let i = 0; i < CHUNK_SIZE; i++) {
+      // goes sideways / x-axis
+      const yc = i+y;
+      for(let z = 0; z < CHUNK_SIZE; z++) {
+        // goes down / y-axis
+        const xc = z+x;
+        add_blocks({xc, yc, tree});
+      }
+    }
+    
+    return tree;
   }
   
   finishGeneration();
-  return {tree, blocks};
+  return {trees};
 }
