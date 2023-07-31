@@ -294,7 +294,7 @@ export class Octree {
   
   /**
    * Returns an array of boxes that intersect with a given box or mesh object in the octree
-   * @param {Object|Mesh} a - The box or mesh object to check for intersection
+   * @param {Object|import("three").Mesh} a - The box or mesh object to check for intersection
    * @returns {Array<Object>} 
    *         An array of boxes that intersect with the given object in the octree
    */
