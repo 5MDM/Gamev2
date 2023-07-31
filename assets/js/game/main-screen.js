@@ -3,9 +3,8 @@ import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
 import {cam} from "./camera.js";
 import {generateWorld} from "./world-generation.js";
 import {newBox} from "../lib/framework.js";
-import {setDebugScene} from "../lib/quadrant.js";
 
-import {blockData, blockGeometry} from "./blocks.js";
+import {blockData} from "./blocks.js";
 const bd = await blockData;
 
 export const scene = new Scene();
