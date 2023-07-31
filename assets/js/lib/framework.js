@@ -2,7 +2,7 @@ import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, 
 import {canvasWidth, canvasHeight} from "../window.js";
 
 /**
- * The constant value for half of a radian
+ * The constant value for 90 degrees in radians
  * @type {number}
  */
 export const RADIAN_HALF = 1.570796;
