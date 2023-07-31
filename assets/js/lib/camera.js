@@ -1,6 +1,7 @@
 import {newCamera, RADIAN_HALF} from "./framework.js";
 import {stopLoop} from "./util.js";
 import {Quaternion, Vector3, Box3, Box3Helper, PerspectiveCamera, Mesh} from "three";
+import {Octree} from "./quadrant.js";
 
 /**
  * @typedef {Object} QuaternionPair
@@ -34,7 +35,7 @@ var current_qx = 0;
 
 /**
  * Updates the camera quaternion from the given angles using the setQuaternion function
- * @param {Camera} cam - The camera object to be updated
+ * @param {ControlCamera | MovementCamera | PhysicsCamera} cam - The camera object to be updated
  * @param {number} mathX - The angle in radians for the x-axis rotation
  * @param {number} mathY - The angle in radians for the z-axis rotation
  */
@@ -72,6 +73,11 @@ export class ControlCamera {
    * @type {PerspectiveCamera}
    */
   camera;
+  /**
+   * The element that the control camera is bound to and listens for pointer events
+   * @type {Element}
+   */
+  el;
   
   /**
    * Creates a new ControlCamera instance with a new camera object
@@ -109,8 +115,17 @@ export class ControlCamera {
   }
   
   /**
+   * @typedef {Object} TouchInfo
+   * @property {boolean} down - A flag that indicates whether the pointer is down or not
+   * @property {number} id - The identifier of the pointer
+   * @property {number} lx - The last x-coordinate of the pointer
+   * @property {number} ly - The last y-coordinate of the pointer
+   * @property {number} x - The current x-coordinate of the pointer
+   * @property {number} y - The current y-coordinate of the pointer
+   */
+  /**
    * An object that stores the touch information
-   * @type {Object}
+   * @type {TouchInfo}
    */
   touch = {
     down: false,
@@ -345,6 +360,21 @@ export class MovementCamera extends ControlCamera {
  */
 export class PhysicsCamera extends MovementCamera {
   /**
+   * The list of blocks for the collision detection
+   * @type {Array<Mesh>}
+   */
+  blockList;
+  /**
+   * The octree for the collision detection
+   * @type {Octree}
+   */
+  octree;
+  /**
+   * The player object that is bound to the camera
+   * @type {Mesh}
+   */
+  playerObj;
+  /**
    * Creates a new PhysicsCamera instance with a new camera object
    * @param {Object} [o={}] - The options for the camera object
    * @param {number} [o.fov=80] - The field of view for the camera in degrees
@@ -376,7 +406,7 @@ export class PhysicsCamera extends MovementCamera {
    * Binds the physics parameters to the camera
    * @param {Object} param0 - The physics parameters
    * @param {Octree} param0.tree - The octree for the collision detection
-   * @param {Array<Block>} param0.blocks - The list of blocks for the collision detection
+   * @param {Array<Mesh>} param0.blocks - The list of blocks for the collision detection
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
