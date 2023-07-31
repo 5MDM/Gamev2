@@ -1,12 +1,11 @@
 import {newCamera, RADIAN_HALF} from "./framework.js";
 import {stopLoop} from "./util.js";
-import {Quaternion, Vector3, Box3, Box3Helper, PerspectiveCamera, Mesh} from "three";
-import {Octree} from "./quadrant.js";
+import {Quaternion, Vector3, PerspectiveCamera} from "three";
 
 /**
  * @typedef {Object} QuaternionPair
- * @property {Quaternion} qx - The quaternion for the x-axis rotation
- * @property {Quaternion} qz - The quaternion for the z-axis rotation
+ * @property {import("three").Quaternion} qx - The quaternion for the x-axis rotation
+ * @property {import("three").Quaternion} qz - The quaternion for the z-axis rotation
  */
 
 /**
@@ -245,7 +244,7 @@ export class ControlCamera {
 export class MovementCamera extends ControlCamera {
   /**
    * The direction vector for the camera movement
-   * @type {Vector3}
+   * @type {import("three").Vector3}
    */
   direction = new Vector3();
   /**
@@ -361,17 +360,17 @@ export class MovementCamera extends ControlCamera {
 export class PhysicsCamera extends MovementCamera {
   /**
    * The list of blocks for the collision detection
-   * @type {Array<Mesh>}
+   * @type {Array<import("three").Mesh>}
    */
   blockList;
   /**
    * The octree for the collision detection
-   * @type {Octree}
+   * @type {import("./quadrant.js").Octree}
    */
   octree;
   /**
    * The player object that is bound to the camera
-   * @type {Mesh}
+   * @type {import("three").Mesh}
    */
   playerObj;
   /**
@@ -405,8 +404,8 @@ export class PhysicsCamera extends MovementCamera {
   /**
    * Binds the physics parameters to the camera
    * @param {Object} param0 - The physics parameters
-   * @param {Octree} param0.tree - The octree for the collision detection
-   * @param {Array<Mesh>} param0.blocks - The list of blocks for the collision detection
+   * @param {import("./quadrant.js").Octree} param0.tree - The octree for the collision detection
+   * @param {Array<import("three").Mesh>} param0.blocks - The list of blocks for the collision detection
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
@@ -418,7 +417,7 @@ export class PhysicsCamera extends MovementCamera {
   
   /**
    * Binds the player object to the camera
-   * @param {Mesh} obj - The player object
+   * @param {import("three").Mesh} obj - The player object
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
