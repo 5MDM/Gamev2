@@ -1,4 +1,4 @@
-import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, ColorRepresentation, Texture} from "three";
+import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, Color, Texture} from "three";
 import {canvasWidth, canvasHeight} from "../window.js";
 
 /**
@@ -50,7 +50,7 @@ export function newBoxGeometry(w, h, l) {
  * @param {number} [o.width] - The width of the box, optional
  * @param {number} [o.height] - The height of the box, optional
  * @param {number} [o.depth] - The depth of the box, optional
- * @param {ColorRepresentation} [o.color] - The color of the box, optional
+ * @param {Color | string | number} [o.color] - The color of the box, optional
  * @returns {Mesh} 
  *         The new box mesh object
  */
