@@ -57,6 +57,7 @@ class Box {
   /**
    * The width of the box
    * @type {number}
+   */
   width;
   /**
    * The height of the box
