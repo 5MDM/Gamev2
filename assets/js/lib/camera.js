@@ -366,7 +366,7 @@ export class PhysicsCamera extends MovementCamera {
    */
   gravityInertia = 0;
   
-  _gravityLoop = stopLoop(() => {
+  #gravityLoop = stopLoop(() => {
     this.gravityInertia += 0.005;
     super.moveBelow(this.gravityInertia)
     if(this.gravityInertia > .01) this.canJump = false;
@@ -471,8 +471,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   enableGravity() {
     this.gravityEnabled = true;
-    this._gravityLoop.start();
-    this._jumpVelocity = 0.2;
+    this.#gravityLoop.start();
+    this.#jumpVelocity = 0.2;
   }
   
   /**
@@ -481,8 +481,8 @@ export class PhysicsCamera extends MovementCamera {
   disableGravity() {
     this.gravityInertia = 0;
     this.gravityEnabled = false;
-    this._gravityLoop.stop();
-    this._jumpVelocity = 0.1;
+    this.#gravityLoop.stop();
+    this.#jumpVelocity = 0.1;
   }
   
   /**
@@ -490,16 +490,16 @@ export class PhysicsCamera extends MovementCamera {
    * @type {boolean}
    */
   canJump = true;
-  _jumpVelocity = 0.2;
-  _gravity = 0.5;
-  _jumpTime = 0;
-  _jumpLoop = stopLoop(({stop}) => {
+  #jumpVelocity = 0.2;
+  #gravity = 0.5;
+  #jumpTime = 0;
+  #jumpLoop = stopLoop(({stop}) => {
     this.canJump = false;
-    var deltaY = this._jumpVelocity - this._gravity * this._jumpTime
+    var deltaY = this.#jumpVelocity - this.#gravity * this.#jumpTime
     this.moveAbove(deltaY);
-    this._jumpTime += 0.015;
+    this.#jumpTime += 0.015;
     if(deltaY <= 0) {
-      this._jumpTime = 0;
+      this.#jumpTime = 0;
       stop();
     }
   }, false);
@@ -510,7 +510,7 @@ export class PhysicsCamera extends MovementCamera {
   jump() {
     if(this.canJump) {
       this.gravityInertia = 0;
-      this._jumpLoop.start();
+      this.#jumpLoop.start();
     }
   }
 }
