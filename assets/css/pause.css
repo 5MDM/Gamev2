@@ -18,7 +18,7 @@
 
 #ui > #gui > #pause #pause-menu #side {
   height: calc(var(--ch) - 2px);
-  width: 64px;
+  width: 75px;
   background-color: gray;
 }
 
@@ -40,4 +40,14 @@
 #ui > #gui > #pause #pause-menu #sidebar button:active {
   border: 3px inset #606060;
   color: gray;
+}
+
+#ui > #gui > #pause #pause-menu #content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#ui > #gui > #pause #pause-menu #content > div {
+  display: none;
 }

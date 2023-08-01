@@ -3,6 +3,7 @@ import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
 import {cam} from "./camera.js";
 import {generateWorld} from "./world-generation.js";
 import {newBox} from "../lib/framework.js";
+import {setDevObj} from "./pause.js";
 
 import {blockData} from "./blocks.js";
 const bd = await blockData;
@@ -36,4 +37,10 @@ cam.onMove = function(s) {
   camBox.position.y = cam.camera.position.y-2.5;
   camBox.position.z = cam.camera.position.z;
   return s;
-}
+};
+
+setDevObj({
+  camera: cam,
+  player: camBox,
+  octrees: gworld,
+});
