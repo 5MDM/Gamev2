@@ -43,6 +43,8 @@
 }
 
 #ui > #gui > #pause #pause-menu #content {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -50,4 +52,23 @@
 
 #ui > #gui > #pause #pause-menu #content > div {
   display: none;
+  flex-direction: column;
+}
+
+#ui > #gui > #pause #pause-menu #content > div h1 {
+  border-bottom: 2px solid black;
+  margin-bottom: 20px;
+}
+
+#ui > #gui > #pause #pause-menu #content > div button {
+  font-size: 1em;
+  color: black;
+  border: 3px outset #606060;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#ui > #gui > #pause #pause-menu #content > div button:active {
+  border: 3px inset #606060;
+  color: gray;
 }

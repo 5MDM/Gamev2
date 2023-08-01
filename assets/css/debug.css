@@ -1,0 +1,5 @@
+#ui > #gui > #debug {
+  display: none;
+  position: absolute;
+  color: white;
+}

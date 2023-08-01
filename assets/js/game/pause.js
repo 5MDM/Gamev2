@@ -1,4 +1,4 @@
-import {$} from "../lib/util.js";
+import {$, stopLoop} from "../lib/util.js";
 
 const el = $("#ui > #gui > #pause #pause-btn");
 const menu = $("#ui > #gui > #pause #pause-menu");
@@ -31,6 +31,15 @@ el.addEventListener("pointerup", () => {
   else {show()}
 });
 
+var cam;
+var playerObj;
+var trees;
+export function setDevObj(o = {}) {
+  cam = o.camera;
+  playerObj = o.player;
+  trees = o.octrees;
+}
+
 function listen(id, f) {
   const btn = 
   $("#ui > #gui > #pause #pause-menu #sidebar > " + id);
@@ -50,19 +59,52 @@ function listen(id, f) {
     lastContent = content;
     content.style.display = "flex";
     
-    f({btn: el});
+    if(f != undefined) f();
   });
 }
 
-var cam;
-var playerObj;
-var trees;
-export function setDevObj(o = {}) {
-  cam = o.camera;
-  playerObj = o.player;
-  trees = o.octrees;
+function getDevEl(id) {
+  return $("#ui > #gui > #debug > #stats #" + id);
 }
 
-listen("#dev", ({btn}) => {
+const devPos = getDevEl("pos");
+const xe = getDevEl("x");
+const ye = getDevEl("y");
+const ze = getDevEl("z");
+const devFps = getDevEl("fps");
+
+var lastTime = performance.now();
+const devLoop = stopLoop(() => {
+  const {x, y, z} = cam.camera.position;
+  devPos.innerText = 
+  `(${Math.floor(x)}, ${Math.floor(y)}, ${Math.floor(z)})`;
   
+  const ma = 1000000;
+  xe.innerText = Math.round(x * ma) / ma;
+  ye.innerText = Math.round(y * ma) / ma;
+  ze.innerText = Math.round(z * ma) / ma;
+  
+  const currentTime = performance.now();
+  const fps = 1000 / (currentTime - lastTime);
+  lastTime = currentTime;
+  devFps.innerText = (Math.round(fps * 100) / 100).toString();
+}, false);
+
+const debugEl = $("#ui > #gui > #debug");
+var devToolsOn = false;
+$("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-toggle")
+.addEventListener("pointerup", () => {
+  if(devToolsOn) {
+    devToolsOn = false;
+    $("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-enabled").innerText = "False";
+    devLoop.stop();
+    debugEl.style.display = "none";
+  } else {
+    devToolsOn = true;
+    $("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-enabled").innerText = "True";
+    devLoop.start();
+    debugEl.style.display = "block";
+  }
 });
+
+listen("#dev");
