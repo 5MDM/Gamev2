@@ -96,9 +96,13 @@ export function $$(name, opts) {
  * @returns {StopLoopControl} - The object with two methods: start and stop, which can be used to control the loop.
  */
 export function stopLoop(func, ss = true) {
+  const perfectFPS = 1000 / 60;
   var s = !ss;
+  var lastTime = performance.now();
   function start() {
+    if(s == false) return;
     s = false;
+    lastTime = performance.now();
     requestAnimationFrame(loop);
   }
   
@@ -106,7 +110,10 @@ export function stopLoop(func, ss = true) {
   
   function loop() {
     if(!s) {
-      func({start, stop});
+      const currentTime = performance.now();
+      const delta = (currentTime - lastTime) / perfectFPS;
+      lastTime = currentTime;
+      func({start, stop, delta});
       requestAnimationFrame(loop);
     }
   }

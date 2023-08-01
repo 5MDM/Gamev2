@@ -395,10 +395,10 @@ export class PhysicsCamera extends MovementCamera {
    */
   gravityInertia = 0;
   
-  #gravityLoop = stopLoop(() => {
-    this.gravityInertia += 0.005;
+  #gravityLoop = stopLoop(({delta}) => {
+    this.gravityInertia += 0.005 * delta;
     super.moveBelow(this.gravityInertia)
-    if(this.gravityInertia > .01) this.canJump = false;
+    if(this.gravityInertia > 0.01) this.canJump = false;
   }, false);
   
   /**
@@ -529,11 +529,11 @@ export class PhysicsCamera extends MovementCamera {
   #jumpVelocity = 0.2;
   #gravity = 0.5;
   #jumpTime = 0;
-  #jumpLoop = stopLoop(({stop}) => {
+  #jumpLoop = stopLoop(({stop, delta}) => {
     this.canJump = false;
     var deltaY = this.#jumpVelocity - this.#gravity * this.#jumpTime
     this.moveAbove(deltaY);
-    this.#jumpTime += 0.015;
+    this.#jumpTime += 0.015 * delta;
     if(deltaY <= 0) {
       this.#jumpTime = 0;
       stop();

@@ -93,14 +93,16 @@ var right = false;
 var vup = false;
 var vdown = false;
 
-stopLoop(() => {
+const playerSpeed = 0.07;
+stopLoop(({delta}) => {
   if(paused) return;
-  if(up) cam.moveUp();
-  if(left) cam.moveLeft();
-  if(down) cam.moveDown();
-  if(right) cam.moveRight();
-  if(vup) cam.moveAbove();
-  if(vdown) cam.moveBelow();
+  var s = playerSpeed * delta;
+  if(up) cam.moveUp(s);
+  if(left) cam.moveLeft(s);
+  if(down) cam.moveDown(s);
+  if(right) cam.moveRight(s);
+  if(vup) cam.moveAbove(s + 0.03);
+  if(vdown) cam.moveBelow(s + 0.03);
 });
 
 if(isTouchDevice()) {
