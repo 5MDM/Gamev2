@@ -5,5 +5,8 @@ import {$} from "./lib/util.js";
 const arr = [blockpr, blockArray];
 
 Promise.all(arr)
-.then(() => {$("#loading-c").style.display = "none"})
+.then(() => {
+  $("#loading-c").style.display = "none";
+  $("#ui").style.display = "flex";
+})
 .catch(console.error);

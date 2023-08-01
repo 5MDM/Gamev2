@@ -1,0 +1,43 @@
+#ui > #gui > #pause #pause-btn {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  pointer-events: auto;
+}
+
+#ui > #gui > #pause #pause-menu {
+  display: none;
+  width: var(--cw);
+  height: var(--ch);
+  margin: auto;
+  border: 2px solid gray;
+  background-color: #505050;
+  pointer-events: auto;
+  flex-direction: row;
+}
+
+#ui > #gui > #pause #pause-menu #side {
+  height: calc(var(--ch) - 2px);
+  width: 64px;
+  background-color: gray;
+}
+
+#ui > #gui > #pause #pause-menu #sidebar {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--ch) - 4px);
+  width: 150px;
+  background-color: #404040;
+}
+
+#ui > #gui > #pause #pause-menu #sidebar button {
+  color: black;
+  border: 3px outset #606060;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#ui > #gui > #pause #pause-menu #sidebar button:active {
+  border: 3px inset #606060;
+  color: gray;
+}

@@ -4,6 +4,7 @@ import {Mesh, Group, Box3, Vector3, Box3Helper} from "three";
 import {newBox} from "../lib/framework.js";
 import {cam} from "./camera.js";
 import {Octree} from "../lib/quadrant.js";
+import {aleaPRNG} from "../lib/alea.js";
 const bd = await blockData;
 
 // Seed: random

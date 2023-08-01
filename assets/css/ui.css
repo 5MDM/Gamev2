@@ -1,5 +1,5 @@
 #ui {
-  display: flex;
+  display: none;
   position: absolute;
   width: var(--w);
   height: var(--h);

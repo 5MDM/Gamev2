@@ -329,5 +329,3 @@ export class Octree {
     return found;
   }
 }
-
-export {Box as MDBox};

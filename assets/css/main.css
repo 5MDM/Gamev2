@@ -1,6 +1,6 @@
 * {
   padding: 0;
-  marhin: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -31,4 +31,10 @@ html {
   -ms-user-select: none;      
   user-select: none;
   -webkit-touch-callout: none;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

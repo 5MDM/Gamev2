@@ -1,4 +1,5 @@
 #c {
+  display: block;
   background-color: #333333;
   width: var(--cw);
   height: var(--ch);
