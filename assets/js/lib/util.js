@@ -111,7 +111,8 @@ export function stopLoop(func, ss = true) {
   function loop() {
     if(!s) {
       const currentTime = performance.now();
-      const delta = (currentTime - lastTime) / perfectFPS;
+      var delta = (currentTime - lastTime) / perfectFPS;
+      if(delta > 4) delta = 4;
       lastTime = currentTime;
       func({start, stop, delta});
       requestAnimationFrame(loop);
