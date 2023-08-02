@@ -23,6 +23,7 @@ function getElevation(x, y) {
 
 const CHUNK_SIZE = 8;
 const grassM = bd.data[bd.name["Grass"]];
+const sandM = bd.data[bd.name["Sand"]];
 const stoneM = bd.data[bd.name["Stone"]];
 
 cam.camera.position.x = CHUNK_SIZE / 2;
@@ -58,17 +59,24 @@ export function generateWorld(scene) {
     scene.add(block);
   }
   
-  function add_blocks({xc, yc, tree}) {
+  function add_blocks({xc, yc, tree, biome}) {
     const elev = getElevation(xc, yc) - 5;
     function setPos(e) {
       e.position.x = xc+0.4;
       e.position.z = yc+0.4;
     }
     
-    const grassBlock = newBlock(grassM);
-    setPos(grassBlock);
-    grassBlock.position.y = elev;
-    add_block(grassBlock, tree);
+    if(biome == "plains") {
+      const grassBlock = newBlock(grassM);
+      setPos(grassBlock);
+      grassBlock.position.y = elev;
+      add_block(grassBlock, tree);
+    } else if(biome == "desert") {
+      const sandBlock = newBlock(sandM);
+      setPos(sandBlock);
+      sandBlock.position.y = elev;
+      add_block(sandBlock, tree);
+    }
     
     const stoneBlock = newBlock(stoneM);
     setPos(stoneBlock);
@@ -77,9 +85,17 @@ export function generateWorld(scene) {
   }
   
   function loadChunk(chunkX, chunkY) {
-    
     const x = chunkX * CHUNK_SIZE;
     const y = chunkY * CHUNK_SIZE;
+    const biomeId = random.range(15);
+    var biome = "plains";
+    if(biomeId >= 7
+    && biomeId <= 10) {
+      biome = "desert";
+    } else if(biomeId <= 3) {
+      // cave opening
+      biome = "";
+    }
     
     const tree = new Octree({
       width: CHUNK_SIZE,
@@ -96,7 +112,7 @@ export function generateWorld(scene) {
       for(let z = 0; z < CHUNK_SIZE; z++) {
         // goes down / y-axis
         const xc = z+x;
-        add_blocks({xc, yc, tree});
+        add_blocks({xc, yc, tree, biome});
       }
     }
     

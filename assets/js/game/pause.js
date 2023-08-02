@@ -72,9 +72,11 @@ const xe = getDevEl("x");
 const ye = getDevEl("y");
 const ze = getDevEl("z");
 const devFps = getDevEl("fps");
+const deltaTime = getDevEl("delta-time");
 
 var lastTime = performance.now();
-const devLoop = stopLoop(() => {
+var fpsCounter = 3;
+const devLoop = stopLoop(({delta}) => {
   const {x, y, z} = cam.camera.position;
   devPos.innerText = 
   `(${Math.floor(x)}, ${Math.floor(y)}, ${Math.floor(z)})`;
@@ -87,7 +89,11 @@ const devLoop = stopLoop(() => {
   const currentTime = performance.now();
   const fps = 1000 / (currentTime - lastTime);
   lastTime = currentTime;
-  devFps.innerText = (Math.round(fps * 100) / 100).toString();
+  if(fpsCounter-- <= 0) {
+    devFps.innerText = Math.round(fps * 100) / 100;
+    fpsCounter = 3;
+  }
+  deltaTime.innerText = Math.round(delta * 10) / 10;
 }, false);
 
 const debugEl = $("#ui > #gui > #debug");
