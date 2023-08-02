@@ -8,7 +8,12 @@ import {aleaPRNG} from "../lib/alea.js";
 const bd = await blockData;
 
 // Seed: random
-const getCoord = createNoise2D();
+const seedM = 10000;
+const seed = Math.round(Math.random() * seedM) / seedM;
+const getCoord = createNoise2D(() => seed);
+const random = aleaPRNG(seed);
+console.log(random.range(10));
+console.log(random.range(10));
 
 function getElevation(x, y) {
   x = Math.round(x / 2);
@@ -55,16 +60,18 @@ export function generateWorld(scene) {
   
   function add_blocks({xc, yc, tree}) {
     const elev = getElevation(xc, yc) - 5;
-    const grassBlock = newBlock(grassM);
+    function setPos(e) {
+      e.position.x = xc+0.4;
+      e.position.z = yc+0.4;
+    }
     
-    grassBlock.position.x = xc+0.4;
-    grassBlock.position.z = yc+0.4;
+    const grassBlock = newBlock(grassM);
+    setPos(grassBlock);
     grassBlock.position.y = elev;
     add_block(grassBlock, tree);
     
     const stoneBlock = newBlock(stoneM);
-    stoneBlock.position.x = xc+0.4;
-    stoneBlock.position.z = yc+0.4;
+    setPos(stoneBlock);
     stoneBlock.position.y = elev - 1;
     add_block(stoneBlock, tree);
   }

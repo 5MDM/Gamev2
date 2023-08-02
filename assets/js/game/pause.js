@@ -92,8 +92,8 @@ const devLoop = stopLoop(() => {
 
 const debugEl = $("#ui > #gui > #debug");
 var devToolsOn = false;
-$("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-toggle")
-.addEventListener("pointerup", () => {
+
+function toggleDevTools() {
   if(devToolsOn) {
     devToolsOn = false;
     $("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-enabled").innerText = "False";
@@ -105,6 +105,13 @@ $("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-toggle")
     devLoop.start();
     debugEl.style.display = "block";
   }
+}
+
+addEventListener("keydown", e => {
+  if(e.keyCode == 114) toggleDevTools;
 });
+
+$("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-toggle")
+.addEventListener("pointerup", toggleDevTools);
 
 listen("#dev");
