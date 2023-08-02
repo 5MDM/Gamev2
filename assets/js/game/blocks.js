@@ -9,7 +9,7 @@ async function mm(e) {
   });
 }
 
-export const blockpr = fetch("/assets/js/game/blocks.json");
+export const blockpr = fetch("/assets/game/blocks.json");
 
 export function newBlock(e) {
   return new Mesh(blockGeometry, e);

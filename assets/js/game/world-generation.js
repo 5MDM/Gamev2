@@ -12,8 +12,6 @@ const seedM = 10000;
 const seed = Math.round(Math.random() * seedM) / seedM;
 const getCoord = createNoise2D(() => seed);
 const random = aleaPRNG(seed);
-console.log(random.range(10));
-console.log(random.range(10));
 
 function getElevation(x, y) {
   x = Math.round(x / 2);

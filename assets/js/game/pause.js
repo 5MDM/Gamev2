@@ -114,7 +114,8 @@ function toggleDevTools() {
 }
 
 addEventListener("keydown", e => {
-  if(e.keyCode == 114) toggleDevTools;
+  e.preventDefault();
+  if(e.code == "F3") toggleDevTools();
 });
 
 $("#ui > #gui > #pause #pause-menu #content > #dev-content #dev-toggle")

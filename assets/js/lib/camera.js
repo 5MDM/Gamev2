@@ -532,12 +532,13 @@ export class PhysicsCamera extends MovementCamera {
   #jumpLoop = stopLoop(({stop, delta}) => {
     this.canJump = false;
     const deltaY = 
-    (this.#jumpVelocity * delta) 
-    - this.#gravity * delta * this.#jumpTime * delta;
+    this.#jumpVelocity * delta
+    - this.#gravity * this.#jumpTime * delta;
+    
     this.moveAbove(deltaY);
-    this.#jumpTime += 0.015;
+    this.#jumpTime += 0.015 * delta;
     if(deltaY <= 0) {
-      this.#jumpTime = 0;
+      this.#jumpTime = 0.01 * delta;
       stop();
     }
   }, false);
