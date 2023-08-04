@@ -216,7 +216,6 @@ document.addEventListener("pointerlockchange", async e => {
   if (document.pointerLockElement != canvas) {
     if (forcePointerUnlocked) {
       resumeButtonEnabled = false;
-      forcePointerUnlocked = true;
       pause({
         resumeTimer: 1200,
         timerFinishedCallback: () => {
@@ -224,6 +223,7 @@ document.addEventListener("pointerlockchange", async e => {
         }
       });
     } else {
+      forcePointerUnlocked = true;
       pause();
     }
   }
@@ -231,3 +231,5 @@ document.addEventListener("pointerlockchange", async e => {
 
 
 $("#pause-btn").addEventListener("touchstart", () => pause());
+
+window.addEventListener("blur", () => pause())
