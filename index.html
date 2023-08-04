@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/canvas.css">
     <link rel="stylesheet" href="/assets/css/ui.css">
-    <link rel="stylesheet" href="/assets/css/pause.css">
+    <link rel="stylesheet" href="/assets/css/settings.css">
     <link rel="stylesheet" href="/assets/css/debug.css">
     
     <script type="importmap">
@@ -39,7 +39,30 @@
     <script defer src="/assets/js/module-loader.js"></script>
   </head>
   <body>
-    <div id="overlay">
+    <div id="overlay" class="no-select">
+      <div id="settings">
+        <img id="settings-btn" alt="settings" src="/assets/images/game/pause.png">
+        <div id="settings-menu">
+          <div id="side"></div>
+          <div id="sidebar">
+            <button id="dev">Developer</button>
+            <button id="test1">Test 1</button>
+            <button id="test2">Test 2</button>
+            <button id="test3">Test 3</button>
+            <button id="test4">Test 4</button>
+            <button id="test5">Test 5</button>
+            <button id="test6">Test 6</button>
+          </div>
+          <div id="content">
+            <div id="dev-content">
+              <div class="setting" id="debug-toggle">
+                Debug Overlay
+                <span id="debug" class="setting-toggle"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div id="resume">
         <div id="lock-timer"></div>
         <span class="resume-text">Resume Game</span>
@@ -51,7 +74,8 @@
       </div>
       <div id="ui">
         <div id="gui">
-          <div id="debug">
+          <img src="/assets/images/game/pause.png" alt="pause" id="pause-btn">
+          <div id="debug-ui">
             <div id="stats">
               <p>Version: Pre-Alpha 1</p>
               <p>Position: <span id="pos">(-, -, -)</span></p>
@@ -60,22 +84,6 @@
               <p>Z: <span id="z">-</span></p>
               <p>FPS: <span id="fps">-</span></p>
               <p>Delta Time: <span id="delta-time">-</span></p>
-            </div>
-          </div>
-          <div id="pause">
-            <img id="pause-btn" alt="pause" src="/assets/images/game/pause.png">
-            <div id="pause-menu">
-              <div id="side"></div>
-              <div id="sidebar">
-                <button id="dev">Dev</button>
-              </div>
-              <div id="content">
-                <div id="dev-content">
-                  <h1>Developer Tools</h1>
-                  <p>Dev tools enabled: <span id="dev-enabled">false</span></p>
-                  <button id="dev-toggle">Toggle dev tools</button>
-                </div>
-              </div>
             </div>
           </div>
           <div id="movement">

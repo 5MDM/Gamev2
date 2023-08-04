@@ -1,7 +1,7 @@
 /**
  * Returns the first element that matches a specified CSS selector in the document
  * @param {string} e - The CSS selector to match
- * @returns {Element|null} - The matched element or null if no match is found
+ * @returns {HTMLElement|null} - The matched element or null if no match is found
  */
 export function $(e) {return document.querySelector(e)}
 
@@ -224,4 +224,24 @@ export class HSL {
    * @returns {number} - The numerical value of the color, obtained by parsing the hexadecimal string as an integer
    */
   toNum() {return parseInt(this.toHex())}
+}
+
+// https://flaviocopes.com/javascript-why-not-modify-object-prototype/
+// Element.prototype.addEventListeners = function(events, callback, opts) { // Has to be function() {}, not () => {}
+//   events.forEach((e) => {
+//     this.addEventListener(e, callback, opts)
+//   })
+// }
+
+/**
+ * Adds event listeners to a given element for multiple events with the same callback function and options
+ * @param {Element} element - The element to add the event listeners to
+ * @param {string[]} events - The array of event names to listen for
+ * @param {function} callback - The function to execute when any of the events occur
+ * @param {AddEventListenerOptions|boolean} [opts] - The optional object of options or a boolean value indicating whether the event listener should be passive or not
+ */
+export function addEventListeners(element, events, callback, opts) {
+  events.forEach((e) => {
+    element.addEventListener(e, callback, opts)
+  })
 }
