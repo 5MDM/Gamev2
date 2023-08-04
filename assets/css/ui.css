@@ -46,7 +46,6 @@
 #ui > #gui .right {transform: rotate(90deg)}
 
 #ui > #gui > #v-movement {
-  pointer-events: auto;
   display: none;
   position: fixed;
   right: 0;
@@ -54,6 +53,10 @@
   margin: 50px;
   gap: 10px;
   flex-direction: column;
+}
+
+#ui > #gui > #v-movement img {
+  pointer-events: auto;
 }
 
 
@@ -66,7 +69,7 @@
   left: 0;
   bottom: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(28, 28, 28, 0.5);
   z-index: 1;
 }
 #resume {
@@ -100,4 +103,15 @@
   height: 100%;
   border-radius: inherit;
   background-color: #808080;
+}
+
+#pause-btn {
+  pointer-events: auto;
+  width: 64px;
+  position: sticky;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  bottom: 100%;
+  left: calc(50% - (64px/2));
 }

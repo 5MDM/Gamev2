@@ -1,0 +1,94 @@
+#settings #settings-btn {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  pointer-events: auto;
+}
+
+#settings #settings-menu {
+  display: none;
+  width: var(--cw);
+  height: var(--ch);
+  margin: auto;
+  pointer-events: auto;
+  flex-direction: row;
+}
+
+#settings #settings-menu #side {
+  height: calc(var(--ch) - 2px);
+  width: 75px;
+}
+
+#settings #settings-menu #sidebar {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--ch) - 4px);
+  width: 150px;
+  margin-left: 15px;
+  padding-top: 10px;
+}
+
+#settings #settings-menu #sidebar button {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 13pt;
+  border: none;
+  padding: 10px 0px 10px 18px;
+  text-align: left;
+  border-left: 2px solid transparent;
+}
+#settings #settings-menu #sidebar button.current {
+  border-left: 2px solid aquamarine;
+}
+
+#settings #settings-menu #sidebar button:hover {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+#settings #settings-menu #content {
+  background: transparent;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+#settings #settings-menu #content > div {
+  display: none;
+  flex-direction: column;
+}
+
+#settings #settings-menu #content > div h1 {
+  border-bottom: 2px solid black;
+  margin-bottom: 20px;
+}
+
+#settings #settings-menu #content > div .setting {
+  font-size: 13pt;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  height: 40px;
+  line-height: 40px;
+  padding-left: 15px;
+  position: relative;
+}
+
+#settings #settings-menu #content > div .setting:hover {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.setting-toggle {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  position: absolute;
+  -ms-transform: translateY(50%);
+  transform: translateY(50%);
+  right: 15px;
+}
+
+.setting-toggle.enabled {
+  background-color: aquamarine;
+}

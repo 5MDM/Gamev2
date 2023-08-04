@@ -10,6 +10,12 @@ export function isTouchDevice() {
 export function supportsPointerLock() {
   return "pointerLockElement" in document
 }
+export const gameState = {
+  paused: false,
+  fps: NaN,
+  showControls: isTouchDevice(),
+  devToolsEnabled: false,
+};
 
 addEventListener("touchend", e => e.preventDefault());
 

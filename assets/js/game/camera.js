@@ -1,9 +1,8 @@
 import {PhysicsCamera} from "../lib/camera.js";
-import {$, clamp, stopLoop} from "../lib/util.js";
-import {isTouchDevice, supportsPointerLock} from "../window.js"
-
+import {$, addEventListeners, clamp, stopLoop} from "../lib/util.js";
+import {isTouchDevice, supportsPointerLock} from "../window.js";
+import {gameState} from "../window.js";
 const sensitivity = 100
-var paused = false;
 
 export const cam = new PhysicsCamera();
 cam.bind($("#c"));
@@ -20,7 +19,6 @@ cam.onPointerMove = function(e) {
 };
 
 const canvas = $("#c");
-const overlay = $("#overlay");
 canvas.addEventListener("mousemove", e => {
   if (document.pointerLockElement != canvas) return;
   const dx = e.movementX;
@@ -34,58 +32,7 @@ canvas.addEventListener("mousemove", e => {
   );
 });
 
-if(supportsPointerLock()) {
-  paused = true;
-  overlay.style.display = "block";
-  $(".resume-text").innerText = "Start Game";
-}
-$("#resume").addEventListener("click", e => {
-  if (!resumeButtonEnabled) return;
-  if (supportsPointerLock()) canvas.requestPointerLock();
-  overlay.style.display = "none";
-  forcePointerUnlocked = true;
-  paused = false;
-});
 
-document.addEventListener("pointerlockerror", e => {
-  paused = true;
-  overlay.style.display = "block";
-})
-var forcePointerUnlocked = true;
-const resumeButton = $("#resume");
-const lockProgressBar = $("#lock-timer");
-var resumeButtonEnabled = true;
-document.addEventListener("pointerlockchange", async e => {
-  if (document.pointerLockElement != canvas) {
-    // Pointer unlocked
-    paused = true;
-    $(".resume-text").innerText = "Resume Game";
-    overlay.style.display = "block";
-    if (forcePointerUnlocked) {
-      // Pressed escape or switched tabs to let browser handle unlock
-      resumeButtonEnabled = false;
-      lockProgressBar.style.width = "0%";
-      resumeButton.style.backgroundColor = "#202020";
-      resumeButton.style.color = "white";
-      resumeButton.style.cursor = "default";
-      const wait = ms => new Promise(res => setTimeout(res, ms))
-      var timerPercent = 0;
-      for (let i = 0; i < 100; i++) {
-        timerPercent += 1;
-        lockProgressBar.style.width = `${timerPercent}%`;
-        await wait(1200 / 100);
-      }
-      resumeButton.style.cursor = "pointer";
-      resumeButton.style.color = "black";
-      resumeButtonEnabled = true;
-    } else {
-      // Pressed backquote to use code to unlock cursor
-      resumeButton.style.backgroundColor = "#808080";
-      resumeButton.style.color = "black";
-      resumeButton.style.cursor = "pointer";
-    }
-  }
-})
 var up = false;
 var left = false;
 var down = false;
@@ -95,7 +42,7 @@ var vdown = false;
 
 const playerSpeed = 0.07;
 stopLoop(({delta}) => {
-  if(paused) return;
+  if(gameState.paused) return;
   var s = playerSpeed * delta;
   if(up) cam.moveUp(s);
   if(left) cam.moveLeft(s);
@@ -139,11 +86,11 @@ if(isTouchDevice()) {
     vdown = false;
   });
 
-  $("#ui > #gui > #movement")
-  .addEventListener("touchstart", e => e.preventDefault());
-  
-  $("#ui > #gui > #movement")
-  .addEventListener("gesturestart", e => e.preventDefault());
+  addEventListeners(
+    $("#ui > #gui > #movement"),
+    ["touchstart", "gesturestart"],
+    e => e.preventDefault()
+  )
   
   // up/down
   $("#ui > #gui > #v-movement #up")
@@ -157,12 +104,12 @@ if(isTouchDevice()) {
   
   $("#ui > #gui > #v-movement #down")
   .addEventListener("pointerup", e => vdown = false);
-  
-  $("#ui > #gui > #v-movement")
-  .addEventListener("touchstart", e => e.preventDefault());
-  
-  $("#ui > #gui > #v-movement")
-  .addEventListener("gesturestart", e => e.preventDefault());
+
+  addEventListeners(
+    $("#ui > #gui > #v-movement"),
+    ["touchstart", "gesturestart"],
+    e => e.preventDefault()
+  )
   
   var lastJumpPressTime = 0;
   // shift
@@ -217,11 +164,6 @@ document.addEventListener("keydown", e => {
       break;
     case "ShiftLeft":
       if (!cam.gravityEnabled) vdown = true;
-      break;
-    case "Backquote":
-      if (!supportsPointerLock()) break;
-      forcePointerUnlocked = false;
-      document.exitPointerLock();
       break;
   }
 });
