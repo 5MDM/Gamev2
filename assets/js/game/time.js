@@ -1,4 +1,6 @@
 import {stopLoop, $, HSL} from "../lib/util.js";
+import {getDevEl} from "./pause.js";
+import {gameState} from "../window.js";
 
 var scene;
 export function setTimeScene(s) {
@@ -32,6 +34,21 @@ const loop = stopLoop(({delta}) => {
     }
     
     c.style.backgroundColor = color.toCSS();
+    if(gameState.devToolsEnabled) {
+      getDevEl("day-ticks").innerText = dayCycle;
+      getDevEl("night-ticks").innerText = nightCycle;
+      if(sunset) {
+        getDevEl("time-type").innerText = "Sunset";
+      } else if(sunrise) {
+        getDevEl("time-type").innerText = "Sunrise";
+      } else if(isDay) {
+        getDevEl("time-type").innerText = "Day";
+      } else if(!isDay) {
+        getDevEl("time-type").innerText = "Night";
+      } else {
+        getDevEl("time-type").innerText = "Error";
+      }
+    }
   }
 }, false);
 

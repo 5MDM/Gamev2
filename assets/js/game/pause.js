@@ -61,7 +61,7 @@ function listen(id, f) {
   });
 }
 
-function getDevEl(id) {
+export function getDevEl(id) {
   return $("#ui > #gui > #debug-ui > #stats #" + id);
 }
 
