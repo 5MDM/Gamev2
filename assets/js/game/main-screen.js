@@ -4,6 +4,7 @@ import {cam} from "./camera.js";
 import {generateWorld} from "./world-generation.js";
 import {newBox} from "../lib/framework.js";
 import {setDevObj} from "./pause.js";
+import {setTimeScene} from "./time.js";
 
 import {blockData} from "./blocks.js";
 const bd = await blockData;
@@ -11,6 +12,7 @@ const bd = await blockData;
 export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
+setTimeScene(scene);
 // setDebugScene(scene);
 
 const gworld = generateWorld(scene);

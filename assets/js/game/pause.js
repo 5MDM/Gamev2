@@ -1,5 +1,6 @@
 import {$, addEventListeners, stopLoop} from "../lib/util.js";
 import {gameState, supportsPointerLock} from "../window.js";
+import {Vector3, MathUtils} from "three";
 
 const el = $("#settings-btn");
 const menu = $("#settings #settings-menu");
@@ -70,6 +71,7 @@ const ye = getDevEl("y");
 const ze = getDevEl("z");
 const devFps = getDevEl("fps");
 const deltaTime = getDevEl("delta-time");
+const facing = getDevEl("facing");
 
 var lastTime = performance.now();
 var fpsCounter = 60;
@@ -91,6 +93,25 @@ const devLoop = stopLoop(({delta}) => {
     fpsCounter = 60;
   }
   deltaTime.innerText = Math.round(delta * 10) / 10;
+  
+  const direction = new Vector3();
+  cam.camera.getWorldDirection(direction);
+  
+  const za = MathUtils.radToDeg(
+    Math.atan2(direction.z, direction.x)
+  );
+  
+  if(za >= -45 && za < 45) {
+    facing.innerText = "East";
+  } else if(za >= 45 && za < 135) {
+    facing.innerText = "North";
+  } else if(za >= -135 && za < -45) {
+    facing.innerText = "South";
+  } else {
+    facing.innerText = "West";
+  }
+  
+  
 }, false);
 
 const debugEl = $("#ui > #gui > #debug-ui");

@@ -224,6 +224,8 @@ export class HSL {
    * @returns {number} - The numerical value of the color, obtained by parsing the hexadecimal string as an integer
    */
   toNum() {return parseInt(this.toHex())}
+  
+  toCSS() {return `hsl(${this.h}, ${this.s}%, ${this.l}%)`}
 }
 
 // https://flaviocopes.com/javascript-why-not-modify-object-prototype/

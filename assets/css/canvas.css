@@ -1,9 +1,8 @@
 #c {
   display: block;
-  background-color: #333333;
+  background-color: hsl(210, 100%, 70%);
   width: var(--cw);
   height: var(--ch);
   margin: auto;
   pointer-events: auto;
 }
-
