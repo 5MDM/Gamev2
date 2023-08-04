@@ -72,6 +72,8 @@ const ze = getDevEl("z");
 const devFps = getDevEl("fps");
 const deltaTime = getDevEl("delta-time");
 const facing = getDevEl("facing");
+getDevEl("cores").innerText = 
+`${navigator.hardwareConcurrency || "???"} cores`;
 
 var lastTime = performance.now();
 var fpsCounter = 60;

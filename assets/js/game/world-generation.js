@@ -14,9 +14,12 @@ const getCoord = createNoise2D(() => seed);
 const random = aleaPRNG(seed);
 
 function getElevation(x, y) {
-  x = Math.round(x / 2);
-  y = Math.round(y / 2);
-  return Math.floor(getCoord(x, y) / 5);
+  function e(a) {
+    return getCoord(x*a, y*a);
+  }
+  /*x = Math.round(x / 2);
+  y = Math.round(y / 2);*/
+  return Math.floor(e(0.1) * 2) / 2;
 }
 
 const CHUNK_SIZE = 8;
@@ -87,13 +90,13 @@ export function generateWorld(scene) {
     const y = chunkY * CHUNK_SIZE;
     const biomeId = random.range(15);
     var biome = "plains";
-    if(biomeId >= 7
+    /*if(biomeId >= 7
     && biomeId <= 10) {
       biome = "desert";
     } else if(biomeId <= 3) {
       // cave opening
       biome = "";
-    }
+    }*/
     
     const tree = new Octree({
       width: CHUNK_SIZE,
