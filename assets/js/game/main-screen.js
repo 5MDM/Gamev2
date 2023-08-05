@@ -3,7 +3,7 @@ import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
 import {cam} from "./camera.js";
 import {generateWorld} from "./world-generation.js";
 import {newBox} from "../lib/framework.js";
-import {setDevObj} from "./pause.js";
+import {setDevObj} from "./settings/main.js";
 import {setTimeScene} from "./time.js";
 
 import {blockData} from "./blocks.js";

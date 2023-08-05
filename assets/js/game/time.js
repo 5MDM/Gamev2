@@ -1,5 +1,5 @@
 import {stopLoop, $, HSL, round} from "../lib/util.js";
-import {getDevEl} from "./pause.js";
+import {getDevEl} from "./settings/debug.js";
 import {gameState} from "../window.js";
 import {Sprite, SpriteMaterial} from "three";
 import {loadImg, RADIAN_HALF} from "../lib/framework.js";
