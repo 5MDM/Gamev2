@@ -1,10 +1,14 @@
-import {stopLoop, $, HSL} from "../lib/util.js";
+import {stopLoop, $, HSL, round} from "../lib/util.js";
 import {getDevEl} from "./pause.js";
 import {gameState} from "../window.js";
+import {Sprite, SpriteMaterial} from "three";
+import {loadImg, RADIAN_HALF} from "../lib/framework.js";
 
 var scene;
-export function setTimeScene(s) {
+var cam;
+export function setTimeScene(s, c) {
   scene = s;
+  cam = c;
   main();
 }
 
@@ -14,7 +18,12 @@ var sunrise = false;
 const color = new HSL(210, 100, 70);
 const c = $("#c");
 
-const ogNightCycle = 50;
+const orbitRadius = 100;
+const orbitSpeed = 0.0002;
+var sunAngle = 0;
+var moonAngle = RADIAN_HALF * 2;
+
+const ogNightCycle = orbitSpeed;
 var nightCycle = ogNightCycle;
 
 const ogDayCycle = 50;
@@ -23,20 +32,39 @@ var dayCycle = ogDayCycle;
 const counterOg = 50;
 var counter = counterOg;
 
+const filePrefix = "/assets/images/game/";
+
+const moon = new Sprite(new SpriteMaterial({
+  map: await loadImg(filePrefix + "moon.png"),
+}));
+
+const sun = new Sprite(new SpriteMaterial({
+  map: await loadImg(filePrefix + "sun.png"),
+}));
+
+moon.scale.set(20, 20, 1);
+sun.scale.set(20, 20, 1);
+
 const loop = stopLoop(({delta}) => {
-  if(counter-- <= 0) {
+  const trueDelta = Math.round(delta);
+  counter -= trueDelta;
+  
+  tickSun(trueDelta);
+  tickMoon(trueDelta);
+  if(counter <= 0) {
     counter = counterOg;
+    
     if(isDay) {
-      tickDay();
+      tickDay(trueDelta);
     } else {
-      sunset = false;
-      tickNight();
+      tickNight(trueDelta);
     }
     
     c.style.backgroundColor = color.toCSS();
     if(gameState.devToolsEnabled) {
-      getDevEl("day-ticks").innerText = dayCycle;
-      getDevEl("night-ticks").innerText = nightCycle;
+      getDevEl("time").innerText = 
+      Math.floor(sunAngle * 20);
+      
       if(sunset) {
         getDevEl("time-type").innerText = "Sunset";
       } else if(sunrise) {
@@ -52,55 +80,79 @@ const loop = stopLoop(({delta}) => {
   }
 }, false);
 
-function tickDay() {
+const transitionSpeed = 3;
+function tickDay(delta) {
+  if(sunAngle >= RADIAN_HALF * 1.5) {
+    sunset = true;
+  }
+  
   if(sunset) {
     if(color.l <= 40) {
       if(color.h <= 262) {
-        color.h += 2;
-        color.l--;
+        color.h += 2 * delta * transitionSpeed;
+        color.l -= delta * transitionSpeed;
       } else {
         if(color.l > 0) {
-          color.l--;
+          color.l -= delta * transitionSpeed;
         } else {
           isDay = false;
+          sunset = false;
         }
       }
     } else {
-      color.l -= 1;
-    }
-  } else if(sunrise) {
-    if(color.h > 210) {
-      color.h -= 2;
-      color.l++;
-    } else {
-      if(color.l < 70) {
-        color.l++;
-      } else {
-        sunrise = false;
-      }
-    }
-  } else {
-    // noon
-    if(dayCycle > 0) {
-      console.log(dayCycle);
-      dayCycle--;
-    } else {
-      dayCycle = ogDayCycle;
-      sunset = true;
+      color.l -= delta * transitionSpeed;
     }
   }
 }
 
-function tickNight() {
-  if(nightCycle <= 0) {
-    nightCycle = ogNightCycle;
-    isDay = true;
+function tickNight(delta) {
+  if(moonAngle >= RADIAN_HALF * 1.5) {
     sunrise = true;
-  } else {
-    nightCycle--;
   }
+  
+  if(sunrise) {
+    if(color.h > 210) {
+      color.h -= 2 * delta * transitionSpeed;
+      color.l += delta * transitionSpeed;
+    } else {
+      if(color.l < 70) {
+        color.l += delta * transitionSpeed;
+      } else {
+        sunrise = false;
+        isDay = true;
+      }
+    }
+  }
+}
+
+function tickSun(delta = 1) {
+  sun.position.x = 
+  cam.position.x + orbitRadius * Math.cos(sunAngle);
+  
+  sun.position.y = 
+  cam.position.y + orbitRadius * Math.sin(sunAngle);
+  
+  sun.position.z = cam.position.z;
+  sunAngle += orbitSpeed * delta;
+  if(sunAngle >= RADIAN_HALF * 4) sunAngle = 0;
+}
+
+function tickMoon(delta = 1) {
+  moon.position.x = 
+  cam.position.x + orbitRadius * Math.cos(moonAngle);
+  
+  moon.position.y = 
+  cam.position.y + orbitRadius * Math.sin(moonAngle);
+  
+  moon.position.z = cam.position.z;
+  moonAngle += orbitSpeed * delta;
+  if(moonAngle >= RADIAN_HALF * 4) moonAngle = 0;
 }
 
 function main() {
+  tickSun();
+  tickMoon();
+  scene.add(sun);
+  scene.add(moon);
   loop.start();
 }

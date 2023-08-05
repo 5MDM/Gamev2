@@ -247,3 +247,7 @@ export function addEventListeners(element, events, callback, opts) {
     element.addEventListener(e, callback, opts)
   })
 }
+
+export function round(a, b) {
+  return Math.round(a * b) / b;
+}

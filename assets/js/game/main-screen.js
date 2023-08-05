@@ -12,7 +12,7 @@ const bd = await blockData;
 export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
-setTimeScene(scene);
+setTimeScene(scene, cam.camera);
 // setDebugScene(scene);
 
 const gworld = generateWorld(scene);

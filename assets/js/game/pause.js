@@ -1,4 +1,4 @@
-import {$, addEventListeners, stopLoop} from "../lib/util.js";
+import {$, addEventListeners, stopLoop, round} from "../lib/util.js";
 import {gameState, supportsPointerLock} from "../window.js";
 import {Vector3, MathUtils} from "three";
 
@@ -83,18 +83,18 @@ const devLoop = stopLoop(({delta}) => {
   `(${Math.floor(x)}, ${Math.floor(y)}, ${Math.floor(z)})`;
   
   const ma = 1000000;
-  xe.innerText = Math.round(x * ma) / ma;
-  ye.innerText = Math.round(y * ma) / ma;
-  ze.innerText = Math.round(z * ma) / ma;
+  xe.innerText = round(x, ma);
+  ye.innerText = round(y, ma);
+  ze.innerText = round(z, ma);
   
   const currentTime = performance.now();
   gameState.fps = 1000 / (currentTime - lastTime);
   lastTime = currentTime;
   if(fpsCounter-- <= 0) {
-    devFps.innerText = Math.round(gameState.fps * 100) / 100;
+    devFps.innerText = round(gameState.fps, 100);
     fpsCounter = 60;
   }
-  deltaTime.innerText = Math.round(delta * 10) / 10;
+  deltaTime.innerText = round(delta, 10);
   
   const direction = new Vector3();
   cam.camera.getWorldDirection(direction);

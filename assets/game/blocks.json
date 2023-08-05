@@ -13,5 +13,10 @@
     "name": "Sand",
     "tool_type": "shovel",
     "texture": "sand.png"
+  },
+  {
+    "name": "Sun",
+    "tool_type": "any",
+    "texture": "sun.png"
   }
 ]
