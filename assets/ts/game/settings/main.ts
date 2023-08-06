@@ -1,41 +1,42 @@
-import {$, addEventListeners, stopLoop, round} from "/assets/js/lib/util.js";
-import {gameState, supportsPointerLock} from "/assets/js/window.js";
-import {Vector3, MathUtils} from "three";
-import {setDebugObj} from "./debug.js";
-import "./pause.js";
+import type {Mesh} from "three";
+import type {AnyCamera} from "../../lib/camera";
+import {$} from "../../lib/util";
+import {setDebugObj} from "./debug";
+import "./pause";
+import { Octree } from "../../lib/quadrant";
 
-const el = $("#settings-btn");
-const menu = $("#settings #settings-menu");
+const el: HTMLImageElement = $("#settings-btn")!;
+const menu: HTMLDivElement = $("#settings #settings-menu")!;
 var menuOpen = false;
-var lastBtn;
-var lastContent;
+var lastBtn: HTMLButtonElement;
+var lastContent: HTMLDivElement;
 
 el.addEventListener("pointerup", () => {
   if(menuOpen) {hideSettings()} 
   else {showSettings()}
 });
 
-function hideSettings() {
+export function hideSettings() {
   if(lastBtn != undefined) lastBtn.classList.remove("current");
   if(lastContent != undefined) lastContent.style.display = "none";
-  $("#resume").style.display = "block";
+  $("#resume")!.style.display = "block";
   menu.style.display = "none";
   el.style.filter = "";
   menuOpen = false;
 }
 
-function showSettings() {
-  $("#resume").style.display = "none";
+export function showSettings() {
+  $("#resume")!.style.display = "none";
   el.style.filter = "brightness(50%)";
   menu.style.display = "flex";
   menuOpen = true;
 }
 
-var cam;
-var playerObj;
-var trees;
+// var cam;
+// var playerObj;
+// var trees;
 
-function listen(id, f) {
+function listen(id: string, f?: () => void) {
   const btn = 
   $("#settings #settings-menu #sidebar > " + id);
   if(btn == undefined) 
@@ -43,6 +44,8 @@ function listen(id, f) {
   
   const content = 
   $(`#settings #settings-menu #content > ${id}-content`);
+  if(content == undefined) 
+    throw new Error(`pause.js: content ID "${id}" not found`);
   
   btn.addEventListener("pointerup", () => {
     if(lastBtn != undefined)
@@ -58,14 +61,14 @@ function listen(id, f) {
   });
 }
 
-export function setDevObj(o = {}) {
-  cam = o.camera;
-  playerObj = o.player;
-  trees = o.octrees;
+export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]}) {
+  // cam = o.camera;
+  // playerObj = o.player;
+  // trees = o.octrees;
   setDebugObj({
     camera: o.camera,
     player: o.player,
-    trees: o.octrees,
+    octrees: o.octrees,
     listen,
   });
 }

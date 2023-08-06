@@ -1,0 +1,21 @@
+{
+  "name": "gamev2",
+  "version": "1.0.0",
+  "description": "A 3D game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/three": "^0.155.0",
+    "vite": "^4.4.8",
+    "vite-plugin-checker": "^0.6.1"
+  },
+  "dependencies": {
+    "three": "^0.155.0",
+    "typescript": "^5.1.6"
+  }
+}

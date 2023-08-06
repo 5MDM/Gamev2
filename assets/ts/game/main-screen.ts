@@ -1,13 +1,13 @@
 import {Scene} from "three";
-import {setCurrentScene, setCurrentCamera, renderLoop} from "../app.js";
-import {cam} from "./camera.js";
-import {generateWorld} from "./world-generation.js";
-import {newBox} from "../lib/framework.js";
-import {setDevObj} from "./settings/main.js";
-import {setTimeScene} from "./time.js";
+import {setCurrentScene, setCurrentCamera, renderLoop} from "../app";
+import {cam} from "./camera";
+import {generateWorld} from "./world-generation";
+import {newBox} from "../lib/framework";
+import {setDevObj} from "./settings/main";
+import {setTimeScene} from "./time";
 
-import {blockData} from "./blocks.js";
-const bd = await blockData;
+import {blockData} from "./blocks";
+await blockData;
 
 export const scene = new Scene();
 setCurrentScene(scene);
@@ -34,15 +34,14 @@ camBox.position.x = cam.camera.position.x;
 camBox.position.y = cam.camera.position.y-2.5;
 camBox.position.z = cam.camera.position.z;
 
-cam.onMove = function(s) {
+cam.onMove = function() {
   camBox.position.x = cam.camera.position.x;
   camBox.position.y = cam.camera.position.y-2.5;
   camBox.position.z = cam.camera.position.z;
-  return s;
 };
 
 setDevObj({
   camera: cam,
   player: camBox,
-  octrees: gworld,
+  octrees: gworld.trees,
 });

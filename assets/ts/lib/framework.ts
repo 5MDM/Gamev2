@@ -1,11 +1,11 @@
-import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace} from "three";
-import {canvasWidth, canvasHeight} from "../window.js";
+import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, Texture, Color} from "three";
+import {canvasWidth, canvasHeight, imageImports} from "../window";
 
 /**
  * The constant value for 90 degrees in radians
  * @type {number}
  */
-export const RADIAN_HALF = 1.570796;
+export const RADIAN_HALF: number = 1.570796;
 
 /**
  * Creates a new perspective camera object with the given options
@@ -13,10 +13,9 @@ export const RADIAN_HALF = 1.570796;
  * @param {number} [o.fov=80] - The field of view for the camera in degrees
  * @param {number} [o.min=0.1] - The near clipping plane for the camera
  * @param {number} [o.max=1000] - The far clipping plane for the camera
- * @returns {import("three").PerspectiveCamera} 
- *         The new perspective camera object
+ * @returns The new perspective camera object
  */
-export function newCamera(o = {}) {
+export function newCamera(o: {fov?: number, min?: number, max?: number} = {}) {
   return new PerspectiveCamera(
     o.fov || 80,
     canvasWidth / canvasHeight,
@@ -29,13 +28,14 @@ const tLoader = new TextureLoader();
 
 /**
  * Creates a new box geometry object with the given dimensions
+ * 
+ * If only one parameter is provided, a cube is created
  * @param {number} w - The width of the box
  * @param {number} [h] - The height of the box, optional
- * @param {number} l - The length of the box
- * @returns {import("three").BoxGeometry} 
- *         The new box geometry object
+ * @param {number} [l] - The length of the box, optional
+ * @returns The new box geometry object
  */
-export function newBoxGeometry(w, h, l) {
+export function newBoxGeometry(w: number, h?: number, l?: number) {
   if(h == undefined) {
     return new BoxGeometry(w, w, w);
   } else {
@@ -51,10 +51,15 @@ export function newBoxGeometry(w, h, l) {
  * @param {number} [o.height] - The height of the box, optional
  * @param {number} [o.depth] - The depth of the box, optional
  * @param {import("three").Color | string | number} [o.color] - The color of the box, optional
- * @returns {Mesh} 
- *         The new box mesh object
+ * @returns The new box mesh object
  */
-export function newBox(o = {}) {
+export function newBox(o: {
+  size?: number,
+  width?: number,
+  height?: number,
+  depth?: number,
+  color?: Color | string | number
+} = {}) {
   const geo = new BoxGeometry(
     o.size || o.width,
     o.size || o.height,
@@ -73,16 +78,28 @@ export function newBox(o = {}) {
  * @returns {Promise<import("three").Texture>} 
  *         A promise that resolves with the texture object that has the sRGB color space
  */
-export function loadImg(img) {
-  return new Promise(res => {
+export function loadImg(img: string): Promise<Texture> {
+  return new Promise<Texture>(async (res, rej) => {
     tLoader.load(img, e => {
       // SRGB colorspace is needed
       // or else the image becomes
       // very faded
       e.colorSpace = SRGBColorSpace;
       res(e);
-    }, undefined, () => console.error(
-      `loadImg error with image "${img}"`
-    ));
+    }, undefined, (e) => {
+      console.error(`loadImg error with image "${img}"`);
+      rej(e);
+    });
   });
+}
+
+/**
+ * Loads an image from the `/assets/image/` directory and returns a promise that resolves with the texture object
+ * @param {string} img - The exact path of the iamge starting from `/assets/images/`, without `./`, including file extension
+ * @returns {Promise<import("three").Texture>} 
+ *         A promise that resolves with the texture object that has the sRGB color space
+ */
+export async function loadImgFromAssets(img: string): Promise<Texture> {
+  const path = (await imageImports[img]()).default
+  return await loadImg(path)
 }

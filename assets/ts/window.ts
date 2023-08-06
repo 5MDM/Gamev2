@@ -1,11 +1,11 @@
 export const canvasPaddingHeight = 50;
 export const canvasPaddingWidth = 10;
-export const canvasWidth = innerWidth - canvasPaddingWidth;
-export const canvasHeight = innerHeight - canvasPaddingHeight;
+export const canvasWidth = window.innerWidth - canvasPaddingWidth;
+export const canvasHeight = window.innerHeight - canvasPaddingHeight;
 
 export function isPWA() {
   const str = "(display-mode: standalone)";
-  if(navigator.standalone 
+  if(('standalone' in navigator) && navigator.standalone
   || matchMedia(str).matches) 
     return true;
   
@@ -14,8 +14,7 @@ export function isPWA() {
 
 export function isTouchDevice() {
   return (("ontouchstart" in window) ||
-     (navigator.maxTouchPoints > 0) ||
-     (navigator.msMaxTouchPoints > 0));
+     (navigator.maxTouchPoints > 0));
 }
 export function supportsPointerLock() {
   return "pointerLockElement" in document
@@ -28,6 +27,13 @@ export const gameState = {
   isInstalled: isPWA(),
   devToolsEnabled: false,
 };
+
+export const imageImports: {[key: string]: () => Promise<{default: string}>} = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<{default: string}>("../images/**"))
+      .map(([key, value]) => [key.slice(10), value]
+    )
+  )
 
 addEventListener("touchend", e => e.preventDefault());
 
@@ -42,7 +48,7 @@ document.documentElement.style
 .setProperty("--ch", canvasHeight + "px");
 
 if(!gameState.showControls) {
-  document.getElementById("m-start-game")
+  document.getElementById("m-start-game")!
   .onpointerdown = enableFullscreen;
 }
 

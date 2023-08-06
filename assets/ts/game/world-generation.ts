@@ -1,20 +1,21 @@
-import {createNoise2D} from "../lib/perlin.js";
-import {blockData, newBlock} from "./blocks.js";
-import {Mesh, Group, Box3, Vector3, Box3Helper} from "three";
-import {newBox} from "../lib/framework.js";
-import {cam} from "./camera.js";
-import {Octree} from "../lib/quadrant.js";
-import {aleaPRNG} from "../lib/alea.js";
+import {createNoise2D} from "../lib/perlin";
+import {blockData, newBlock} from "./blocks";
+import {cam} from "./camera";
+import {Octree} from "../lib/quadrant";
+// import {aleaPRNG} from "../lib/alea";
+import {Mesh, Scene} from "three";
 const bd = await blockData;
+
+type Biome = "plains" | "desert"
 
 // Seed: random
 const seedM = 10000;
 const seed = Math.round(Math.random() * seedM) / seedM;
 const getCoord = createNoise2D(() => seed);
-const random = aleaPRNG(seed);
+// const random = aleaPRNG(seed);
 
-function getElevation(x, y) {
-  function e(a) {
+function getElevation(x: number, y: number) {
+  function e(a: number) {
     return getCoord(x*a, y*a);
   }
   /*x = Math.round(x / 2);
@@ -30,12 +31,12 @@ const stoneM = bd.data[bd.name["Stone"]];
 cam.camera.position.x = CHUNK_SIZE / 2;
 cam.camera.position.z = CHUNK_SIZE / 2;
 
-var finishGeneration;
-export const blockArray = new Promise(res => {
+var finishGeneration: () => void;
+export const blockArray = new Promise<void>(res => {
   finishGeneration = res;
 });
 
-export function generateWorld(scene) {
+export function generateWorld(scene: Scene) {
   const trees = [];
   trees.push(loadChunk(0, 0));
   trees.push(loadChunk(1, 0));
@@ -47,7 +48,7 @@ export function generateWorld(scene) {
   trees.push(loadChunk(1, -1));
   trees.push(loadChunk(-1, -1));
   
-  function add_block(block, tree) {
+  function add_block(block: Mesh, tree: Octree) {
     tree.insert({
       x: block.position.x,
       y: block.position.y,
@@ -60,23 +61,25 @@ export function generateWorld(scene) {
     scene.add(block);
   }
   
-  function add_blocks({xc, yc, tree, biome}) {
+  function add_blocks({xc, yc, tree, biome}: {xc: number, yc: number, tree: Octree, biome: Biome}) {
     const elev = getElevation(xc, yc) - 5;
-    function setPos(e) {
-      e.position.x = xc+0.4;
-      e.position.z = yc+0.4;
+    function setPos(block: Mesh) {
+      block.position.x = xc+0.4;
+      block.position.z = yc+0.4;
     }
     
-    if(biome == "plains") {
-      const grassBlock = newBlock(grassM);
-      setPos(grassBlock);
-      grassBlock.position.y = elev;
-      add_block(grassBlock, tree);
-    } else if(biome == "desert") {
-      const sandBlock = newBlock(sandM);
-      setPos(sandBlock);
-      sandBlock.position.y = elev;
-      add_block(sandBlock, tree);
+    switch (biome) {
+      case "plains":
+        const grassBlock = newBlock(grassM);
+        setPos(grassBlock);
+        grassBlock.position.y = elev;
+        add_block(grassBlock, tree);
+        break;
+      case "desert":
+        const sandBlock = newBlock(sandM);
+        setPos(sandBlock);
+        sandBlock.position.y = elev;
+        add_block(sandBlock, tree);
     }
     
     const stoneBlock = newBlock(stoneM);
@@ -85,11 +88,11 @@ export function generateWorld(scene) {
     add_block(stoneBlock, tree);
   }
   
-  function loadChunk(chunkX, chunkY) {
+  function loadChunk(chunkX: number, chunkY: number) {
     const x = chunkX * CHUNK_SIZE;
     const y = chunkY * CHUNK_SIZE;
-    const biomeId = random.range(15);
-    var biome = "plains";
+    // const biomeId: number = random.range(15);
+    var biome: Biome = "plains";
     /*if(biomeId >= 7
     && biomeId <= 10) {
       biome = "desert";
