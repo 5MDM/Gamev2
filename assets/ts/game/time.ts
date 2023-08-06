@@ -1,12 +1,12 @@
-import {stopLoop, $, HSL, round} from "../lib/util.js";
-import {getDevEl} from "./settings/debug.js";
-import {gameState} from "../window.js";
-import {Sprite, SpriteMaterial} from "three";
-import {loadImg, RADIAN_HALF} from "../lib/framework.js";
+import {stopLoop, $, HSL} from "../lib/util";
+import {getDevEl} from "./settings/debug";
+import {gameState} from "../window";
+import {PerspectiveCamera, Scene, Sprite, SpriteMaterial} from "three";
+import {loadImgFromAssets, RADIAN_HALF} from "../lib/framework";
 
-var scene;
-var cam;
-export function setTimeScene(s, c) {
+var scene: Scene;
+var cam: PerspectiveCamera;
+export function setTimeScene(s: Scene, c: PerspectiveCamera) {
   scene = s;
   cam = c;
   main();
@@ -16,30 +16,28 @@ var isDay = true;
 var sunset = false;
 var sunrise = false;
 const color = new HSL(210, 100, 70);
-const c = $("#c");
+const c = $("#c")!;
 
 const orbitRadius = 100;
 const orbitSpeed = 0.0002;
 var sunAngle = 0;
 var moonAngle = RADIAN_HALF * 2;
 
-const ogNightCycle = orbitSpeed;
-var nightCycle = ogNightCycle;
+// const ogNightCycle = orbitSpeed;
+// var nightCycle = ogNightCycle;
 
-const ogDayCycle = 50;
-var dayCycle = ogDayCycle;
+// const ogDayCycle = 50;
+// var dayCycle = ogDayCycle;
 
 const counterOg = 50;
 var counter = counterOg;
 
-const filePrefix = "/assets/images/game/";
-
 const moon = new Sprite(new SpriteMaterial({
-  map: await loadImg(filePrefix + "moon.png"),
+  map: await loadImgFromAssets("game/moon.png"),
 }));
 
 const sun = new Sprite(new SpriteMaterial({
-  map: await loadImg(filePrefix + "sun.png"),
+  map: await loadImgFromAssets("game/sun.png"),
 }));
 
 moon.scale.set(20, 20, 1);
@@ -62,26 +60,26 @@ const loop = stopLoop(({delta}) => {
     
     c.style.backgroundColor = color.toCSS();
     if(gameState.devToolsEnabled) {
-      getDevEl("time").innerText = 
-      Math.floor(sunAngle * 20);
+      getDevEl("time")!.innerText = 
+      `${Math.floor(sunAngle * 20)}`;
       
       if(sunset) {
-        getDevEl("time-type").innerText = "Sunset";
+        getDevEl("time-type")!.innerText = "Sunset";
       } else if(sunrise) {
-        getDevEl("time-type").innerText = "Sunrise";
+        getDevEl("time-type")!.innerText = "Sunrise";
       } else if(isDay) {
-        getDevEl("time-type").innerText = "Day";
+        getDevEl("time-type")!.innerText = "Day";
       } else if(!isDay) {
-        getDevEl("time-type").innerText = "Night";
+        getDevEl("time-type")!.innerText = "Night";
       } else {
-        getDevEl("time-type").innerText = "Error";
+        getDevEl("time-type")!.innerText = "Error";
       }
     }
   }
 }, false);
 
 const transitionSpeed = 3;
-function tickDay(delta) {
+function tickDay(delta: number) {
   if(sunAngle >= RADIAN_HALF * 1.5) {
     sunset = true;
   }
@@ -105,7 +103,7 @@ function tickDay(delta) {
   }
 }
 
-function tickNight(delta) {
+function tickNight(delta: number) {
   if(moonAngle >= RADIAN_HALF * 1.5) {
     sunrise = true;
   }

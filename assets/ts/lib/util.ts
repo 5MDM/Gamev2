@@ -1,16 +1,15 @@
 /**
  * Returns the first element that matches a specified CSS selector in the document
- * @param {string} e - The CSS selector to match
- * @returns {HTMLElement|null} - The matched element or null if no match is found
+ * @returns The selected element
  */
-export function $(e) {return document.querySelector(e)}
+export function $(e: string): AnyHTMLElement | null {return document.querySelector(e)}
 
 /**
  * Executes a callback function for each element in an array or a single value
- * @param {Array|any} a - The array or the value to iterate over
- * @param {function} b - The callback function to execute
+ * @param a - The array or the value to iterate over
+ * @param b - The callback function to execute
  */
-export function forAll(a, b) {
+export function forAll(a: any, b: (_args: any) => void): void {
   if(Array.isArray(a)) {
     for(const i in a) b(a[i]);
   } else {
@@ -20,10 +19,9 @@ export function forAll(a, b) {
 
 /**
  * Converts an object of CSS properties and values into a string
- * @param {Object} e - The object of CSS properties and values
- * @returns {string} - The string of CSS declarations
+ * @param e - The object of CSS properties and values
  */
-export function parseCSS(e) {
+export function parseCSS(e: {[key: string]: string}): string {
   var str = "";
   for(const i in e)
     str += `${i}: ${e[i]};`;
@@ -33,7 +31,7 @@ export function parseCSS(e) {
 
 /**
  * Creates and returns a new HTML element with the specified name and options
- * @param {keyof HTMLElementTagNameMap} name - The tag name of the HTML element to create
+ * @param name - The tag name of the HTML element to create
  * @param {Object} [opts] - The optional object of options to configure the element
  * @param {Object} [opts.attrs] - The object of attributes to set on the element
  * @param {Object} [opts.style] - The object of CSS properties and values to apply to the element
@@ -41,9 +39,16 @@ export function parseCSS(e) {
  * @param {Array|any} [opts.listeners] - The array or the value of event listeners to add to the element. Each listener should be an array of two elements: the event name and the callback function.
  * @param {Array|any} [opts.up] - The array or the value of pointerup event handlers to add to the element. Each handler should be a function that takes an object with two properties: e (the event) and el (the element).
  * @param {Array|any} [opts.down] - The array or the value of pointerdown event handlers to add to the element. Each handler should be a function that takes an object with two properties: e (the event) and el (the element).
- * @returns {Element} - The created HTML element
+ * @returns The created HTML element
  */
-export function $$(name, opts) {
+export function $$(name: string, opts: {
+  attrs?: {[key: string]: string},
+  style?: {[key: string]: string},
+  children?: HTMLElement | string,
+  listeners?: string,
+  up: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void,
+  down: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void,
+}): HTMLElement {
   const el = document.createElement(name);
   if(!opts) return el;
   
@@ -84,18 +89,19 @@ export function $$(name, opts) {
   return el;
 }
 
-/**
- * @typedef {Object} StopLoopControl
- * @property {function} start - Start the loop function if it was stopped
- * @property {function} stop - Stop the loop function if it was running
- */
+interface StopLoopIterationParams {
+  start: () => void,
+  stop: () => void,
+  delta: number,
+  rawDelta: number
+}
 /**
  * Creates and returns a loop function that can be started and stopped by calling the returned methods
- * @param {function} func - The function to execute in each loop iteration. The function will receive an object with two methods: start and stop, which can be used to control the loop.
+ * @param func - The function to execute in each loop iteration. The function will receive an object with two methods: start and stop, which can be used to control the loop.
  * @param {boolean} [ss=true] - The optional boolean value that indicates whether the loop should be stopped by default or not.
- * @returns {StopLoopControl} - The object with two methods: start and stop, which can be used to control the loop.
+ * @returns The object with two methods: start and stop, which can be used to control the loop.
  */
-export function stopLoop(func, ss = true) {
+export function stopLoop(func: (_arg: StopLoopIterationParams) => void, ss: boolean = true): {start: () => void, stop: () => void} {
   const perfectFPS = 1000 / 60;
   var s = !ss;
   var lastTime = performance.now();
@@ -127,41 +133,21 @@ export function stopLoop(func, ss = true) {
 
 /**
  * Executes a function in a loop that can be controlled by the function itself
- * @param {function} f - The function to execute in each loop iteration. The function will receive a parameter that is a reference to itself, which can be used to call the next iteration or stop the loop.
- * @returns {any} - The return value of the first call of the function
+ * @param f - The function to execute in each loop iteration. The function will receive a parameter that is a reference to itself, which can be used to call the next iteration or stop the loop.
  */
-export function stepLoop(f) {
+export function stepLoop(f: (step: () => void) => any): void {
   function step() {f(step)}
   return step();
 }
 
 /**
- * Executes an array of functions in a loop with a specified delay or a custom delay for each function
- * @param {Array} arr - The array of functions to execute in the loop. Each function should take a parameter that is a reference to the next function in the loop. Optionally, each function can be wrapped in an array with a second element that is a number representing the custom delay for that function in milliseconds.
- * @param {number} s - The default delay for each function in milliseconds
- */
-export function timeoutLoop(arr, s) {
-  var i = 0;
-  stepLoop(next => {
-    const item = arr[i];
-    if(!item) return;
-    if(Array.isArray(item)) {
-      setTimeout(() => item[0](next), arr[i][1]);
-    } else {
-      setTimeout(() => item(next), s);
-    }
-    i++;
-  });
-}
-
-/**
  * Returns a number that is clamped between a minimum and a maximum value. If the number is above or below, it is set to the min or max.
- * @param {number} min - The lower bound of the clamp range
- * @param {number} num - The number to clamp
- * @param {number} max - The upper bound of the clamp range
- * @returns {number} - The clamped number
+ * @param min - The lower bound of the clamp range
+ * @param num - The number to clamp
+ * @param max - The upper bound of the clamp range
+ * @returns The clamped number
  */
-export function clamp(min, num, max) {
+export function clamp(min: number, num: number, max: number): number {
   return Math.min(Math.max(num, min), max);
 }
 
@@ -170,27 +156,24 @@ export function clamp(min, num, max) {
  */
 export class HSL {
   /**
-   * @type {number}
    * @description The hue of the color, in degrees from 0 to 360
    */
-  h;
+  h: number;
   /**
-   * @type {number}
    * @description The saturation of the color, in percentage from 0 to 100
    */
-  s;
+  s: number;
   /**
-   * @type {number}
    * @description The lightness of the color, in percentage from 0 to 100
    */
-  l;
+  l: number;
   /**
    * Creates a new HSL color object with the given hue, saturation, and lightness values
    * @param {number} [h=0] - The hue of the color, in degrees from 0 to 360
    * @param {number} [s=100] - The saturation of the color, in percentage from 0 to 100
    * @param {number} [l=50] - The lightness of the color, in percentage from 0 to 100
    */
-  constructor(h = 0, s = 100, l = 50) {
+  constructor(h: number = 0, s: number = 100, l: number = 50) {
     this.h = h;
     this.s = s;
     this.l = l;
@@ -199,15 +182,15 @@ export class HSL {
   
   /**
    * Converts the HSL color to a hexadecimal string representation
-   * @returns {string} - The hexadecimal string of the color, without the leading #
+   * @returns The hexadecimal string of the color, without the leading #
    */
-  toHex() {
+  toHex(): string {
     const h = this.h;
     const s = this.s;
     const l = this.l / 100;
     const a = s * Math.min(l, 1 - l) / 100;
     
-    function f(n) {
+    function f(n: number) {
       const k = (n + h / 30) % 12;
       const color = 
       l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
@@ -221,9 +204,9 @@ export class HSL {
   
   /**
    * Converts the HSL color to a numerical value representation
-   * @returns {number} - The numerical value of the color, obtained by parsing the hexadecimal string as an integer
+   * @returns The numerical value of the color, obtained by parsing the hexadecimal string as an integer
    */
-  toNum() {return parseInt(this.toHex())}
+  toNum(): number {return parseInt(this.toHex())}
   
   toCSS() {return `hsl(${this.h}, ${this.s}%, ${this.l}%)`}
 }
@@ -237,17 +220,23 @@ export class HSL {
 
 /**
  * Adds event listeners to a given element for multiple events with the same callback function and options
- * @param {Element} element - The element to add the event listeners to
- * @param {string[]} events - The array of event names to listen for
- * @param {function} callback - The function to execute when any of the events occur
+ * @param element - The element to add the event listeners to
+ * @param events - The array of event names to listen for
+ * @param callback - The function to execute when any of the events occur
  * @param {AddEventListenerOptions|boolean} [opts] - The optional object of options or a boolean value indicating whether the event listener should be passive or not
  */
-export function addEventListeners(element, events, callback, opts) {
+export function addEventListeners(element: Element, events: string[], callback: EventListenerOrEventListenerObject, opts?: AddEventListenerOptions | boolean) {
   events.forEach((e) => {
     element.addEventListener(e, callback, opts)
   })
 }
 
-export function round(a, b) {
-  return Math.round(a * b) / b;
+/**
+ * Rounds a number to a specified number of digits after the decimal point.
+ * @param num - The number to be rounded.
+ * @param places - The power of 10 that determines the number of digits.
+ * @returns The rounded number.
+ */
+export function round(num: number, places: number): number {
+  return Math.round(num * places) / places;
 }

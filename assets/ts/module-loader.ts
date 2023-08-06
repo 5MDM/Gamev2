@@ -1,4 +1,4 @@
 (function() {
   "use strict";
-  import("./main.js");
+  import("./main");
 })();

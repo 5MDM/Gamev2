@@ -1,24 +1,24 @@
-import {WebGLRenderer} from "three";
-import {$} from "./lib/util.js";
-import {canvasWidth, canvasHeight} from "./window.js";
+import {Camera, Scene, WebGLRenderer} from "three";
+import {$} from "./lib/util";
+import {canvasWidth, canvasHeight} from "./window";
 
-export var currentScene;
-export var currentCamera;
+export var currentScene: Scene;
+export var currentCamera: Camera;
 
-export function setCurrentScene(scene) {
+export function setCurrentScene(scene: Scene) {
   if(scene == undefined) 
     throw new Error("Scene is undefined");
   currentScene = scene;
 }
 
-export function setCurrentCamera(cam) {
+export function setCurrentCamera(cam: Camera) {
   if(cam == undefined) 
     throw new Error("Camera is undefined");
   currentCamera = cam;
 }
 
 const renderer = new WebGLRenderer({
-  canvas: $("#c"),
+  canvas: $("#c")!,
   alpha: true,
 });
 

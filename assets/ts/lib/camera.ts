@@ -1,21 +1,15 @@
-import {newCamera, RADIAN_HALF} from "./framework.js";
-import {stopLoop} from "./util.js";
-import {Quaternion, Vector3, PerspectiveCamera} from "three";
-
-/**
- * @typedef {Object} QuaternionPair
- * @property {import("three").Quaternion} qx - The quaternion for the x-axis rotation
- * @property {import("three").Quaternion} qz - The quaternion for the z-axis rotation
- */
+import {newCamera, RADIAN_HALF} from "./framework";
+import { Octree } from "./quadrant";
+import {clamp, stopLoop} from "./util";
+import {Quaternion, Vector3, PerspectiveCamera, Mesh} from "three";
 
 /**
  * Sets the quaternions for the x-axis and z-axis rotations from the given angles
- * @param {number} mathX - The angle in radians for the x-axis rotation
- * @param {number} mathY - The angle in radians for the z-axis rotation
- * @returns {QuaternionPair} 
- *         The pair of quaternions for the rotations
+ * @param mathX - The angle in radians for the x-axis rotation
+ * @param mathY - The angle in radians for the z-axis rotation
+ * @returns The pair of quaternions for the rotations
  */
-export function setQuaternion(mathX, mathY) {
+export function setQuaternion(mathX: number, mathY: number): {qx: Quaternion, qz: Quaternion} {
   const qx = new Quaternion();
   qx.setFromAxisAngle(
     new Vector3(0, 1, 0),
@@ -30,17 +24,17 @@ export function setQuaternion(mathX, mathY) {
   return {qx, qz};
 }
 
-var current_qx = 0;
+// var current_qx = 0;
 
 /**
  * Updates the camera quaternion from the given angles using the setQuaternion function
- * @param {ControlCamera | MovementCamera | PhysicsCamera} cam - The camera object to be updated
- * @param {number} mathX - The angle in radians for the x-axis rotation
- * @param {number} mathY - The angle in radians for the z-axis rotation
+ * @param cam - The camera object to be updated
+ * @param mathX - The angle in radians for the x-axis rotation
+ * @param mathY - The angle in radians for the z-axis rotation
  */
-export function updateCamera(cam, mathX, mathY) {
+export function updateCamera(cam: PerspectiveCamera, mathX: number, mathY: number) {
   const {qx, qz} = setQuaternion(mathX, mathY);
-  current_qx = qx._y;
+  // current_qx = qx._y;
   const q = new Quaternion();
   
   q.multiply(qx);
@@ -56,27 +50,32 @@ export class ControlCamera {
    * The angle in radians for the x-axis rotation
    * @type {number}
    */
-  rx = RADIAN_HALF;
+  rx: number = RADIAN_HALF;
   /**
    * The angle in radians for the y-axis rotation
    * @type {number}
    */
-  ry = -RADIAN_HALF;
+  ry: number = -RADIAN_HALF;
   /**
    * A boolean flag that indicates whether the camera can pan or not
    * @type {boolean}
    */
-  canPan = false;
+  canPan: boolean = false;
   /**
    * The camera object that is controlled by the ControlCamera instance
    * @type {PerspectiveCamera}
    */
-  camera;
+  camera: PerspectiveCamera;
   /**
    * The element that the control camera is bound to and listens for pointer events
-   * @type {Element}
+   * @type {AnyHTMLElement}
    */
-  el;
+  el?: AnyHTMLElement;
+  /**
+   * The sensitivity of the camera movement
+   * @type {number}
+   */
+  sensitivity: number;
   
   /**
    * Creates a new ControlCamera instance with a new camera object
@@ -84,9 +83,11 @@ export class ControlCamera {
    * @param {number} [o.fov=80] - The field of view for the camera in degrees
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
+   * @param {number} [o.sensitivity=100] - The sensitivity of the camera movement
    */
-  constructor(o) {
+  constructor(o?: { fov?: number; min?: number; max?: number, sensitivity?: number }) {
     this.camera = newCamera(o);
+    this.sensitivity = o?.sensitivity || 100;
     this.loop();
     return this;
   }
@@ -101,32 +102,27 @@ export class ControlCamera {
   
   /**
    * Binds the control camera to a given element
-   * @param {Element} el - The element to bind to
+   * @param {AnyHTMLElement} el - The element to bind to
    * @returns {ControlCamera} 
    *         The current instance of ControlCamera
    */
-  bind(el) {
-    if(!el) return console.error(
-      new Error("Binding element is undefined")
-    );
+  bind(el: AnyHTMLElement): ControlCamera {
     this.el = el;
     return this;
   }
   
   /**
-   * @typedef {Object} TouchInfo
-   * @property {boolean} down - A flag that indicates whether the pointer is down or not
-   * @property {number} id - The identifier of the pointer
-   * @property {number} lx - The last x-coordinate of the pointer
-   * @property {number} ly - The last y-coordinate of the pointer
-   * @property {number} x - The current x-coordinate of the pointer
-   * @property {number} y - The current y-coordinate of the pointer
-   */
-  /**
    * An object that stores the touch information
    * @type {TouchInfo}
    */
-  touch = {
+  touch: {
+    down: boolean,
+    id: number | null,
+    lx: number,
+    ly: number,
+    x: number,
+    y: number
+  } = {
     down: false,
     id: null,
     lx: 0,
@@ -138,13 +134,13 @@ export class ControlCamera {
   /**
    * A function that handles the pointer move event
    */
-  onPointerMove = () => {};
+  onPointerMove = (..._args: any): void => {};
   
   /**
    * Handles the pointer down event and sets the touch information
    * @param {PointerEvent} e - The pointer down event
    */
-  down(e) {
+  down(e: PointerEvent) {
     if(!this.touch.down) {
       this.touch.down = true;
       this.touch.id = e.pointerId;
@@ -154,18 +150,18 @@ export class ControlCamera {
   }
   
   /**
-   * Handles the touch move or mouse move event and updates the touch information and angles
-   * @param {TouchEvent|MouseEvent} e - The touch move or mouse move event
+   * Handles the touch move event and updates the touch information and angles
+   * @param {Touch} e - The touch move or mouse move event
    */
-  move(e) {
+  moveTouch(e: Touch) {
     if(e.identifier == this.touch.id) {
       this.touch.x = this.touch.lx - e.pageX;
       this.touch.y = this.touch.ly - e.pageY;
       this.touch.lx = e.pageX;
       this.touch.ly = e.pageY;
       
-      const sx = -this.touch.x * 0.005;
-      const sy = this.touch.y * 0.005;
+      // const sx = -this.touch.x * 0.005;
+      // const sy = this.touch.y * 0.005;
       
       this.onPointerMove({
         x: this.touch.x,
@@ -173,12 +169,28 @@ export class ControlCamera {
       });
     }
   }
+
+  /**
+   * Handles the mouse move event and updates the touch information and angles
+   * @param {MouseEvent} e - The touch move or mouse move event
+   */
+  moveMouse(e: MouseEvent) {
+    const dx = e.movementX;
+    const dy = e.movementY;
+  
+    this.rx -= dx * (0.005 * this.sensitivity / 100);
+    this.ry = clamp(
+      -Math.PI / 2 + 0.1,
+      this.ry - (dy * (0.005 * this.sensitivity / 100)),
+      Math.PI / 3,
+    );
+  }
   
   /**
    * Handles the pointer up event and resets the touch information
-   * @param {PointerEvent} e - The pointer up event
+   * @param {PointerEvent} _e - The pointer up event
    */
-  up(e) {
+  up(_e: PointerEvent) {
     if(this.touch.down) {
       this.touch.down = false;
       this.touch.id = null;
@@ -186,11 +198,12 @@ export class ControlCamera {
   }
   
   /**
-   * Enables the camera panning and adds the event listeners to the element
+   * Enables the camera panning using touch screen and adds the event listeners to the element
    * @returns {ControlCamera} 
    *         The current instance of ControlCamera
    */
-  enable() {
+  enableTouch(): ControlCamera {
+    if (!this.el) throw new Error("Cannot enable camera panning without binding element")
     this.canPan = true;
     this.el
     .addEventListener("pointerdown", e => this.down(e));
@@ -198,17 +211,29 @@ export class ControlCamera {
     // Use targetTouches instead of
     // regular touches or else it glitches
     this.el.addEventListener("touchmove", 
-      e => this.move(
+      (e: TouchEvent) => this.moveTouch(
         e.targetTouches[e.targetTouches.length-1]
       ),
     );
     
     this.el
-    .addEventListener("mousemove", e => this.down(e));
-    
-    this.el
     .addEventListener("pointerup", e => this.up(e));
     
+    return this;
+  }
+
+  /**
+   * Enables the camera panning using the mouse and adds the event listeners to the element
+   * @returns {ControlCamera} 
+   *         The current instance of ControlCamera
+   */
+  enableMouse(): ControlCamera {
+    if (!this.el) throw new Error("Cannot enable camera panning without binding element");
+    this.el.requestPointerLock();
+    this.el.addEventListener("mousemove", e => {
+      if (document.pointerLockElement != this.el) return;
+      this.moveMouse(e)
+    });
     return this;
   }
   
@@ -219,7 +244,7 @@ export class ControlCamera {
    * @returns {ControlCamera} 
    *         The current instance of ControlCamera
    */
-  setDefault(x, y) {
+  setDefault(x: number, y: number): ControlCamera {
     updateCamera(this.camera, x, y);
     this.rx = x;
     this.ry = y;
@@ -231,7 +256,7 @@ export class ControlCamera {
    * @returns {ControlCamera} 
    *         The current instance of ControlCamera
    */
-  disable() {
+  disable(): ControlCamera {
     this.canPan = false;
     return this;
   }
@@ -246,12 +271,12 @@ export class MovementCamera extends ControlCamera {
    * The direction vector for the camera movement
    * @type {import("three").Vector3}
    */
-  direction = new Vector3();
+  direction: import("three").Vector3 = new Vector3();
   /**
    * A boolean flag that indicates whether the camera can move or not
    * @type {boolean}
    */
-  canMove = true;
+  canMove: boolean = true;
   /**
    * Creates a new MovementCamera instance with a new camera object
    * @param {Object} [o={}] - The options for the camera object
@@ -259,7 +284,7 @@ export class MovementCamera extends ControlCamera {
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
    */
-  constructor(o) {
+  constructor(o?: { fov?: number; min?: number; max?: number; }) {
     super(o);
   }
   
@@ -273,13 +298,13 @@ export class MovementCamera extends ControlCamera {
    * @returns {number} 
    *         The modified movement speed
    */
-  preMove = function(s) {return s}
+  preMove = function(s: number): number {return s}
   
   /**
    * Moves the camera forward based on camera direction including vertical
    * @param {number} [s=0.05] - The movement speed
    */
-  rawMoveUp(s = 0.05) {
+  rawMoveUp(s: number = 0.05) {
     s = this.preMove(s);
     const cameraDirection = new Vector3();
     this.camera.getWorldDirection(cameraDirection);
@@ -294,7 +319,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera forward on the same y-axis
    * @param {number} [s=0.05] - The movement speed
    */
-  moveUp(s = 0.05) {
+  moveUp(s: number = 0.05) {
     s = this.preMove(s);
     const cameraDirection = new Vector3();
     this.camera.getWorldDirection(cameraDirection);
@@ -310,7 +335,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera left
    * @param {number} [s=0.05] - The movement speed
    */
-  moveLeft(s = 0.05) {
+  moveLeft(s: number = 0.05) {
     s = this.preMove(s);
     this.camera.translateX(-s);
     this.onMove();
@@ -320,7 +345,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera backwards on the same y-axis
    * @param {number} [s=0.05] - The movement speed
    */
-  moveDown(s = 0.05) {
+  moveDown(s: number = 0.05) {
     this.moveUp(-s);
   }
   
@@ -328,7 +353,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera right
    * @param {number} [s=0.05] - The movement speed
    */
-  moveRight(s = 0.05) {
+  moveRight(s: number = 0.05) {
     s = this.preMove(s);
     this.camera.translateX(s);
     this.onMove();
@@ -338,7 +363,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera up vertically
    * @param {number} [s=0.04] - The movement speed
    */
-  moveAbove(s = 0.04) {
+  moveAbove(s: number = 0.04) {
     s = this.preMove(s);
     this.camera.position.y += s;
     this.onMove();
@@ -348,7 +373,7 @@ export class MovementCamera extends ControlCamera {
    * Moves the camera down vertically
    * @param {number} [s=0.04] - The movement speed
    */
-  moveBelow(s = 0.04) {
+  moveBelow(s: number = 0.04) {
     this.moveAbove(-s);
   }
 }
@@ -362,17 +387,17 @@ export class PhysicsCamera extends MovementCamera {
    * The list of blocks for the collision detection
    * @type {Array<import("three").Mesh>}
    */
-  blockList;
+  blockList?: Array<Mesh>;
   /**
-   * The octree for the collision detection
-   * @type {import("./quadrant.js").Octree}
+   * The octrees for the collision detection
+   * @type {import("./quadrant").Octree[]}
    */
-  octree;
+  octrees?: Octree[];
   /**
    * The player object that is bound to the camera
    * @type {import("three").Mesh}
    */
-  playerObj;
+  playerObj?: Mesh;
   /**
    * Creates a new PhysicsCamera instance with a new camera object
    * @param {Object} [o={}] - The options for the camera object
@@ -380,7 +405,7 @@ export class PhysicsCamera extends MovementCamera {
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
    */
-  constructor(o) {
+  constructor(o?: {fov?: number, min?: number, max?: number}) {
     super(o);
   }
   
@@ -388,12 +413,12 @@ export class PhysicsCamera extends MovementCamera {
    * A boolean flag that indicates whether the gravity is enabled or not
    * @type {boolean}
    */
-  gravityEnabled = false;
+  gravityEnabled: boolean = false;
   /**
    * The inertia value for the gravity effect
    * @type {number}
    */
-  gravityInertia = 0;
+  gravityInertia: number = 0;
   
   #gravityLoop = stopLoop(({delta}) => {
     this.gravityInertia += 0.005 * delta;
@@ -404,11 +429,11 @@ export class PhysicsCamera extends MovementCamera {
   /**
    * Binds the physics parameters to the camera
    * @param {Object} param0 - The physics parameters
-   * @param {import("./quadrant.js").Octree} param0.tree - The octree for the collision detection
+   * @param {import("./quadrant").Octree[]} param0.trees - The octree for the collision detection
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPhysics({trees}) {
+  bindPhysics({trees}: {trees: Octree[]}): PhysicsCamera {
     this.octrees = trees;
     return this;
   }
@@ -419,7 +444,7 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPlayer(obj) {
+  bindPlayer(obj: import("three").Mesh): PhysicsCamera {
     this.playerObj = obj;
     return this;
   }
@@ -429,7 +454,9 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {boolean} 
    *         True if there is a collision, false otherwise
    */
-  collided() {
+  collided(): boolean {
+    if (!this.octrees) return false;
+    if (!this.playerObj) return false;
     for(const tree of this.octrees) {
       const col = 
       tree.get(this.playerObj, {
@@ -448,7 +475,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera forward on the same y-axis
    * @param {number} [s=0.05] - The movement speed
    */
-  moveUp(s = 0.05) {
+  moveUp(s: number = 0.05) {
     super.moveUp(s);
     if(this.collided()) super.moveDown(s);
   }
@@ -457,7 +484,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera left
    * @param {number} [s=0.05] - The movement speed
    */
-  moveLeft(s = 0.05) {
+  moveLeft(s: number = 0.05) {
     super.moveLeft(s);
     if(this.collided()) super.moveRight(s);
   }
@@ -466,7 +493,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera backwards on the same y-axis
    * @param {number} [s=0.05] - The movement speed
    */
-  moveDown(s = 0.05) {
+  moveDown(s: number = 0.05) {
     super.moveDown(s);
     if(this.collided()) super.moveAbove(s);
   }
@@ -475,7 +502,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera right
    * @param {number} [s=0.05] - The movement speed
    */
-  moveRight(s = 0.05) {
+  moveRight(s: number = 0.05) {
     super.moveRight(s);
     if(this.collided()) super.moveLeft(s);
   }
@@ -484,7 +511,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera up vertically
    * @param {number} [s=0.04] - The movement speed
    */
-  moveAbove(s = 0.04) {
+  moveAbove(s: number = 0.04) {
     super.moveAbove(s);
     if(this.collided()) {
       super.moveBelow(s);
@@ -497,7 +524,7 @@ export class PhysicsCamera extends MovementCamera {
    * Moves the camera down vertically
    * @param {number} [s=0.04] - The movement speed
    */
-  moveBelow(s = 0.04) {
+  moveBelow(s: number = 0.04) {
     super.moveBelow(s);
     if(this.collided()) super.moveAbove(s);
   }
@@ -525,7 +552,7 @@ export class PhysicsCamera extends MovementCamera {
    * A boolean flag that indicates whether the camera can jump or not
    * @type {boolean}
    */
-  canJump = true;
+  canJump: boolean = true;
   #jumpVelocity = 0.2;
   #gravity = 0.5;
   #jumpTime = 0;
@@ -553,3 +580,5 @@ export class PhysicsCamera extends MovementCamera {
     }
   }
 }
+
+export type AnyCamera = ControlCamera & MovementCamera & PhysicsCamera;

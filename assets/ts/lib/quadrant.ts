@@ -1,4 +1,4 @@
-import {Vector3, Box3, Mesh, Box3Helper} from "three";
+import {Vector3, Box3, Mesh, Box3Helper, Scene, Color} from "three";
 
 var debugMode = false;
 var crashCounter = 0;
@@ -10,18 +10,18 @@ function increment() {
   );
 }
 
-var scene;
+var scene: Scene;
 
 /**
  * Enables debug mode and assigns the scene object to a given parameter
  * @param {import("three").Scene} s - The scene object to be assigned
  */
-export function setDebugScene(s) {
+export function setDebugScene(s: Scene) {
   debugMode = true;
   scene = s;
 }
 
-function renderBox(e, color) {
+function renderBox(e: Box, color: Color) {
   if(!debugMode) return;
   const hx = e.width / 2;
   const hy = e.height / 2;
@@ -41,45 +41,39 @@ function renderBox(e, color) {
 class Box {
   /**
    * The x-coordinate of the center of the box
-   * @type {number}
    */
-  x;
+  x: number;
   /**
    * The y-coordinate of the center of the box
-   * @type {number}
    */
-  y;
+  y: number;
   /**
    * The z-coordinate of the center of the box
-   * @type {number}
    */
-  z;
+  z: number;
   /**
    * The width of the box
-   * @type {number}
    */
-  width;
+  width: number;
   /**
    * The height of the box
-   * @type {number}
    */
-  height;
+  height: number;
   /**
    * The depth of the box
-   * @type {number}
    */
-  depth;
+  depth: number;
   /**
    * Creates a new Box instance with the given parameters
-   * @param {Object} param0 - The parameters for the box
-   * @param {number} param0.x - The x-coordinate of the center of the box
-   * @param {number} param0.y - The y-coordinate of the center of the box
-   * @param {number} param0.z - The z-coordinate of the center of the box
-   * @param {number} param0.width - The width of the box
-   * @param {number} param0.height - The height of the box
-   * @param {number} param0.depth - The depth of the box
+   * @param param0 - The parameters for the box
+   * @param param0.x - The x-coordinate of the center of the box
+   * @param param0.y - The y-coordinate of the center of the box
+   * @param param0.z - The z-coordinate of the center of the box
+   * @param param0.width - The width of the box
+   * @param param0.height - The height of the box
+   * @param param0.depth - The depth of the box
    */
-  constructor({x, y, z, width, height, depth}) {
+  constructor({x, y, z, width, height, depth}: { x: number; y: number; z: number; width: number; height: number; depth: number; }) {
     this.x = x;
     this.y = y;
     this.z = z;
@@ -87,17 +81,16 @@ class Box {
     this.height = height;
     this.depth = depth;
     increment();
-    renderBox(this, 0xfff000);
+    renderBox(this, new Color(0xfff000));
     return this;
   }
   
   /**
    * Checks if the box intersects with another box and logs the reason if not
-   * @param {Box} e - The other box to check for intersection
-   * @returns {boolean} 
-   *         True if the boxes intersect, false otherwise
+   * @param e - The other box to check for intersection
+   * @returns True if the boxes intersect, false otherwise
    */
-  intersectsBoxDebug(e) {
+  intersectsBoxDebug(e: Box): boolean {
     const x1 = this.x;
     const y1 = this.y;
     const z1 = this.z;
@@ -112,7 +105,7 @@ class Box {
     const h2 = e.height;
     const d2 = e.depth;
     
-    function check(arr) {
+    function check(arr: boolean[]) {
       for(const i in arr) {
         if(!arr[i]) {
           switch(parseInt(i)) {
@@ -156,11 +149,10 @@ class Box {
   
   /**
    * Checks if the box intersects with another box
-   * @param {Box} e - The other box to check for intersection
-   * @returns {boolean} 
-   *         True if the boxes intersect, false otherwise
+   * @param e - The other box to check for intersection
+   * @returns True if the boxes intersect, false otherwise
    */
-  intersectsBox(e) {
+  intersectsBox(e: Box): boolean {
     const x1 = this.x;
     const y1 = this.y;
     const z1 = this.z;
@@ -194,30 +186,27 @@ class Box {
 export class Octree {
   /**
    * The bounding box for the octree
-   * @type {Box}
    */
-  bounds;
+  bounds: Box;
   /**
    * The array of children octrees that subdivide the parent octree
-   * @type {Array<Octree>}
    */
-  children;
+  children: Array<Octree>;
   /**
    * The box object that is inserted into the octree
-   * @type {Box}
    */
-  box;
+  box: Box | null;
   /**
    * Creates a new Octree instance with a given bounding box
-   * @param {Object} bounds - The bounding box for the octree
-   * @param {number} bounds.x - The x-coordinate of the center of the bounding box
-   * @param {number} bounds.y - The y-coordinate of the center of the bounding box
-   * @param {number} bounds.z - The z-coordinate of the center of the bounding box
-   * @param {number} bounds.width - The width of the bounding box
-   * @param {number} bounds.height - The height of the bounding box
-   * @param {number} bounds.depth - The depth of the bounding box
+   * @param bounds - The bounding box for the octree
+   * @param bounds.x - The x-coordinate of the center of the bounding box
+   * @param bounds.y - The y-coordinate of the center of the bounding box
+   * @param bounds.z - The z-coordinate of the center of the bounding box
+   * @param bounds.width - The width of the bounding box
+   * @param bounds.height - The height of the bounding box
+   * @param bounds.depth - The depth of the bounding box
    */
-  constructor(bounds) {
+  constructor(bounds: { x: number; y: number; z: number; width: number; height: number; depth: number }) {
     this.bounds = new Box(bounds);
     this.children = [];
     this.box = null;
@@ -262,17 +251,16 @@ export class Octree {
 
   /**
    * Inserts a box object into the octree
-   * @param {Object} b - The box object to insert
-   * @param {number} b.x - The x-coordinate of the center of the box
-   * @param {number} b.y - The y-coordinate of the center of the box
-   * @param {number} b.z - The z-coordinate of the center of the box
-   * @param {number} b.width - The width of the box
-   * @param {number} b.height - The height of the box
-   * @param {number} b.depth - The depth of the box
-   * @returns {boolean} 
-   *         True if the insertion was successful, false otherwise
+   * @param b - The box object to insert
+   * @param b.x - The x-coordinate of the center of the box
+   * @param b.y - The y-coordinate of the center of the box
+   * @param b.z - The z-coordinate of the center of the box
+   * @param b.width - The width of the box
+   * @param b.height - The height of the box
+   * @param b.depth - The depth of the box
+   * @returns True if the insertion was successful, false otherwise
    */
-  insert(b) {
+  insert(b: { x: number; y: number; z: number; width: number; height: number; depth: number; }): boolean {
     const box = new Box(b);
     if(!this.bounds.intersectsBox(box)) return false;
     
@@ -295,27 +283,26 @@ export class Octree {
   
   /**
    * Returns an array of boxes that intersect with a given box or mesh object in the octree
-   * @param {Object|import("three").Mesh} a - The box or mesh object to check for intersection
-   * @returns {Array<Object>} 
-   *         An array of boxes that intersect with the given object in the octree
+   * @param a - The box or mesh object to check for intersection
+   * @returns An array of boxes that intersect with the given object in the octree
    */
-  get(a, size) {
-    var e;
+  get(a: Box | Mesh, size?: {width: number, height: number, depth: number}): Array<Box> {
+    var e: Box;
     if(a instanceof Mesh) {
       // hardcoded
-      e = {
+      e = new Box({
         x: a.position.x,
         y: a.position.y,
         z: a.position.z,
-        width: size.width,
-        height: size.height,
-        depth: size.depth,
-      };
+        width: size!.width,
+        height: size!.height,
+        depth: size!.depth,
+      });
     } else {
       e = a;
     }
     
-    const found = [];
+    const found: Box[] = [];
     if(!this.bounds.intersectsBox(e)) return found;
     if(this.bounds.width == 1) {
       if(this.bounds.intersectsBox(e)

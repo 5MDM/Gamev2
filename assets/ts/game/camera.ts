@@ -1,13 +1,13 @@
-import {PhysicsCamera} from "../lib/camera.js";
-import {$, addEventListeners, clamp, stopLoop} from "../lib/util.js";
-import {isTouchDevice, supportsPointerLock} from "../window.js";
-import {gameState} from "../window.js";
+import {PhysicsCamera} from "../lib/camera";
+import {$, addEventListeners, clamp, stopLoop} from "../lib/util";
+import {imageImports, isTouchDevice} from "../window";
+import {gameState} from "../window";
 const sensitivity = 100
 
 export const cam = new PhysicsCamera();
-cam.bind($("#c"));
+cam.bind($("#c")!);
 cam.setDefault(0, 0);
-cam.enable();
+cam.enableTouch();
 
 cam.onPointerMove = function(e) {
   cam.rx += e.x * 0.01;
@@ -19,7 +19,7 @@ cam.onPointerMove = function(e) {
 };
 
 const canvas = $("#c");
-canvas.addEventListener("mousemove", e => {
+canvas!.addEventListener("mousemove", e => {
   if (document.pointerLockElement != canvas) return;
   const dx = e.movementX;
   const dy = e.movementY;
@@ -53,31 +53,31 @@ stopLoop(({delta}) => {
 });
 
 if(isTouchDevice()) {
-  $("#ui > #gui > #movement #up")
-  .addEventListener("pointerdown", e => up = true);
+  $("#ui > #gui > #movement #up")!
+  .addEventListener("pointerdown", () => up = true);
   
-  $("#ui > #gui > #movement #up")
-  .addEventListener("pointerup", e => up = false);
+  $("#ui > #gui > #movement #up")!
+  .addEventListener("pointerup", () => up = false);
   
-  $("#ui > #gui > #movement #left")
-  .addEventListener("pointerdown", e => left = true);
+  $("#ui > #gui > #movement #left")!
+  .addEventListener("pointerdown", () => left = true);
   
-  $("#ui > #gui > #movement #left")
-  .addEventListener("pointerup", e => left = false);
+  $("#ui > #gui > #movement #left")!
+  .addEventListener("pointerup", () => left = false);
   
-  $("#ui > #gui > #movement #down")
-  .addEventListener("pointerdown", e => down = true);
+  $("#ui > #gui > #movement #down")!
+  .addEventListener("pointerdown", () => down = true);
   
-  $("#ui > #gui > #movement #down")
-  .addEventListener("pointerup", e => down = false);
+  $("#ui > #gui > #movement #down")!
+  .addEventListener("pointerup", () => down = false);
   
-  $("#ui > #gui > #movement #right")
-  .addEventListener("pointerdown", e => right = true);
+  $("#ui > #gui > #movement #right")!
+  .addEventListener("pointerdown", () => right = true);
   
-  $("#ui > #gui > #movement #right")
-  .addEventListener("pointerup", e => right = false);
+  $("#ui > #gui > #movement #right")!
+  .addEventListener("pointerup", () => right = false);
  
-  addEventListener("visibilitychange", e => {
+  addEventListener("visibilitychange", () => {
     up = false;
     left = false;
     down = false;
@@ -87,48 +87,48 @@ if(isTouchDevice()) {
   });
 
   addEventListeners(
-    $("#ui > #gui > #movement"),
+    $("#ui > #gui > #movement")!,
     ["touchstart", "gesturestart"],
     e => e.preventDefault()
   )
   
   // up/down
-  $("#ui > #gui > #v-movement #up")
-  .addEventListener("pointerdown", e => vup = true);
+  $("#ui > #gui > #v-movement #up")!
+  .addEventListener("pointerdown", () => vup = true);
   
-  $("#ui > #gui > #v-movement #up")
-  .addEventListener("pointerup", e => vup = false);
+  $("#ui > #gui > #v-movement #up")!
+  .addEventListener("pointerup", () => vup = false);
   
-  $("#ui > #gui > #v-movement #down")
-  .addEventListener("pointerdown", e => vdown = true);
+  $("#ui > #gui > #v-movement #down")!
+  .addEventListener("pointerdown", () => vdown = true);
   
-  $("#ui > #gui > #v-movement #down")
-  .addEventListener("pointerup", e => vdown = false);
+  $("#ui > #gui > #v-movement #down")!
+  .addEventListener("pointerup", () => vdown = false);
 
   addEventListeners(
-    $("#ui > #gui > #v-movement"),
+    $("#ui > #gui > #v-movement")!,
     ["touchstart", "gesturestart"],
     e => e.preventDefault()
   )
   
   var lastJumpPressTime = 0;
   // shift
-  $("#ui > #gui > #v-movement #shift")
-  .addEventListener("touchstart", e => {
+  $("#ui > #gui > #v-movement #shift")!
+  .addEventListener("touchstart", async () => {
     if (cam.gravityEnabled) cam.jump();
     const jumpPressTime = Date.now();
     if (jumpPressTime - lastJumpPressTime <= 250) {
       // Double jump
       if (cam.gravityEnabled) {
         cam.disableGravity();
-        $("#v-movement > #up").style.visibility = "visible";
-        $("#v-movement > #down").style.visibility = "visible";
-        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+        $("#v-movement > #up")!.style.visibility = "visible";
+        $("#v-movement > #down")!.style.visibility = "visible";
+        $("#v-movement > #shift")!.src = (await imageImports["game/circle.png"]()).default;
       } else {
         cam.enableGravity();
-        $("#v-movement > #up").style.visibility = "hidden";
-        $("#v-movement > #down").style.visibility = "hidden";
-        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        $("#v-movement > #up")!.style.visibility = "hidden";
+        $("#v-movement > #down")!.style.visibility = "hidden";
+        $("#v-movement > #shift")!.src = (await imageImports["game/small_arrow.png"]()).default;
         vup = false;
         vdown = false;
       }
@@ -198,7 +198,7 @@ document.addEventListener("keyup", e => {
 var lastKeypressTime = 0;
 var keyState = false;
 // Detect double press space for enabling gravity
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", async e => {
   if (e.code === "Space") {
     if (keyState) return;
     keyState = true;
@@ -207,15 +207,15 @@ document.addEventListener("keydown", e => {
       // Double space bar pressed
       if (cam.gravityEnabled) {
         cam.disableGravity();
-        $("#v-movement > #up").style.visibility = "visible";
-        $("#v-movement > #down").style.visibility = "visible";
-        $("#v-movement > #shift").src = "/assets/images/game/circle.png";
+        $("#v-movement > #up")!.style.visibility = "visible";
+        $("#v-movement > #down")!.style.visibility = "visible";
+        $("#v-movement > #shift")!.src = (await imageImports["game/circle.png"]()).default;
         vup = true;
       } else {
         cam.enableGravity();
-        $("#v-movement > #up").style.visibility = "hidden";
-        $("#v-movement > #down").style.visibility = "hidden";
-        $("#v-movement > #shift").src = "/assets/images/game/small_arrow.png";
+        $("#v-movement > #up")!.style.visibility = "hidden";
+        $("#v-movement > #down")!.style.visibility = "hidden";
+        $("#v-movement > #shift")!.src = (await imageImports["game/small_arrow.png"]()).default;
         vup = false;
         vdown = false;
       }

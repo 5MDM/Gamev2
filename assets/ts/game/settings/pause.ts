@@ -1,21 +1,22 @@
-import {$, addEventListeners} from "/assets/js/lib/util.js";
-import {gameState} from "/assets/js/window.js";
+import {$, addEventListeners} from "../../lib/util";
+import {gameState, supportsPointerLock} from "../../window";
+import { hideSettings } from "./main";
 
 function pause({ resumeText = "Resume Game", resumeTimer = 0, timerFinishedCallback = () => {} } = {}) {
-  const resumeButton = $("#resume");
-  const overlay = $("#overlay");
+  const resumeButton = $("#resume")!;
+  const overlay = $("#overlay")!;
   gameState.paused = true;
   overlay.style.display = "block";
-  $(".resume-text").innerText = resumeText;
-  $("#v-movement").style.display = "none";
-  $("#movement").style.display = "none";
-  $("#pause-btn").style.display = "none";
+  $(".resume-text")!.innerText = resumeText;
+  $("#v-movement")!.style.display = "none";
+  $("#movement")!.style.display = "none";
+  $("#pause-btn")!.style.display = "none";
   if (resumeTimer > 0) {
     lockProgressBar.style.width = "0%";
     resumeButton.style.backgroundColor = "#202020";
     resumeButton.style.color = "white";
     resumeButton.style.cursor = "default";
-    const wait = ms => new Promise(res => setTimeout(res, ms))
+    const wait = (ms: number) => new Promise(res => setTimeout(res, ms))
     var timerPercent = 0;
     (async () => {
       for (let i = 0; i < 100; i++) {
@@ -35,31 +36,31 @@ function pause({ resumeText = "Resume Game", resumeTimer = 0, timerFinishedCallb
 }
 function resume() {
   if (supportsPointerLock()) canvas.requestPointerLock();
-  $("#overlay").style.display = "none";
+  $("#overlay")!.style.display = "none";
   gameState.paused = false;
   hideSettings();
   if (gameState.showControls) {
-    $("#v-movement").style.display = "flex";
-    $("#movement").style.display = "flex";
-    $("#pause-btn").style.display = "flex";
+    $("#v-movement")!.style.display = "flex";
+    $("#movement")!.style.display = "flex";
+    $("#pause-btn")!.style.display = "flex";
   }
 }
-const canvas = $("#c");
+const canvas = $("#c")!;
 var resumeButtonEnabled = true;
 pause({resumeText: "Start Game"});
-addEventListeners($("#resume"), ["click", "touchstart"], e => {
+addEventListeners($("#resume")!, ["click", "touchstart"], () => {
   if (!resumeButtonEnabled) return;
   resume();
 });
 
-document.addEventListener("pointerlockerror", e => {
+document.addEventListener("pointerlockerror", () => {
   gameState.paused = true;
-  overlay.style.display = "block";
+  $("#overlay")!.style.display = "block";
 })
 var forcePointerUnlocked = true;
 
-const lockProgressBar = $("#lock-timer");
-document.addEventListener("pointerlockchange", async e => {
+const lockProgressBar = $("#lock-timer")!;
+document.addEventListener("pointerlockchange", async () => {
   if (document.pointerLockElement != canvas) {
     if (forcePointerUnlocked) {
       resumeButtonEnabled = false;
@@ -77,6 +78,16 @@ document.addEventListener("pointerlockchange", async e => {
 })
 
 
-$("#pause-btn").addEventListener("touchstart", () => pause());
+$("#pause-btn")!.addEventListener("touchstart", () => pause());
 
 window.addEventListener("blur", () => pause())
+
+addEventListener("keydown", e => {
+  switch (e.code) {
+    case "Backquote":
+      if (!supportsPointerLock()) break;
+      forcePointerUnlocked = false;
+      document.exitPointerLock();
+      break;
+  }
+})

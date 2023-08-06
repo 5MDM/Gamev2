@@ -1,15 +1,17 @@
-import {$, stopLoop, round} from "/assets/js/lib/util.js";
-import {gameState} from "/assets/js/window.js";
-import {parseForm} from "./form.js";
-import {MathUtils, Vector3} from "three";
+import {$, stopLoop, round} from "../../lib/util";
+import {FormComponentOpts, parseForm} from "./form";
+import {MathUtils, Mesh, Vector3} from "three";
+import {gameState} from "../../window";
+import {AnyCamera} from "../../lib/camera";
+import {Octree} from "../../lib/quadrant";
 
-var cam;
-var playerObj;
-var trees;
-var listen;
+var cam: AnyCamera;
+// var playerObj: Mesh;
+// var trees: Octree[];
+var listen: (id: string) => void;
 
-const debugEl = $("#ui > #gui > #debug-ui");
-const devArr = [
+const debugEl = $("#ui > #gui > #debug-ui")!;
+const devArr: FormComponentOpts[] = [
   {
     id: "debug-toggle",
     type: "toggle",
@@ -18,28 +20,28 @@ const devArr = [
   }
 ];
 
-export function setDebugObj(o = {}) {
+export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[], listen: (id: string) => void}) {
   cam = o.camera;
-  playerObj = o.player;
-  trees = o.octrees;
+  // playerObj = o.player;
+  // trees = o.octrees;
   listen = o.listen;
   
   for(const btn of devArr) parseForm(btn);
   listen("#dev");
 }
 
-export function getDevEl(id) {
+export function getDevEl(id: string) {
   return $("#ui > #gui > #debug-ui > #stats #" + id);
 }
 
-const devPos = getDevEl("pos");
-const xe = getDevEl("x");
-const ye = getDevEl("y");
-const ze = getDevEl("z");
-const devFps = getDevEl("fps");
-const deltaTime = getDevEl("delta-time");
-const facing = getDevEl("facing");
-getDevEl("cores").innerText = 
+const devPos = getDevEl("pos")!;
+const xe = getDevEl("x")!;
+const ye = getDevEl("y")!;
+const ze = getDevEl("z")!;
+const devFps = getDevEl("fps")!;
+const deltaTime = getDevEl("delta-time")!;
+const facing = getDevEl("facing")!;
+getDevEl("cores")!.innerText = 
 `${navigator.hardwareConcurrency || "???"} cores`;
 
 var lastTime = performance.now();
@@ -50,18 +52,18 @@ const devLoop = stopLoop(({delta}) => {
   `(${Math.floor(x)}, ${Math.floor(y)}, ${Math.floor(z)})`;
   
   const ma = 1000000;
-  xe.innerText = round(x, ma);
-  ye.innerText = round(y, ma);
-  ze.innerText = round(z, ma);
+  xe.innerText = `${round(x, ma)}`;
+  ye.innerText = `${round(y, ma)}`;
+  ze.innerText = `${round(z, ma)}`;
   
   const currentTime = performance.now();
   gameState.fps = 1000 / (currentTime - lastTime);
   lastTime = currentTime;
   if(fpsCounter-- <= 0) {
-    devFps.innerText = round(gameState.fps, 100);
+    devFps.innerText = `${round(gameState.fps, 100)}`;
     fpsCounter = 60;
   }
-  deltaTime.innerText = round(delta, 10);
+  deltaTime.innerText = `${round(delta, 10)}`;
   
   const direction = new Vector3();
   cam.camera.getWorldDirection(direction);
@@ -102,16 +104,11 @@ function toggleDevTools() {
 }
 
 addEventListener("keydown", e => {
-  e.preventDefault();
   switch (e.code) {
     case "F3":
+      e.preventDefault();
       if (gameState.paused) break;
       toggleDevTools();
-      break;
-    case "Backquote":
-      if (!supportsPointerLock()) break;
-      forcePointerUnlocked = false;
-      document.exitPointerLock();
       break;
   }
 });
