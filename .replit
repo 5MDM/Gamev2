@@ -1,4 +1,6 @@
 hidden=[".config"]
+entrypoint = "index.ts"
+run = "tsx index.ts"
 
 # hosting is currently hardcoded for this language
 # [hosting]
@@ -179,3 +181,16 @@ pattern = "**/{*.less,*.scss,*.css}"
 
 [gitHubImport]
 requiredFiles = [".replit", "replit.nix", ".config"]
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+enabledForHosting = false
+packageSearch = true
+guessImports = true
+
+[env]
+XDG_CONFIG_HOME = "$REPL_HOME/.config"
+PATH = "$REPL_HOME/node_modules/.bin:$REPL_HOME/.config/npm/node_global/bin"
+npm_config_prefix = "$REPL_HOME/.config/npm/node_global"

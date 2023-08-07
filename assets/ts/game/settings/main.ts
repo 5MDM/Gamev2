@@ -70,6 +70,7 @@ export class BaseSettingComponent {
     return this;
   }
 }
+
 export class ToggleSettingComponent extends BaseSettingComponent {
   public onenable?: () => void;
   public ondisable?: () => void;
@@ -102,7 +103,7 @@ export class ToggleSettingComponent extends BaseSettingComponent {
 
   generate() {
     const span = document.createElement("span");
-    span.innerHTML = this.name;
+    span.innerText = this.name;
     return $$("div", {
       attrs: {
         class: "setting"
@@ -137,7 +138,87 @@ export class ToggleSettingComponent extends BaseSettingComponent {
   }
 }
 
-export type AnySettingComponent = ToggleSettingComponent;
+export class SliderSettingComponent extends BaseSettingComponent {
+  public onenable?: () => void;
+  public ondisable?: () => void;
+  
+  declare public value: number;
+  public min: number;
+  public max: number;
+  public step: number;
+  
+  public type: "slider" = "slider";
+  listeners: {enable: SettingComponentListeners[], disable: SettingComponentListeners[]} = {
+    enable: [],
+    disable: []
+  }
+  constructor(opts: {
+    id: string,
+    name: string,
+    defaultValue?: number,
+    min: number,
+    max: number,
+    step?: number,
+  }) {
+    super(opts);
+    this.value = opts.defaultValue || 0;
+    this.min = opts.min;
+    this.max = opts.max;
+    this.step = opts.step || 1;
+  }
+  addEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
+    if (type === "enable") this.listeners.enable.push({listener, opts});
+    else this.listeners.disable.push({listener, opts});
+  }
+  removeEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
+    const listeners = this.listeners[type];
+    const found = listeners.find(l => l.listener == listener
+      && l.opts?.once == opts?.once
+      && l.opts?.signal == opts?.signal);
+    if (!found) return;
+    this.listeners[type].splice(listeners.indexOf(found), 1);
+  }
+
+  generate() {
+    const span = document.createElement("span");
+    span.innerText = this.name;
+    
+    const slider = <HTMLInputElement>$$("input", {
+      attrs: {
+        class: "slider",
+        type: "range",
+        min: this.min.toString(),
+        max: this.max.toString(),
+        value: this.value.toString(),
+        step: this.step.toString(),
+      },
+    });
+    
+    const count = $$("p", {
+      children: ": " + this.value.toString(),
+    });
+    
+    slider.addEventListener("input", () => {
+      count.innerText = ": " + slider.value.toString();
+    });
+    
+    return $$("div", {
+      attrs: {
+        class: "setting"
+      },
+      children: [
+        span,
+        count,
+        slider,
+      ],
+    });
+  }
+}
+
+export type AnySettingComponent = 
+  ToggleSettingComponent
+| SliderSettingComponent;
+
 export class SettingGroup {
   id: string;
   name: string;
