@@ -78,7 +78,7 @@ const loop = stopLoop(({delta}) => {
   }
 }, false);
 
-const transitionSpeed = 3;
+const transitionSpeed = 1;
 function tickDay(delta: number) {
   if(sunAngle >= RADIAN_HALF * 1.5) {
     sunset = true;
