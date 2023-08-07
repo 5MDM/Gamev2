@@ -1,5 +1,6 @@
+import { supportsPointerLock } from "../window";
 import {newCamera, RADIAN_HALF} from "./framework";
-import { Octree } from "./quadrant";
+import {Octree} from "./quadrant";
 import {clamp, stopLoop} from "./util";
 import {Quaternion, Vector3, PerspectiveCamera, Mesh} from "three";
 
@@ -57,10 +58,15 @@ export class ControlCamera {
    */
   ry: number = -RADIAN_HALF;
   /**
-   * A boolean flag that indicates whether the camera can pan or not
+   * A boolean flag that indicates whether the camera can pan using touch controls or not
    * @type {boolean}
    */
-  canPan: boolean = false;
+  canPanTouch: boolean = false;
+  /**
+   * A boolean flag that indicates whether the camera can pan using mouse controls or not
+   * @type {boolean}
+   */
+  canPanMouse: boolean = false;
   /**
    * The camera object that is controlled by the ControlCamera instance
    * @type {PerspectiveCamera}
@@ -75,7 +81,7 @@ export class ControlCamera {
    * The sensitivity of the camera movement
    * @type {number}
    */
-  sensitivity: number;
+  mouseSensitivity: number;
   
   /**
    * Creates a new ControlCamera instance with a new camera object
@@ -83,11 +89,11 @@ export class ControlCamera {
    * @param {number} [o.fov=80] - The field of view for the camera in degrees
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
-   * @param {number} [o.sensitivity=100] - The sensitivity of the camera movement
+   * @param {number} [o.mouseSensitivity=100] - The sensitivity of the camera movement
    */
-  constructor(o?: { fov?: number; min?: number; max?: number, sensitivity?: number }) {
+  constructor(o?: { fov?: number; min?: number; max?: number, mouseSensitivity?: number }) {
     this.camera = newCamera(o);
-    this.sensitivity = o?.sensitivity || 100;
+    this.mouseSensitivity = o?.mouseSensitivity || 100;
     this.loop();
     return this;
   }
@@ -107,7 +113,30 @@ export class ControlCamera {
    *         The current instance of ControlCamera
    */
   bind(el: AnyHTMLElement): ControlCamera {
+    if (this.el) throw new Error("Camera is already binded to an element")
     this.el = el;
+    el.addEventListener("pointerdown", e => this.down(e));
+    // Use targetTouches instead of
+    // regular touches or else it glitches
+    el.addEventListener("touchmove", 
+      (e: TouchEvent) => {
+        e.preventDefault();
+        this.moveTouch(
+          e.targetTouches[e.targetTouches.length-1]
+        );
+      },
+    );
+    el.addEventListener("pointerup", e => this.up(e));
+
+    el.addEventListener("mousemove", e => {
+      if (document.pointerLockElement != el) return;
+      this.moveMouse(e)
+    });
+    document.addEventListener("pointerlockchange", e => {
+      if (document.pointerLockElement == el) return;
+      this.disableMouse();
+      this.onPointerUnlock();
+    })
     return this;
   }
   
@@ -132,9 +161,14 @@ export class ControlCamera {
   };
   
   /**
-   * A function that handles the pointer move event
+   * A function that gets called on the pointer move event
    */
   onPointerMove = (..._args: any): void => {};
+
+  /**
+   * A function that gets called when the pointer gets unlocked
+   */
+  onPointerUnlock = () => {};
   
   /**
    * Handles the pointer down event and sets the touch information
@@ -154,6 +188,7 @@ export class ControlCamera {
    * @param {Touch} e - The touch move or mouse move event
    */
   moveTouch(e: Touch) {
+    if (!this.canPanTouch) return;
     if(e.identifier == this.touch.id) {
       this.touch.x = this.touch.lx - e.pageX;
       this.touch.y = this.touch.ly - e.pageY;
@@ -175,13 +210,14 @@ export class ControlCamera {
    * @param {MouseEvent} e - The touch move or mouse move event
    */
   moveMouse(e: MouseEvent) {
+    if (!this.canPanMouse) return;
     const dx = e.movementX;
     const dy = e.movementY;
   
-    this.rx -= dx * (0.005 * this.sensitivity / 100);
+    this.rx -= dx * (0.005 * this.mouseSensitivity / 100);
     this.ry = clamp(
       -Math.PI / 2 + 0.1,
-      this.ry - (dy * (0.005 * this.sensitivity / 100)),
+      this.ry - (dy * (0.005 * this.mouseSensitivity / 100)),
       Math.PI / 3,
     );
   }
@@ -204,21 +240,7 @@ export class ControlCamera {
    */
   enableTouch(): ControlCamera {
     if (!this.el) throw new Error("Cannot enable camera panning without binding element")
-    this.canPan = true;
-    this.el
-    .addEventListener("pointerdown", e => this.down(e));
-    
-    // Use targetTouches instead of
-    // regular touches or else it glitches
-    this.el.addEventListener("touchmove", 
-      (e: TouchEvent) => this.moveTouch(
-        e.targetTouches[e.targetTouches.length-1]
-      ),
-    );
-    
-    this.el
-    .addEventListener("pointerup", e => this.up(e));
-    
+    this.canPanTouch = true;
     return this;
   }
 
@@ -229,11 +251,8 @@ export class ControlCamera {
    */
   enableMouse(): ControlCamera {
     if (!this.el) throw new Error("Cannot enable camera panning without binding element");
-    this.el.requestPointerLock();
-    this.el.addEventListener("mousemove", e => {
-      if (document.pointerLockElement != this.el) return;
-      this.moveMouse(e)
-    });
+    this.canPanMouse = true;
+    if (supportsPointerLock()) this.el.requestPointerLock();
     return this;
   }
   
@@ -252,12 +271,22 @@ export class ControlCamera {
   }
   
   /**
-   * Disables the camera panning
+   * Disables the camera panning using touch controls
    * @returns {ControlCamera} 
    *         The current instance of ControlCamera
    */
-  disable(): ControlCamera {
-    this.canPan = false;
+  disableTouch(): ControlCamera {
+    this.canPanTouch = false;
+    return this;
+  }
+
+  /**
+   * Disables the camera panning using mouse controls
+   * @returns {ControlCamera} 
+   *         The current instance of ControlCamera
+   */
+  disableMouse(): ControlCamera {
+    this.canPanTouch = false;
     return this;
   }
 }
@@ -283,8 +312,9 @@ export class MovementCamera extends ControlCamera {
    * @param {number} [o.fov=80] - The field of view for the camera in degrees
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
+   * @param {number} [o.mouseSensitivity=100] - The sensitivity of the camera movement
    */
-  constructor(o?: { fov?: number; min?: number; max?: number; }) {
+  constructor(o?: { fov?: number; min?: number; max?: number, mouseSensitivity?: number }) {
     super(o);
   }
   
@@ -404,8 +434,9 @@ export class PhysicsCamera extends MovementCamera {
    * @param {number} [o.fov=80] - The field of view for the camera in degrees
    * @param {number} [o.min=0.1] - The near clipping plane for the camera
    * @param {number} [o.max=1000] - The far clipping plane for the camera
+   * @param {number} [o.mouseSensitivity=100] - The mouse sensitivity of the camera movement
    */
-  constructor(o?: {fov?: number, min?: number, max?: number}) {
+  constructor(o?: {fov?: number, min?: number, max?: number, mouseSensitivity?: number}) {
     super(o);
   }
   

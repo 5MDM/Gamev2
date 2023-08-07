@@ -1,6 +1,6 @@
 import {Camera, Scene, WebGLRenderer} from "three";
 import {$} from "./lib/util";
-import {canvasWidth, canvasHeight} from "./window";
+import {gameState} from "./window";
 
 export var currentScene: Scene;
 export var currentCamera: Camera;
@@ -17,7 +17,7 @@ export function setCurrentCamera(cam: Camera) {
   currentCamera = cam;
 }
 
-const renderer = new WebGLRenderer({
+export const renderer = new WebGLRenderer({
   canvas: $("#c")!,
   alpha: true,
 });
@@ -29,5 +29,5 @@ export function renderLoop() {
 
 renderer.debug.checkShaderErrors = true;
 
-renderer.setPixelRatio(devicePixelRatio);
-renderer.setSize(canvasWidth, canvasHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(gameState.canvas.width, gameState.canvas.height);

@@ -1,5 +1,5 @@
 import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, Texture, Color} from "three";
-import {canvasWidth, canvasHeight, imageImports} from "../window";
+import {gameState, imageImports} from "../window";
 
 /**
  * The constant value for 90 degrees in radians
@@ -18,7 +18,7 @@ export const RADIAN_HALF: number = 1.570796;
 export function newCamera(o: {fov?: number, min?: number, max?: number} = {}) {
   return new PerspectiveCamera(
     o.fov || 80,
-    canvasWidth / canvasHeight,
+    gameState.canvas.width / gameState.canvas.height,
     o.min || 0.1,
     o.max || 1000,
   );

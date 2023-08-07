@@ -1,8 +1,3 @@
-export const canvasPaddingHeight = 50;
-export const canvasPaddingWidth = 10;
-export const canvasWidth = window.innerWidth - canvasPaddingWidth;
-export const canvasHeight = window.innerHeight - canvasPaddingHeight;
-
 export function isPWA() {
   const str = "(display-mode: standalone)";
   if(('standalone' in navigator) && navigator.standalone
@@ -20,13 +15,26 @@ export function supportsPointerLock() {
   return "pointerLockElement" in document
 }
 
+export function isiOSDevice() {
+  return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !(window as any).MSStream;
+}
+
 export const gameState = {
   paused: false,
   fps: NaN,
   showControls: isTouchDevice(),
   isInstalled: isPWA(),
   devToolsEnabled: false,
+  canvas: {
+    paddingWidth: 0,
+    paddingHeight: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  },
+  useFullScreen: !isiOSDevice(),
 };
+gameState.canvas.width = window.innerWidth - gameState.canvas.paddingWidth
+gameState.canvas.height = window.innerHeight - gameState.canvas.paddingHeight
 
 export const imageImports: {[key: string]: () => Promise<{default: string}>} = Object.fromEntries(
   Object.entries(
@@ -38,30 +46,23 @@ export const imageImports: {[key: string]: () => Promise<{default: string}>} = O
 addEventListener("touchend", e => e.preventDefault());
 
 document.documentElement.style
-.setProperty("--w", innerWidth + "px");
+.setProperty("--w", window.innerWidth + "px");
 document.documentElement.style
-.setProperty("--h", innerHeight + "px");
+.setProperty("--h", window.innerHeight + "px");
 
 document.documentElement.style
-.setProperty("--cw", canvasWidth + "px");
+.setProperty("--cw", gameState.canvas.width + "px");
 document.documentElement.style
-.setProperty("--ch", canvasHeight + "px");
+.setProperty("--ch", gameState.canvas.height + "px");
 
-if(!gameState.showControls) {
-  document.getElementById("m-start-game")!
-  .onpointerdown = enableFullscreen;
-}
-
-function enableFullscreen() {
+export function enableFullscreen() {
+  if (!gameState.useFullScreen) return;
   const el = document.documentElement;
   const rfs = el.requestFullscreen
   || el.webkitRequestFullScreen
   || el.mozRequestFullScreen
   || el.msRequestFullscreen;
   
-  if(rfs != undefined){
-    rfs.call(el);
-  } else {
-    alert("Your browser does not support fullscreen");
-  }
+  if(!rfs) return
+  rfs.call(el);
 }

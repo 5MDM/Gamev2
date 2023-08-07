@@ -5,6 +5,7 @@ import {generateWorld} from "./world-generation";
 import {newBox} from "../lib/framework";
 import {setDevObj} from "./settings/main";
 import {setTimeScene} from "./time";
+import "./settings/groups"
 
 import {blockData} from "./blocks";
 await blockData;
