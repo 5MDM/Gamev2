@@ -11,23 +11,11 @@ var cam: AnyCamera;
 var listen: (id: string) => void;
 
 const debugEl = $("#ui > #gui > #debug-ui")!;
-const devArr: FormComponentOpts[] = [
-  {
-    id: "debug-toggle",
-    type: "toggle",
-    enable: enableDevTools,
-    disable: disableDevTools,
-  }
-];
 
-export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[], listen: (id: string) => void}) {
+export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]}) {
   cam = o.camera;
   // playerObj = o.player;
   // trees = o.octrees;
-  listen = o.listen;
-  
-  for(const btn of devArr) parseForm(btn);
-  listen("#dev");
 }
 
 export function getDevEl(id: string) {
@@ -83,13 +71,13 @@ const devLoop = stopLoop(({delta}) => {
   }
 }, false);
 
-function enableDevTools() {
+export function enableDevTools() {
   gameState.devToolsEnabled = true;
   devLoop.start();
   debugEl.style.display = "block";
 }
 
-function disableDevTools() {
+export function disableDevTools() {
   gameState.devToolsEnabled = false;
   devLoop.stop();
   debugEl.style.display = "none";
@@ -110,5 +98,8 @@ addEventListener("keydown", e => {
       if (gameState.paused) break;
       toggleDevTools();
       break;
+    case "F1":
+      e.preventDefault();
+      console.log(gameState)
   }
 });

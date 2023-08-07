@@ -1,13 +1,10 @@
 import {PhysicsCamera} from "../lib/camera";
 import {$, addEventListeners, clamp, stopLoop} from "../lib/util";
-import {imageImports, isTouchDevice} from "../window";
-import {gameState} from "../window";
-const sensitivity = 100
+import {imageImports, isTouchDevice, gameState} from "../window";
 
-export const cam = new PhysicsCamera();
+export const cam = new PhysicsCamera({mouseSensitivity: 100});
 cam.bind($("#c")!);
 cam.setDefault(0, 0);
-cam.enableTouch();
 
 cam.onPointerMove = function(e) {
   cam.rx += e.x * 0.01;
@@ -17,21 +14,6 @@ cam.onPointerMove = function(e) {
     Math.PI / 3,
   );
 };
-
-const canvas = $("#c");
-canvas!.addEventListener("mousemove", e => {
-  if (document.pointerLockElement != canvas) return;
-  const dx = e.movementX;
-  const dy = e.movementY;
-
-  cam.rx -= dx * (0.005 * sensitivity / 100);
-  cam.ry = clamp(
-    -Math.PI / 2 + 0.1,
-    cam.ry - (dy * (0.005 * sensitivity / 100)),
-    Math.PI / 3,
-  );
-});
-
 
 var up = false;
 var left = false;

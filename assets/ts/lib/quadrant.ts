@@ -152,7 +152,14 @@ class Box {
    * @param e - The other box to check for intersection
    * @returns True if the boxes intersect, false otherwise
    */
-  intersectsBox(e: Box): boolean {
+  intersectsBox(e: Box | {
+    x: number,
+    y: number,
+    z: number,
+    width: number,
+    height: number,
+    depth: number
+  }): boolean {
     const x1 = this.x;
     const y1 = this.y;
     const z1 = this.z;
@@ -286,18 +293,32 @@ export class Octree {
    * @param a - The box or mesh object to check for intersection
    * @returns An array of boxes that intersect with the given object in the octree
    */
-  get(a: Box | Mesh, size?: {width: number, height: number, depth: number}): Array<Box> {
-    var e: Box;
+  get(a: Box | Mesh | {
+    x: number,
+    y: number,
+    z: number,
+    width: number,
+    height: number,
+    depth: number
+  }, size?: {width: number, height: number, depth: number}): Array<Box> {
+    var e: {
+      x: number,
+      y: number,
+      z: number,
+      width: number,
+      height: number,
+      depth: number
+    };
     if(a instanceof Mesh) {
       // hardcoded
-      e = new Box({
+      e = {
         x: a.position.x,
         y: a.position.y,
         z: a.position.z,
         width: size!.width,
         height: size!.height,
         depth: size!.depth,
-      });
+      };
     } else {
       e = a;
     }

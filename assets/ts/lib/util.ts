@@ -41,13 +41,13 @@ export function parseCSS(e: {[key: string]: string}): string {
  * @param {Array|any} [opts.down] - The array or the value of pointerdown event handlers to add to the element. Each handler should be a function that takes an object with two properties: e (the event) and el (the element).
  * @returns The created HTML element
  */
-export function $$(name: string, opts: {
+export function $$(name: string, opts?: {
   attrs?: {[key: string]: string},
   style?: {[key: string]: string},
-  children?: HTMLElement | string,
+  children?: HTMLElement | string | (HTMLElement | string)[],
   listeners?: string,
-  up: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void,
-  down: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void,
+  up?: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void | (({e, el}: {e: PointerEvent, el: HTMLElement}) => void)[],
+  down?: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void | (({e, el}: {e: PointerEvent, el: HTMLElement}) => void)[],
 }): HTMLElement {
   const el = document.createElement(name);
   if(!opts) return el;
@@ -239,4 +239,15 @@ export function addEventListeners(element: Element, events: string[], callback: 
  */
 export function round(num: number, places: number): number {
   return Math.round(num * places) / places;
+}
+
+/**
+ * Returns a promise that resolves after the specified amount of milliseconds
+ * @param ms The amount of milliseconds to wait
+ * @returns The promise that will resolve after the specified time
+ */
+export function wait(ms: number) {
+  return new Promise((res) => {
+    setTimeout(res, ms)
+  })
 }

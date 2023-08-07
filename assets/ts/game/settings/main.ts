@@ -1,6 +1,6 @@
 import type {Mesh} from "three";
 import type {AnyCamera} from "../../lib/camera";
-import {$} from "../../lib/util";
+import {$, $$} from "../../lib/util";
 import {setDebugObj} from "./debug";
 import "./pause";
 import { Octree } from "../../lib/quadrant";
@@ -36,31 +36,6 @@ export function showSettings() {
 // var playerObj;
 // var trees;
 
-function listen(id: string, f?: () => void) {
-  const btn = 
-  $("#settings #settings-menu #sidebar > " + id);
-  if(btn == undefined) 
-    throw new Error(`pause.js: button ID "${id}" not found`);
-  
-  const content = 
-  $(`#settings #settings-menu #content > ${id}-content`);
-  if(content == undefined) 
-    throw new Error(`pause.js: content ID "${id}" not found`);
-  
-  btn.addEventListener("pointerup", () => {
-    if(lastBtn != undefined)
-      lastBtn.classList.remove("current");
-    
-    lastBtn = btn;
-    btn.classList.add("current");
-    
-    lastContent = content;
-    content.style.display = "flex";
-    
-    if(f != undefined) f();
-  });
-}
-
 export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]}) {
   // cam = o.camera;
   // playerObj = o.player;
@@ -68,7 +43,139 @@ export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]
   setDebugObj({
     camera: o.camera,
     player: o.player,
-    octrees: o.octrees,
-    listen,
+    octrees: o.octrees
   });
+}
+
+interface SettingComponentAddEventListenerOpts {
+  once?: boolean,
+  signal?: AbortSignal
+}
+interface SettingComponentListeners {
+  listener: (() => void),
+  opts?: SettingComponentAddEventListenerOpts
+}
+export class BaseSettingComponent {
+  public id: string;
+  public name: string;
+  public value?: any;
+  constructor(opts: {
+    id: string,
+    name: string,
+    defaultValue?: any
+  }) {
+    this.id = opts.id;
+    this.name = opts.name;
+    this.value = opts.defaultValue;
+    return this;
+  }
+}
+export class ToggleSettingComponent extends BaseSettingComponent {
+  public onenable?: () => void;
+  public ondisable?: () => void;
+  declare public value: boolean;
+  public type: "toggle" = "toggle";
+  listeners: {enable: SettingComponentListeners[], disable: SettingComponentListeners[]} = {
+    enable: [],
+    disable: []
+  }
+  constructor(opts: {
+    id: string,
+    name: string,
+    defaultValue?: boolean
+  }) {
+    super(opts);
+    this.value = opts.defaultValue || false;
+  }
+  addEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
+    if (type === "enable") this.listeners.enable.push({listener, opts});
+    else this.listeners.disable.push({listener, opts});
+  }
+  removeEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
+    const listeners = this.listeners[type];
+    const found = listeners.find(l => l.listener == listener
+      && l.opts?.once == opts?.once
+      && l.opts?.signal == opts?.signal);
+    if (!found) return;
+    this.listeners[type].splice(listeners.indexOf(found), 1);
+  }
+
+  generate() {
+    const span = document.createElement("span");
+    span.innerHTML = this.name;
+    return $$("div", {
+      attrs: {
+        class: "setting"
+      },
+      children: [
+        span,
+        $$("span", {
+          attrs: {
+            class: this.value ? "setting-toggle enabled" : "setting-toggle"
+          }
+        })
+      ],
+      down: ({e, el}) => {
+        this.value = !this.value
+        if (this.value) {
+          el.querySelector(".setting-toggle")?.classList.add("enabled")
+          if (this.onenable) this.onenable();
+          this.listeners.enable.forEach(e => {
+            e.listener();
+            if (e.opts?.once) this.listeners.enable.splice(this.listeners.enable.indexOf(e), 1);
+          });
+        } else {
+          el.querySelector(".setting-toggle")?.classList.remove("enabled")
+          if (this.ondisable) this.ondisable();
+          this.listeners.disable.forEach(e => {
+            e.listener();
+            if (e.opts?.once) this.listeners.disable.splice(this.listeners.disable.indexOf(e), 1);
+          });
+        }
+      },
+    })
+  }
+}
+
+export type AnySettingComponent = ToggleSettingComponent;
+export class SettingGroup {
+  id: string;
+  name: string;
+  components: AnySettingComponent[] = [];
+  constructor(opts: {
+    id: string,
+    name: string
+  }) {
+    this.id = opts.id;
+    this.name = opts.name;
+  }
+  addComponent(component: AnySettingComponent) {
+    this.components?.push(component);
+    return this;
+  }
+  addToDOM(sidebar: HTMLDivElement, contentContainer: HTMLDivElement) {
+    sidebar.appendChild($$("button", {
+      attrs: {
+        id: this.id
+      },
+      children: this.name,
+      down: ({el}) => {
+        const content = contentContainer.querySelector<HTMLDivElement>(`div.content#${this.id}-content`)!;
+        content.style.display = "flex";
+        const otherContents = contentContainer.querySelectorAll<HTMLDivElement>(`div.content:not(div.content#${this.id}-content)`);
+        otherContents.forEach(e => e.style.display = "none");
+
+        el.classList.add("current");
+        const otherButtons = sidebar.querySelectorAll<HTMLButtonElement>(`button:not(button#${this.id})`);
+        otherButtons.forEach(e => e.classList.remove("current"))
+      },
+    }))
+    contentContainer.appendChild($$("div", {
+      attrs: {
+        id: `${this.id}-content`,
+        class: "content"
+      },
+      children: this.components?.map(component => component.generate())
+    }))
+  }
 }

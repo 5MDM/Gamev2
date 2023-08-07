@@ -1,8 +1,11 @@
 import {$, addEventListeners} from "../../lib/util";
-import {gameState, supportsPointerLock} from "../../window";
-import { hideSettings } from "./main";
+import {enableFullscreen, gameState, supportsPointerLock} from "../../window";
+import {cam} from "../camera";
+import {hideSettings} from "./main";
 
 function pause({ resumeText = "Resume Game", resumeTimer = 0, timerFinishedCallback = () => {} } = {}) {
+  cam.disableTouch();
+  cam.disableMouse();
   const resumeButton = $("#resume")!;
   const overlay = $("#overlay")!;
   gameState.paused = true;
@@ -35,7 +38,9 @@ function pause({ resumeText = "Resume Game", resumeTimer = 0, timerFinishedCallb
   }
 }
 function resume() {
-  if (supportsPointerLock()) canvas.requestPointerLock();
+  cam.enableTouch();
+  cam.enableMouse();
+  enableFullscreen();
   $("#overlay")!.style.display = "none";
   gameState.paused = false;
   hideSettings();
@@ -45,7 +50,6 @@ function resume() {
     $("#pause-btn")!.style.display = "flex";
   }
 }
-const canvas = $("#c")!;
 var resumeButtonEnabled = true;
 pause({resumeText: "Start Game"});
 addEventListeners($("#resume")!, ["click", "touchstart"], () => {
@@ -60,22 +64,21 @@ document.addEventListener("pointerlockerror", () => {
 var forcePointerUnlocked = true;
 
 const lockProgressBar = $("#lock-timer")!;
-document.addEventListener("pointerlockchange", async () => {
-  if (document.pointerLockElement != canvas) {
-    if (forcePointerUnlocked) {
-      resumeButtonEnabled = false;
-      pause({
-        resumeTimer: 1200,
-        timerFinishedCallback: () => {
-          resumeButtonEnabled = true;
-        }
-      });
-    } else {
-      forcePointerUnlocked = true;
-      pause();
-    }
+
+cam.onPointerUnlock = () => {
+  if (forcePointerUnlocked) {
+    resumeButtonEnabled = false;
+    pause({
+      resumeTimer: 1200,
+      timerFinishedCallback: () => {
+        resumeButtonEnabled = true;
+      }
+    });
+  } else {
+    forcePointerUnlocked = true;
+    pause();
   }
-})
+}
 
 
 $("#pause-btn")!.addEventListener("touchstart", () => pause());
