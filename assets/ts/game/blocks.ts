@@ -14,7 +14,8 @@ export function newBlock(e: Material) {
   return new Mesh(blockGeometry, e);
 }
 
-export const blockData = new Promise<{data: MeshBasicMaterial[], name: {[key: string]: number}}>(async res => {
+export const blockData = new Promise
+<{data: MeshBasicMaterial[], name: {[key: string]: number}}>(async res => {
   const nameArr: {[key: string]: number} = {};
   const arr = [];
   

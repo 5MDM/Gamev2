@@ -32,9 +32,11 @@ export const gameState = {
     height: window.innerHeight,
   },
   useFullScreen: !isiOSDevice(),
+  renderDistance: 2,
 };
-gameState.canvas.width = window.innerWidth - gameState.canvas.paddingWidth
-gameState.canvas.height = window.innerHeight - gameState.canvas.paddingHeight
+
+gameState.canvas.width = window.innerWidth - gameState.canvas.paddingWidth;
+gameState.canvas.height = window.innerHeight - gameState.canvas.paddingHeight;
 
 export const imageImports: {[key: string]: () => Promise<{default: string}>} = Object.fromEntries(
   Object.entries(

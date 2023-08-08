@@ -36,6 +36,9 @@ const slider = new SliderSettingComponent({
   name: "Render Distance",
   min: 1,
   max: 10,
+  onChange(value) {
+    gameState.renderDistance = value;
+  },
 });
 
 const group = new SettingGroup({id: "video", name: "Video"})

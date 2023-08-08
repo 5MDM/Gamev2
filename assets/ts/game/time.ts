@@ -23,12 +23,6 @@ const orbitSpeed = 0.0002;
 var sunAngle = 0;
 var moonAngle = RADIAN_HALF * 2;
 
-// const ogNightCycle = orbitSpeed;
-// var nightCycle = ogNightCycle;
-
-// const ogDayCycle = 50;
-// var dayCycle = ogDayCycle;
-
 const counterOg = 50;
 var counter = counterOg;
 
@@ -78,7 +72,7 @@ const loop = stopLoop(({delta}) => {
   }
 }, false);
 
-const transitionSpeed = 1;
+const transitionSpeed = 2;
 function tickDay(delta: number) {
   if(sunAngle >= RADIAN_HALF * 1.5) {
     sunset = true;
@@ -104,7 +98,8 @@ function tickDay(delta: number) {
 }
 
 function tickNight(delta: number) {
-  if(moonAngle >= RADIAN_HALF * 1.5) {
+  if(moonAngle >= RADIAN_HALF * 1.5
+  && moonAngle <= RADIAN_HALF * 2) {
     sunrise = true;
   }
   
@@ -132,7 +127,6 @@ function tickSun(delta = 1) {
   
   sun.position.z = cam.position.z;
   sunAngle += orbitSpeed * delta;
-  if(sunAngle >= RADIAN_HALF * 4) sunAngle = 0;
 }
 
 function tickMoon(delta = 1) {
@@ -144,7 +138,6 @@ function tickMoon(delta = 1) {
   
   moon.position.z = cam.position.z;
   moonAngle += orbitSpeed * delta;
-  if(moonAngle >= RADIAN_HALF * 4) moonAngle = 0;
 }
 
 function main() {

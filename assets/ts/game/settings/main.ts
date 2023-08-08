@@ -4,6 +4,7 @@ import {$, $$} from "../../lib/util";
 import {setDebugObj} from "./debug";
 import "./pause";
 import { Octree } from "../../lib/quadrant";
+import {gameState} from "../../window.js";
 
 const el: HTMLImageElement = $("#settings-btn")!;
 const menu: HTMLDivElement = $("#settings #settings-menu")!;
@@ -146,12 +147,14 @@ export class SliderSettingComponent extends BaseSettingComponent {
   public min: number;
   public max: number;
   public step: number;
+  public onChange: (value: number) => void;
   
   public type: "slider" = "slider";
   listeners: {enable: SettingComponentListeners[], disable: SettingComponentListeners[]} = {
     enable: [],
     disable: []
   }
+  
   constructor(opts: {
     id: string,
     name: string,
@@ -159,12 +162,14 @@ export class SliderSettingComponent extends BaseSettingComponent {
     min: number,
     max: number,
     step?: number,
+    onChange: (value: number) => void,
   }) {
     super(opts);
     this.value = opts.defaultValue || 0;
     this.min = opts.min;
     this.max = opts.max;
     this.step = opts.step || 1;
+    this.onChange = opts.onChange;
   }
   addEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
     if (type === "enable") this.listeners.enable.push({listener, opts});
@@ -200,6 +205,7 @@ export class SliderSettingComponent extends BaseSettingComponent {
     
     slider.addEventListener("input", () => {
       count.innerText = ": " + slider.value.toString();
+      this.onChange(parseInt(slider.value));
     });
     
     return $$("div", {

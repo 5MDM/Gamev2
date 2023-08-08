@@ -17,7 +17,8 @@ export function parseForm({id, type, enable, disable}: FormComponentOpts) {
   switch(type) {
     case "toggle":
       const toggle = el.querySelector(".setting-toggle");
-      if (!toggle) throw new Error(`Couldn't find toggle with class "setting-toggle" in form component by id "${id}"`)
+      if(!toggle) throw new Error(`Couldn't find toggle with class "setting-toggle" in form component by id "${id}"`);
+      
       el.addEventListener("pointerup", () => {
         if(toggle.classList.contains("enabled")) {
           toggle.classList.remove("enabled");
