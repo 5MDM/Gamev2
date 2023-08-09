@@ -2,15 +2,16 @@ import {createNoise2D} from "../lib/perlin";
 import {blockData, newBlock} from "./blocks";
 import {cam} from "./camera";
 import {Octree} from "../lib/quadrant";
-// import {aleaPRNG} from "../lib/alea";
+import {round, stopLoop} from "../lib/util.js";
 import {Mesh, Scene} from "three";
+import {gameState} from "../window.js";
 const bd = await blockData;
 
-type Biome = "plains" | "desert"
+type Biome = "plains" | "desert";
 
 // Seed: random
 const seedM = 10000;
-const seed = Math.round(Math.random() * seedM) / seedM;
+const seed = round(Math.random(), seedM);
 const getCoord = createNoise2D(() => seed);
 // const random = aleaPRNG(seed);
 
@@ -18,8 +19,7 @@ function getElevation(x: number, y: number) {
   function e(a: number) {
     return getCoord(x*a, y*a);
   }
-  /*x = Math.round(x / 2);
-  y = Math.round(y / 2);*/
+  
   return Math.floor(e(0.1) * 2) / 2;
 }
 
@@ -35,6 +35,33 @@ var finishGeneration: () => void;
 export const blockArray = new Promise<void>(res => {
   finishGeneration = res;
 });
+
+const chunkList: {
+  [key: number]: {
+    [key: number]: boolean;
+  }
+} = {};
+
+function getChunk(x: number, y: number) {
+  return chunkList[y][x];
+}
+
+function changeLoadedChunk(x: number, y: number, e: boolean) {
+  chunkList[y][x] = e;
+}
+
+function checkIfInDistance() {
+  const d = gameState.renderDistance;
+  const x = Math.round(cam.camera.position.x);
+  const y = Math.round(cam.camera.position.y);
+  console.log({x, y});
+}
+
+function whatToGenerate() {
+  stopLoop(() => {
+    checkIfInDistance();
+  });
+}
 
 export function generateWorld(scene: Scene) {
   const trees = [];
@@ -89,17 +116,11 @@ export function generateWorld(scene: Scene) {
   }
   
   function loadChunk(chunkX: number, chunkY: number) {
+    changeLoadedChunk(chunkX, chunkY, true);
+    
     const x = chunkX * CHUNK_SIZE;
     const y = chunkY * CHUNK_SIZE;
-    // const biomeId: number = random.range(15);
     var biome: Biome = "plains";
-    /*if(biomeId >= 7
-    && biomeId <= 10) {
-      biome = "desert";
-    } else if(biomeId <= 3) {
-      // cave opening
-      biome = "";
-    }*/
     
     const tree = new Octree({
       width: CHUNK_SIZE,
@@ -124,5 +145,6 @@ export function generateWorld(scene: Scene) {
   }
   
   finishGeneration();
+  whatToGenerate();
   return {trees};
 }

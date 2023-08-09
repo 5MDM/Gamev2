@@ -1,6 +1,6 @@
 hidden=[".config"]
 entrypoint = "index.ts"
-run = "tsx index.ts"
+run = ". ./start.sh"
 
 # hosting is currently hardcoded for this language
 # [hosting]
