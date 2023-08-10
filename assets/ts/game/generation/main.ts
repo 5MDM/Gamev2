@@ -5,21 +5,10 @@ import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple} from "../../lib/util.js";
 import {Mesh, Scene} from "three";
 import {gameState} from "../../window.js";
+import {seed, getElevation} from "./seed";
 const bd = await blockData;
 
 type Biome = "plains" | "desert";
-
-// Seed: random
-const seed = round(Math.random(), 10000);
-const getCoord = createNoise2D(() => seed);
-
-function getElevation(x: number, y: number) {
-  function e(a: number) {
-    return getCoord(x*a, y*a);
-  }
-  
-  return Math.floor(e(0.1) * 2) / 2;
-}
 
 export const CHUNK_SIZE = 8;
 const grassM = bd.data[bd.name["Grass"]];
