@@ -1,7 +1,7 @@
 import {blockData, newBlock} from "../blocks";
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple} from "../../lib/util.js";
-import {Mesh, Scene} from "three";
+import {Mesh, Scene, Material} from "three";
 import {seed, getElevation} from "./seed";
 const bd = await blockData;
 
@@ -17,6 +17,13 @@ type Biome = "plains" | "desert";
 const grassM = bd.data[bd.name["Grass"]];
 const sandM = bd.data[bd.name["Sand"]];
 const stoneM = bd.data[bd.name["Stone"]];
+
+interface ChunkData {
+  xc: number;
+  yc: number;
+  tree: Octree;
+  biome: Biome;
+}
 
 export function loadChunk(chunkX: number, chunkY: number) {
   const x = chunkX * CHUNK_SIZE;
@@ -42,45 +49,45 @@ export function loadChunk(chunkX: number, chunkY: number) {
     }
   }
   
-  function add_blocks({xc, yc, tree, biome}: {xc: number, yc: number, tree: Octree, biome: Biome}) {
-    const elev = getElevation(xc, yc) - 5;
-    function setPos(block: Mesh) {
-      block.position.x = xc+0.4;
-      block.position.z = yc+0.4;
-    }
-    
-    switch (biome) {
-      case "plains":
-        const grassBlock = newBlock(grassM);
-        setPos(grassBlock);
-        grassBlock.position.y = elev;
-        add_block(grassBlock, tree);
-        break;
-      case "desert":
-        const sandBlock = newBlock(sandM);
-        setPos(sandBlock);
-        sandBlock.position.y = elev;
-        add_block(sandBlock, tree);
-    }
-    
-    const stoneBlock = newBlock(stoneM);
-    setPos(stoneBlock);
-    stoneBlock.position.y = elev - 1;
-    add_block(stoneBlock, tree);
-  }
-  
-  function add_block(block: Mesh, tree: Octree) {
-    tree.insert({
-      x: block.position.x,
-      y: block.position.y,
-      z: block.position.z,
-      width: 1,
-      height: 1,
-      depth: 1,
-    });
-    
-    scene.add(block);
-  }
-  
   return tree;
+}
+
+function add_blocks(o: ChunkData) {
+  const elev = getElevation(o.xc, o.yc) - 5;
+  function setPos(block: Mesh) {
+    block.position.x = o.xc+0.4;
+    block.position.z = o.yc+0.4;
+  }
+  
+  function addBlock(e: Material, y?: number) {
+    const block = newBlock(e);
+    setPos(block);
+    block.position.y = y || elev;
+    addBlockToTree(block, o.tree);
+    
+    return block;
+  }
+  
+  switch (o.biome) {
+    case "plains":
+      const grass = addBlock(grassM);
+      break;
+    case "desert":
+      const sand = addBlock(sandM);
+  }
+  
+  const stone = addBlock(stoneM, elev - 1);
+}
+
+function addBlockToTree(block: Mesh, tree: Octree) {
+  tree.insert({
+    x: block.position.x,
+    y: block.position.y,
+    z: block.position.z,
+    width: 1,
+    height: 1,
+    depth: 1,
+  });
+  
+  scene.add(block);
 }
