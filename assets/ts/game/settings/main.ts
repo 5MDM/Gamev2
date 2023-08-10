@@ -3,8 +3,9 @@ import type {AnyCamera} from "../../lib/camera";
 import {$, $$} from "../../lib/util";
 import {setDebugObj} from "./debug";
 import "./pause";
-import { Octree } from "../../lib/quadrant";
+import {Octree} from "../../lib/quadrant";
 import {gameState} from "../../window.js";
+import {CameraOctreeMap} from "../../lib/camera"
 
 const el: HTMLImageElement = $("#settings-btn")!;
 const menu: HTMLDivElement = $("#settings #settings-menu")!;
@@ -37,7 +38,7 @@ export function showSettings() {
 // var playerObj;
 // var trees;
 
-export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]}) {
+export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: CameraOctreeMap}) {
   // cam = o.camera;
   // playerObj = o.player;
   // trees = o.octrees;

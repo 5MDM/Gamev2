@@ -2,7 +2,7 @@ import {$, stopLoop, round} from "../../lib/util";
 import {FormComponentOpts, parseForm} from "./form";
 import {MathUtils, Mesh, Vector3} from "three";
 import {gameState} from "../../window";
-import {AnyCamera} from "../../lib/camera";
+import {AnyCamera, CameraOctreeMap} from "../../lib/camera";
 import {Octree} from "../../lib/quadrant";
 
 var cam: AnyCamera;
@@ -12,7 +12,7 @@ var listen: (id: string) => void;
 
 const debugEl = $("#ui > #gui > #debug-ui")!;
 
-export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: Octree[]}) {
+export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: CameraOctreeMap}) {
   cam = o.camera;
   // playerObj = o.player;
   // trees = o.octrees;

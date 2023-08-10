@@ -412,6 +412,10 @@ export class MovementCamera extends ControlCamera {
  * A class that extends the MovementCamera class and adds the physics and collision functionality
  * @extends {MovementCamera}
  */
+export interface CameraOctreeMap {
+  [key: number]: Octree;
+}
+
 export class PhysicsCamera extends MovementCamera {
   /**
    * The list of blocks for the collision detection
@@ -422,7 +426,7 @@ export class PhysicsCamera extends MovementCamera {
    * The octrees for the collision detection
    * @type {import("./quadrant").Octree[]}
    */
-  octrees?: Octree[];
+  octrees?: CameraOctreeMap;
   /**
    * The player object that is bound to the camera
    * @type {import("three").Mesh}
@@ -464,8 +468,8 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPhysics({trees}: {trees: Octree[]}): PhysicsCamera {
-    this.octrees = trees;
+  bindPhysics(o: {trees: CameraOctreeMap}): PhysicsCamera {
+    this.octrees = o.trees;
     return this;
   }
   
@@ -486,9 +490,10 @@ export class PhysicsCamera extends MovementCamera {
    *         True if there is a collision, false otherwise
    */
   collided(): boolean {
-    if (!this.octrees) return false;
-    if (!this.playerObj) return false;
-    for(const tree of this.octrees) {
+    if(!this.octrees) return false;
+    if(!this.playerObj) return false;
+    for(const treeF in this.octrees) {
+      const tree = this.octrees[treeF];
       const col = 
       tree.get(this.playerObj, {
         width: 0.2,
