@@ -1,20 +1,17 @@
-/*
-import {createNoise2D} from "../lib/perlin";
-import {blockData, newBlock} from "./blocks";
-import {cam} from "./camera";
-import {Octree} from "../lib/quadrant";
-import {round, stopLoop} from "../lib/util.js";
+import {createNoise2D} from "../../lib/perlin";
+import {blockData, newBlock} from "../blocks";
+import {cam} from "../camera";
+import {Octree} from "../../lib/quadrant";
+import {round, stopLoop, floorMultiple} from "../../lib/util.js";
 import {Mesh, Scene} from "three";
-import {gameState} from "../window.js";
+import {gameState} from "../../window.js";
 const bd = await blockData;
 
 type Biome = "plains" | "desert";
 
 // Seed: random
-const seedM = 10000;
-const seed = round(Math.random(), seedM);
+const seed = round(Math.random(), 10000);
 const getCoord = createNoise2D(() => seed);
-// const random = aleaPRNG(seed);
 
 function getElevation(x: number, y: number) {
   function e(a: number) {
@@ -24,11 +21,10 @@ function getElevation(x: number, y: number) {
   return Math.floor(e(0.1) * 2) / 2;
 }
 
-const CHUNK_SIZE = 8;
+export const CHUNK_SIZE = 8;
 const grassM = bd.data[bd.name["Grass"]];
 const sandM = bd.data[bd.name["Sand"]];
 const stoneM = bd.data[bd.name["Stone"]];
-
 cam.camera.position.x = CHUNK_SIZE / 2;
 cam.camera.position.z = CHUNK_SIZE / 2;
 
@@ -36,33 +32,6 @@ var finishGeneration: () => void;
 export const blockArray = new Promise<void>(res => {
   finishGeneration = res;
 });
-
-const chunkList: {
-  [key: number]: {
-    [key: number]: boolean;
-  }
-} = {};
-
-function getChunk(x: number, y: number) {
-  return chunkList[y][x];
-}
-
-function changeLoadedChunk(x: number, y: number, e: boolean) {
-  chunkList[y][x] = e;
-}
-
-function checkIfInDistance() {
-  const d = gameState.renderDistance;
-  const x = Math.round(cam.camera.position.x);
-  const y = Math.round(cam.camera.position.y);
-  console.log({x, y});
-}
-
-function whatToGenerate() {
-  stopLoop(() => {
-    //checkIfInDistance();
-  });
-}
 
 export function generateWorld(scene: Scene) {
   const trees = [];
@@ -117,8 +86,6 @@ export function generateWorld(scene: Scene) {
   }
   
   function loadChunk(chunkX: number, chunkY: number) {
-    changeLoadedChunk(chunkX, chunkY, true);
-    
     const x = chunkX * CHUNK_SIZE;
     const y = chunkY * CHUNK_SIZE;
     var biome: Biome = "plains";
@@ -146,7 +113,5 @@ export function generateWorld(scene: Scene) {
   }
   
   finishGeneration();
-  whatToGenerate();
   return {trees};
 }
-*/

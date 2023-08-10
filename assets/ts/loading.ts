@@ -1,6 +1,6 @@
 // import {blockpr} from "./game/blocks";
 import {blockData} from "./game/blocks";
-import {blockArray} from "./game/world-generation";
+import {blockArray} from "./game/generation/main";
 import {$} from "./lib/util";
 
 const promises = [blockArray, blockData];

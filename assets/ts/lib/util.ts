@@ -251,3 +251,7 @@ export function wait(ms: number) {
     setTimeout(res, ms)
   })
 }
+
+export function floorMultiple(num: number, multiple: number): number {
+  return Math.floor(num / multiple) * multiple;
+}

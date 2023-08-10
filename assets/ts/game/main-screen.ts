@@ -1,7 +1,7 @@
 import {Scene} from "three";
 import {setCurrentScene, setCurrentCamera, renderLoop} from "../app";
 import {cam} from "./camera";
-import {generateWorld} from "./world-generation";
+import {generateWorld} from "./generation/main";
 import {newBox} from "../lib/framework";
 import {setDevObj} from "./settings/main";
 import {setTimeScene} from "./time";
