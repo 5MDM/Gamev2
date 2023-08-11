@@ -6,6 +6,7 @@ import "./pause";
 import {Octree} from "../../lib/quadrant";
 import {gameState} from "../../window.js";
 import {CameraOctreeMap} from "../../lib/camera"
+import {CoordinateMap2D} from "../generation/voxel-block";
 
 const el: HTMLImageElement = $("#settings-btn")!;
 const menu: HTMLDivElement = $("#settings #settings-menu")!;
@@ -38,14 +39,13 @@ export function showSettings() {
 // var playerObj;
 // var trees;
 
-export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: CameraOctreeMap}) {
+export function setDevObj(o: {camera: AnyCamera, player: Mesh, octrees: CoordinateMap2D<CameraOctreeMap>}) {
   // cam = o.camera;
   // playerObj = o.player;
   // trees = o.octrees;
   setDebugObj({
     camera: o.camera,
     player: o.player,
-    octrees: o.octrees
   });
 }
 

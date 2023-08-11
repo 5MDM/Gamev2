@@ -1,4 +1,4 @@
-import {blockData, newBlock} from "../blocks";
+import {blockData, newBlock} from "./blocks";
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple} from "../../lib/util.js";
 import {Mesh, Scene, Material} from "three";

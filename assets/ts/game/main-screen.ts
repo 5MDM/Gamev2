@@ -7,7 +7,7 @@ import {setDevObj} from "./settings/main";
 import {setTimeScene} from "./time";
 import "./settings/groups"
 
-import {blockData} from "./blocks";
+import {blockData} from "./generation/blocks";
 await blockData;
 
 export const scene = new Scene();

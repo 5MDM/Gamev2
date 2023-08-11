@@ -3,6 +3,7 @@ import {newCamera, RADIAN_HALF} from "./framework";
 import {Octree} from "./quadrant";
 import {clamp, stopLoop} from "./util";
 import {Quaternion, Vector3, PerspectiveCamera, Mesh} from "three";
+import {CoordinateMap2D} from "../game/generation/voxel-block";
 
 /**
  * Sets the quaternions for the x-axis and z-axis rotations from the given angles
@@ -413,10 +414,8 @@ export class MovementCamera extends ControlCamera {
  * @extends {MovementCamera}
  */
 export interface CameraOctreeMap {
-  [key: string]: {
-    tree: Octree;
-    blocks: Mesh[];
-  };
+  tree: Octree;
+  blocks: Mesh[];
 }
 
 export class PhysicsCamera extends MovementCamera {
@@ -429,7 +428,7 @@ export class PhysicsCamera extends MovementCamera {
    * The octrees for the collision detection
    * @type {import("./quadrant").Octree[]}
    */
-  octrees?: CameraOctreeMap;
+  octrees?: CoordinateMap2D<CameraOctreeMap>;
   /**
    * The player object that is bound to the camera
    * @type {import("three").Mesh}
@@ -471,7 +470,8 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPhysics(o: CameraOctreeMap): PhysicsCamera {
+  bindPhysics(o: CoordinateMap2D<CameraOctreeMap>): 
+  PhysicsCamera {
     this.octrees = o;
     
     return this;
@@ -496,8 +496,8 @@ export class PhysicsCamera extends MovementCamera {
   collided(): boolean {
     if(!this.octrees) return false;
     if(!this.playerObj) return false;
-    for(const treeF in this.octrees) {
-      const tree = this.octrees[treeF];
+    for(const treeF in this.octrees.map) {
+      const tree = this.octrees.map[treeF];
       const col = 
       tree.tree.get(this.playerObj, {
         width: 0.2,

@@ -1,6 +1,6 @@
-import {newBoxGeometry, loadImgFromAssets} from "../lib/framework";
+import {newBoxGeometry, loadImgFromAssets} from "../../lib/framework";
 import {MeshBasicMaterial, Mesh, Material} from "three";
-import blocks from "../../game/blocks.json";
+import blocks from "../../../game/blocks.json";
 
 export const blockGeometry = newBoxGeometry(1);
 

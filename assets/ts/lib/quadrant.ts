@@ -2,7 +2,7 @@ import {Vector3, Box3, Mesh, Box3Helper, Scene, Color} from "three";
 
 var debugMode = false;
 var crashCounter = 0;
-var objLimit = 50000;
+var objLimit = 5000000;
 function increment() {
   if(++crashCounter > objLimit)
   throw new Error(

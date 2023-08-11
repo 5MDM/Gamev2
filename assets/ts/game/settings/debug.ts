@@ -12,7 +12,7 @@ var listen: (id: string) => void;
 
 const debugEl = $("#ui > #gui > #debug-ui")!;
 
-export function setDebugObj(o: {camera: AnyCamera, player: Mesh, octrees: CameraOctreeMap}) {
+export function setDebugObj(o: {camera: AnyCamera, player: Mesh}) {
   cam = o.camera;
   // playerObj = o.player;
   // trees = o.octrees;
