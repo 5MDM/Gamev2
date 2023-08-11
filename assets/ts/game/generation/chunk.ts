@@ -39,20 +39,23 @@ export function loadChunk(chunkX: number, chunkY: number) {
     z: y,
   });
   
+  const blocks: Mesh[] = [];
+  
   for(let i = 0; i < CHUNK_SIZE; i++) {
     // goes sideways / x-axis
     const yc = i+y;
     for(let z = 0; z < CHUNK_SIZE; z++) {
       // goes down / y-axis
       const xc = z+x;
-      add_blocks({xc, yc, tree, biome});
+      blocks.push(...add_blocks({xc, yc, tree, biome}));
     }
   }
   
-  return tree;
+  return {tree, blocks};
 }
 
-function add_blocks(o: ChunkData) {
+function add_blocks(o: ChunkData): Mesh[] {
+  const blockArr: Mesh[] = [];
   const elev = getElevation(o.xc, o.yc) - 5;
   function setPos(block: Mesh) {
     block.position.x = o.xc+0.4;
@@ -61,6 +64,8 @@ function add_blocks(o: ChunkData) {
   
   function addBlock(e: Material, y?: number) {
     const block = newBlock(e);
+    blockArr.push(block);
+    
     setPos(block);
     block.position.y = y || elev;
     addBlockToTree(block, o.tree);
@@ -77,6 +82,8 @@ function add_blocks(o: ChunkData) {
   }
   
   const stone = addBlock(stoneM, elev - 1);
+  
+  return blockArr;
 }
 
 function addBlockToTree(block: Mesh, tree: Octree) {

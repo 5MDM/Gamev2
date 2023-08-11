@@ -413,7 +413,10 @@ export class MovementCamera extends ControlCamera {
  * @extends {MovementCamera}
  */
 export interface CameraOctreeMap {
-  [key: number]: Octree;
+  [key: string]: {
+    tree: Octree;
+    blocks: Mesh[];
+  };
 }
 
 export class PhysicsCamera extends MovementCamera {
@@ -468,8 +471,9 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {PhysicsCamera} 
    *         The current instance of PhysicsCamera
    */
-  bindPhysics(o: {trees: CameraOctreeMap}): PhysicsCamera {
-    this.octrees = o.trees;
+  bindPhysics(o: CameraOctreeMap): PhysicsCamera {
+    this.octrees = o;
+    
     return this;
   }
   
@@ -495,7 +499,7 @@ export class PhysicsCamera extends MovementCamera {
     for(const treeF in this.octrees) {
       const tree = this.octrees[treeF];
       const col = 
-      tree.get(this.playerObj, {
+      tree.tree.get(this.playerObj, {
         width: 0.2,
         height: 5,
         depth: 0.2,

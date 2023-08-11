@@ -44,5 +44,5 @@ cam.onMove = function() {
 setDevObj({
   camera: cam,
   player: camBox,
-  octrees: gworld.trees,
+  octrees: gworld,
 });
