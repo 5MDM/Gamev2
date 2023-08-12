@@ -336,4 +336,53 @@ export class Octree {
     
     return found;
   }
+  
+  getPoint(a: Box | Mesh | {
+    x: number,
+    y: number,
+    z: number,
+  }): Box[] {
+    var e: {
+      x: number,
+      y: number,
+      z: number,
+      width: number,
+      height: number,
+      depth: number
+    };
+    
+    if(a instanceof Mesh) {
+      // hardcoded
+      e = {
+        x: a.position.x,
+        y: a.position.y,
+        z: a.position.z,
+        width: 1,
+        height: 1,
+        depth: 1,
+      };
+    } else {
+      e = {
+        x: a.x,
+        y: a.y,
+        z: a.z,
+        width: 1,
+        height: 1,
+        depth: 1,
+      };
+    }
+    
+    const found: Box[] = [];
+    if(!this.bounds.intersectsBox(e)) return found;
+    if(this.bounds.width == 1) {
+      if(this.bounds.intersectsBox(e)
+      && this.box != null) found.push(this.box);
+    } else {
+      for(const child of this.children) {
+        found.push(...child.get(e));
+      }
+    }
+    
+    return found;
+  }
 }

@@ -39,6 +39,7 @@ export function loadChunk(chunkX: number, chunkY: number) {
     z: y,
   });
   
+  // For chunk deletion
   const blocks: Mesh[] = [];
   
   for(let i = 0; i < CHUNK_SIZE; i++) {
