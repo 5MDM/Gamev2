@@ -341,7 +341,7 @@ export class Octree {
     x: number,
     y: number,
     z: number,
-  }): Box[] {
+  }): Box | null {
     var e: {
       x: number,
       y: number,
@@ -372,17 +372,22 @@ export class Octree {
       };
     }
     
-    const found: Box[] = [];
-    if(!this.bounds.intersectsBox(e)) return found;
+    if(!this.bounds.intersectsBox(e)) return null;
     if(this.bounds.width == 1) {
       if(this.bounds.intersectsBox(e)
-      && this.box != null) found.push(this.box);
+      && this.box != null) return this.box;
     } else {
       for(const child of this.children) {
-        found.push(...child.get(e));
+        const f = child.getPoint(e);
+        if(f != null) return f;
       }
     }
     
-    return found;
+    return null;
+  }
+  
+  delete(): void {
+    for(const child of this.children) child.delete();
+    this.box = null;
   }
 }

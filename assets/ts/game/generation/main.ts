@@ -1,9 +1,9 @@
 import {cam} from "../camera";
 import {Scene} from "three";
-import {setChunkData, loadChunk} from "./chunk";
+import {VoxelWorld} from "./chunk";
 import {Octree} from "../../lib/quadrant";
 import {CameraOctreeMap} from "../../lib/camera";
-import {chunkRenderLoop, setRenderScene} from "./render";
+import {setRenderChunkData} from "./render";
 import {CoordinateMap2D} from "./voxel-block";
 
 export const CHUNK_SIZE = 8;
@@ -18,20 +18,23 @@ export const blockArray = new Promise<void>(res => {
 });
 
 export function generateWorld(scene: Scene) {
-  setChunkData({size: CHUNK_SIZE, scene});
+  const world = new VoxelWorld({
+    chunkSize: CHUNK_SIZE,
+    scene,
+  });
   
   const trees: CoordinateMap2D<CameraOctreeMap> = new CoordinateMap2D();
-  trees.set(0, 0,   loadChunk(0, 0)  );
-  trees.set(1, 0,   loadChunk(1, 0)  );
-  trees.set(-1,0,   loadChunk(-1, 0) );
-  trees.set(0, 1,   loadChunk(0, 1)  );
-  trees.set(1, 1,   loadChunk(1, 1)  );
-  trees.set(-1,1,   loadChunk(-1, 1) );
-  trees.set(0,-1,   loadChunk(0, -1) );
-  trees.set(1,-1,   loadChunk(1, -1) );
-  trees.set(-1,-1,  loadChunk(-1, -1));
-  setRenderScene(scene);
-  chunkRenderLoop.start();
+  trees.set(0, 0,   world.loadChunk(0, 0)  );
+  trees.set(1, 0,   world.loadChunk(1, 0)  );
+  trees.set(-1,0,   world.loadChunk(-1, 0) );
+  trees.set(0, 1,   world.loadChunk(0, 1)  );
+  trees.set(1, 1,   world.loadChunk(1, 1)  );
+  trees.set(-1,1,   world.loadChunk(-1, 1) );
+  trees.set(0,-1,   world.loadChunk(0, -1) );
+  trees.set(1,-1,   world.loadChunk(1, -1) );
+  trees.set(-1,-1,  world.loadChunk(-1, -1));
+  
+  setRenderChunkData(world);
   
   finishGeneration();
   return trees;

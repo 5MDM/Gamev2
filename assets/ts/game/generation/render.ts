@@ -1,13 +1,13 @@
 import {gameState} from "../../window";
 import {stopLoop, floorMultiple} from "../../lib/util";
-import {CHUNK_SIZE} from "./main";
 import {cam} from "../camera";
 import {Scene} from "three";
-import {loadChunk} from "./chunk";
+import {VoxelWorld} from "./chunk";
 
-var scene: Scene;
-export function setRenderScene(s: Scene) {
-  scene = s;
+var world: VoxelWorld;
+export function setRenderChunkData(w: VoxelWorld) {
+  world = w;
+  chunkRenderLoop.start();
 }
 
 const counterOg: number = 50;
@@ -16,9 +16,9 @@ var counter: number = counterOg;
 function deleteIfOutRadius(r: number) {
   r += 1;
   const x = 
-  floorMultiple(cam.camera.position.x, CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 8;
   const y = 
-  floorMultiple(cam.camera.position.z, CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 8;
   
   for(const i in cam.octrees?.map) {
     const coord = i.split(",");
@@ -28,7 +28,7 @@ function deleteIfOutRadius(r: number) {
     if(x < cx || x >= cx + r || y < cy || y >= cy + r) {
       // delete chunk
       for(const z in cam.octrees.map[i].blocks)
-        scene.remove(cam.octrees.map[i].blocks[z]);
+        world.scene.remove(cam.octrees.map[i].blocks[z]);
       
       delete cam.octrees.map[i];
     }
@@ -37,9 +37,9 @@ function deleteIfOutRadius(r: number) {
 
 function addInRadius(r: number) {
   const x = 
-  floorMultiple(cam.camera.position.x, CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 8;
   const y = 
-  floorMultiple(cam.camera.position.z, CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 8;
   
   /*
   trees["1,0"] = (loadChunk(1, 0));
@@ -65,7 +65,6 @@ function addInRadius(r: number) {
 export const chunkRenderLoop = stopLoop(() => {
   if(counter-- <= 0) {
     counter = counterOg;
-    console.clear();
     const {renderDistance} = gameState;
     //deleteIfOutRadius(renderDistance);
     //addInRadius(renderDistance);
