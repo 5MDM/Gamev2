@@ -350,7 +350,6 @@ export class Octree {
       height: number,
       depth: number
     };
-    
     if(a instanceof Mesh) {
       // hardcoded
       e = {
@@ -372,18 +371,7 @@ export class Octree {
       };
     }
     
-    if(!this.bounds.intersectsBox(e)) return null;
-    if(this.bounds.width == 1) {
-      if(this.bounds.intersectsBox(e)
-      && this.box != null) return this.box;
-    } else {
-      for(const child of this.children) {
-        const f = child.getPoint(e);
-        if(f != null) return f;
-      }
-    }
-    
-    return null;
+    return this.get(e)?.[0];
   }
   
   delete(): void {

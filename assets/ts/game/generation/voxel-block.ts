@@ -33,7 +33,7 @@ export interface VoxelFaceArray {
   ],
 };
 
-const faces: VoxelFaceArray[] = [
+export const faces: VoxelFaceArray[] = [
   { // left
     dir: [-1, 0, 0],
     corners: [
