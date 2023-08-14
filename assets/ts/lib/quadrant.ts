@@ -81,7 +81,6 @@ class Box {
     this.height = height;
     this.depth = depth;
     increment();
-    renderBox(this, new Color(0xfff000));
     return this;
   }
   
@@ -279,6 +278,7 @@ export class Octree {
     } else {
       if(!this.box) {
         this.box = box;
+        renderBox(box, new Color(0xfff000));
         return true;
       } else {
         console.warn("Why is the box even full");

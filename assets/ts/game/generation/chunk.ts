@@ -38,7 +38,7 @@ export class VoxelWorld {
     this.CHUNK_SIZE = o.chunkSize;
     this.scene = o.scene;
     this.voxelFaceMap = new CoordinateMap3D<boolean>;
-    const light = new AmbientLight(0x404040, 1000); // soft white light
+    const light = new AmbientLight(0x404040, 1000);
     this.scene.add( light );
     return this;
   }
@@ -53,10 +53,10 @@ export class VoxelWorld {
     
     const tree = new Octree({
       width: this.CHUNK_SIZE,
-      height: this.CHUNK_SIZE / 2, // 5
+      height: 5,
       depth: this.CHUNK_SIZE,
       x: x,
-      y: -this.CHUNK_SIZE / 2, // -7,
+      y: -7,
       z: y,
     });
     
@@ -104,8 +104,8 @@ export class VoxelWorld {
     // For chunk deletion
     const blocks: Mesh[] = [];
     blocks.push(mesh);
-    mesh.position.x += 0.4;
-    mesh.position.z += 0.4;
+    mesh.position.x -= 0.1;
+    mesh.position.z -= 0.1;
     
     this.scene.add(mesh);
     
@@ -159,6 +159,7 @@ export class VoxelWorld {
   }
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {
+    console.log(pos)
     tree.insert({
       x: pos.x,
       y: pos.y,

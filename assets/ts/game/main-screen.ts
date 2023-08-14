@@ -5,7 +5,8 @@ import {generateWorld} from "./generation/main";
 import {newBox} from "../lib/framework";
 import {setDevObj} from "./settings/main";
 import {setTimeScene} from "./time";
-import "./settings/groups"
+import {setDebugScene} from "../lib/quadrant";
+import "./settings/groups";
 
 import {blockData} from "./generation/blocks";
 await blockData;
@@ -14,7 +15,7 @@ export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 setTimeScene(scene, cam.camera);
-// setDebugScene(scene);
+//setDebugScene(scene);
 
 const gworld = generateWorld(scene);
 cam.bindPhysics(gworld);
