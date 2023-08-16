@@ -1,14 +1,19 @@
-import {blockData, newBlock} from "./blocks";
 import {Octree} from "../../lib/quadrant";
-import {round, stopLoop, floorMultiple} from "../../lib/util.js";
-import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight} from "three";
+import {round, stopLoop, floorMultiple, rand} from "../../lib/util.js";
+import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture} from "three";
 import {seed, getElevation} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
-const bd = await blockData;
+import {loadImgFromAssets} from "../../lib/framework";
 
 interface VoxelContructorOpts {
   chunkSize: number;
   scene: Scene;
+  uv: {
+    imageTextures: Texture;
+    size: number;
+    imageWidth: number;
+    imageHeight: number;
+  };
 }
 
 interface ChunkData {
@@ -25,21 +30,25 @@ interface XYZ {
 }
 
 type Biome = "plains" | "desert";
-const grassM = bd.data[bd.name["Grass"]];
-const sandM = bd.data[bd.name["Sand"]];
-const stoneM = bd.data[bd.name["Stone"]];
 
 export class VoxelWorld {
   CHUNK_SIZE: number;
   scene: Scene;
   voxelFaceMap: CoordinateMap3D<boolean>;
+  imageTextures: Texture;
+  tileWidthRatio: number;
+  tileHeightRatio: number;
   
   constructor(o: VoxelContructorOpts) {
     this.CHUNK_SIZE = o.chunkSize;
     this.scene = o.scene;
     this.voxelFaceMap = new CoordinateMap3D<boolean>;
-    const light = new AmbientLight(0x404040, 1000);
-    this.scene.add( light );
+    this.imageTextures = o.uv.imageTextures;
+    this.tileWidthRatio = o.uv.size / o.uv.imageWidth;
+    this.tileHeightRatio = o.uv.size / o.uv.imageHeight;
+    
+    const light = new AmbientLight(0x404040, 100);
+    this.scene.add(light);
     return this;
   }
   
@@ -68,6 +77,7 @@ export class VoxelWorld {
     const positions: number[] = [];
     const normals:   number[] = [];
     const indices:   number[] = [];
+    const uvs:       number[] = [];
     
     for(const pos of blocksToIterate) {
       //voxelFaceMap.set()
@@ -76,12 +86,18 @@ export class VoxelWorld {
         positions,
         normals,
         indices,
+        uvs,
       });
     }
     
     const geometry = new BufferGeometry();
+    
     const material = 
-    new MeshLambertMaterial({color: 0xffffff});
+    new MeshLambertMaterial({
+      map: this.imageTextures,
+      side: DoubleSide,
+      transparent: true,
+    });
     
     const positionNumComponents = 3;
     const normalNumComponents = 3;
@@ -93,6 +109,11 @@ export class VoxelWorld {
     geometry.setAttribute(
       "normal",
       new BufferAttribute(new Float32Array(normals), 3),
+    );
+    
+    geometry.setAttribute(
+      "uv",
+      new BufferAttribute(new Float32Array(uvs), 2),
     );
     
     geometry.setIndex(indices);
@@ -109,10 +130,6 @@ export class VoxelWorld {
     
     this.scene.add(mesh);
     
-    /*loopChunk((xc, yc) => {
-      blocks.push(...add_blocks({xc, yc, tree, biome}));
-    });*/
-    
     return {tree, blocks};
   }
   
@@ -126,7 +143,7 @@ export class VoxelWorld {
     this.voxelFaceMap.set(pos.x, pos.y, pos.z, true);
   }
   
-  protected add_blocks(o: ChunkData): Mesh[] {
+  /*protected add_blocks(o: ChunkData): Mesh[] {
     const blockArr: Mesh[] = [];
     const elev = getElevation(o.xc, o.yc) - 5;
     function setPos(block: Mesh) {
@@ -156,10 +173,9 @@ export class VoxelWorld {
     const stone = addBlock(stoneM, elev - 1);
     
     return blockArr;
-  }
+  }*/
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {
-    console.log(pos)
     tree.insert({
       x: pos.x,
       y: pos.y,
@@ -184,30 +200,38 @@ export class VoxelWorld {
     
   }
   
-  protected findFaces({pos, indices, positions, normals}: {
+  protected findFaces({pos, indices, positions, normals, uvs}: {
     pos:       XYZ;
     indices:   number[];
     positions: number[];
     normals:   number[];
+    uvs:       number[];
   }): void {
     
-    for(const {dir, corners} of faces) {
+    // TODO
+    const uvVoxel = 0;
+    for(const {dir, corners, uvRow} of faces) {
       const neighbor = this.voxelFaceMap.get(
         pos.x + dir[0],
         pos.y + dir[1],
         pos.z + dir[2],
       );
       
-      if(neighbor != true) {
+      if(neighbor == undefined) {
         // make face
         const ndx = positions.length / 3;
         for(const p of corners) {
           positions.push(
-            p[0] + pos.x, 
-            p[1] + pos.y,
-            p[2] + pos.z,
+            p.pos[0] + pos.x, 
+            p.pos[1] + pos.y,
+            p.pos[2] + pos.z,
           );
           normals.push(...dir);
+          
+          uvs.push(
+            (uvVoxel + p.uv[0]) * this.tileWidthRatio,
+            1 - (uvRow + 1 - p.uv[1]) * this.tileHeightRatio,
+          );
         }
         
         indices.push(

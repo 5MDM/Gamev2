@@ -6,10 +6,9 @@ import {newBox} from "../lib/framework";
 import {setDevObj} from "./settings/main";
 import {setTimeScene} from "./time";
 import {setDebugScene} from "../lib/quadrant";
+import {CoordinateMap2D} from "./generation/voxel-block";
 import "./settings/groups";
-
-import {blockData} from "./generation/blocks";
-await blockData;
+import {CameraOctreeMap} from "../lib/camera";
 
 export const scene = new Scene();
 setCurrentScene(scene);
@@ -17,33 +16,40 @@ setCurrentCamera(cam.camera);
 setTimeScene(scene, cam.camera);
 //setDebugScene(scene);
 
-const gworld = generateWorld(scene);
-cam.bindPhysics(gworld);
-//cam.enableGravity();
-renderLoop();
+const worldPr = generateWorld(scene);
+worldPr.then(main);
 
-// player
 export const camBox = newBox({
   width: 0.2,
   height: 3,
   depth: 0.2,
   color: 0xf0f0f0,
 });
-scene.add(camBox);
-cam.bindPlayer(camBox);
 
-camBox.position.x = cam.camera.position.x;
-camBox.position.y = cam.camera.position.y-2.5;
-camBox.position.z = cam.camera.position.z;
-
-cam.onMove = function() {
+function main(gworld: CoordinateMap2D<CameraOctreeMap>): void {
+  cam.bindPhysics(gworld);
+  
+  setDevObj({
+    camera: cam,
+    player: camBox,
+    octrees: gworld,
+  });
+  
+  scene.add(camBox);
+  cam.bindPlayer(camBox);
+  
   camBox.position.x = cam.camera.position.x;
   camBox.position.y = cam.camera.position.y-2.5;
   camBox.position.z = cam.camera.position.z;
-};
+  
+  cam.onMove = function() {
+    camBox.position.x = cam.camera.position.x;
+    camBox.position.y = cam.camera.position.y-2.5;
+    camBox.position.z = cam.camera.position.z;
+  };
+  
+  renderLoop();
+}
+//cam.enableGravity();
 
-setDevObj({
-  camera: cam,
-  player: camBox,
-  octrees: gworld,
-});
+// player

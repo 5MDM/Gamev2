@@ -255,3 +255,7 @@ export function wait(ms: number) {
 export function floorMultiple(num: number, multiple: number): number {
   return Math.floor(num / multiple) * multiple;
 }
+
+export function rand(max: number): number {
+  return Math.floor(Math.random() * max);
+}

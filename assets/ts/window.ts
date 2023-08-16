@@ -1,3 +1,5 @@
+import {generateUVMap} from "./game/generation/blocks";
+
 export function isPWA() {
   const str = "(display-mode: standalone)";
   if(('standalone' in navigator) && navigator.standalone
@@ -19,7 +21,23 @@ export function isiOSDevice() {
   return /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent) && !(window as any).MSStream;
 }
 
-export const gameState = {
+interface GameStateInterface {
+  paused: boolean;
+  fps: number;
+  showControls: boolean;
+  isInstalled: boolean;
+  devToolsEnabled: boolean;
+  canvas: {
+    paddingWidth: number;
+    paddingHeight: number;
+    width: number;
+    height: number;
+  };
+  useFullScreen: boolean;
+  renderDistance: number;
+}
+
+export const gameState: GameStateInterface = {
   paused: false,
   fps: NaN,
   showControls: isTouchDevice(),
@@ -32,7 +50,7 @@ export const gameState = {
     height: window.innerHeight,
   },
   useFullScreen: !isiOSDevice(),
-  renderDistance: 2,
+  renderDistance: 2
 };
 
 gameState.canvas.width = window.innerWidth - gameState.canvas.paddingWidth;

@@ -100,6 +100,16 @@ export function loadImg(img: string): Promise<Texture> {
  *         A promise that resolves with the texture object that has the sRGB color space
  */
 export async function loadImgFromAssets(img: string): Promise<Texture> {
-  const path = (await imageImports[img]()).default
-  return await loadImg(path)
+  const pr = imageImports[img];
+  if(pr == undefined) {
+    const err: Error = new Error(
+      `loadImgFromAssets: could not find file: "${img}"`
+    );
+    
+    
+    throw err!.message + "\n" + err!.stack;
+  }
+  
+  const path = (await pr()).default;
+  return await loadImg(path);
 }

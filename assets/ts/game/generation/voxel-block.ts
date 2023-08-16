@@ -24,68 +24,75 @@ export class CoordinateMap2D<T> {
 }
 
 export interface VoxelFaceArray {
+  uvRow: number;
   dir: [number, number, number],
   corners: [
-    [number, number, number],
-    [number, number, number],
-    [number, number, number],
-    [number, number, number],
+    {pos: [number, number, number], uv: [number, number]},
+    {pos: [number, number, number], uv: [number, number]},
+    {pos: [number, number, number], uv: [number, number]},
+    {pos: [number, number, number], uv: [number, number]},
   ],
 };
 
 export const faces: VoxelFaceArray[] = [
   { // left
-    dir: [-1, 0, 0],
+    uvRow: 0,
+    dir: [ -1,  0,  0, ],
     corners: [
-      [0, 1, 0],
-      [0, 0, 0],
-      [0, 1, 1],
-      [0, 0, 1],
+      { pos: [ 0, 1, 0 ], uv: [ 0, 1 ], },
+      { pos: [ 0, 0, 0 ], uv: [ 0, 0 ], },
+      { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+      { pos: [ 0, 0, 1 ], uv: [ 1, 0 ], },
     ],
   },
   { // right
-    dir: [1, 0, 0],
+    uvRow: 0,
+    dir: [  1,  0,  0, ],
     corners: [
-      [1, 1, 1],
-      [1, 0, 1],
-      [1, 1, 0],
-      [1, 0, 0],
+      { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+      { pos: [ 1, 0, 1 ], uv: [ 0, 0 ], },
+      { pos: [ 1, 1, 0 ], uv: [ 1, 1 ], },
+      { pos: [ 1, 0, 0 ], uv: [ 1, 0 ], },
     ],
   },
   { // bottom
-    dir: [0, -1, 0],
+    uvRow: 1,
+    dir: [  0, -1,  0, ],
     corners: [
-      [1, 0, 1],
-      [0, 0, 1],
-      [1, 0, 0],
-      [0, 0, 0],
+      { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+      { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+      { pos: [ 1, 0, 0 ], uv: [ 1, 1 ], },
+      { pos: [ 0, 0, 0 ], uv: [ 0, 1 ], },
     ],
   },
   { // top
-    dir: [0, 1, 0],
+    uvRow: 2,
+    dir: [  0,  1,  0, ],
     corners: [
-      [0, 1, 1],
-      [1, 1, 1],
-      [0, 1, 0],
-      [1, 1, 0],
+      { pos: [ 0, 1, 1 ], uv: [ 1, 1 ], },
+      { pos: [ 1, 1, 1 ], uv: [ 0, 1 ], },
+      { pos: [ 0, 1, 0 ], uv: [ 1, 0 ], },
+      { pos: [ 1, 1, 0 ], uv: [ 0, 0 ], },
     ],
   },
   { // back
-    dir: [0, 0, -1],
+    uvRow: 0,
+    dir: [  0,  0, -1, ],
     corners: [
-      [1, 0, 0],
-      [0, 0, 0],
-      [1, 1, 0],
-      [0, 1, 0],
+      { pos: [ 1, 0, 0 ], uv: [ 0, 0 ], },
+      { pos: [ 0, 0, 0 ], uv: [ 1, 0 ], },
+      { pos: [ 1, 1, 0 ], uv: [ 0, 1 ], },
+      { pos: [ 0, 1, 0 ], uv: [ 1, 1 ], },
     ],
   },
   { // front
-    dir: [0, 0, 1],
+    uvRow: 0,
+    dir: [  0,  0,  1, ],
     corners: [
-      [0, 0, 1],
-      [1, 0, 1],
-      [0, 1, 1],
-      [1, 1, 1],
+      { pos: [ 0, 0, 1 ], uv: [ 0, 0 ], },
+      { pos: [ 1, 0, 1 ], uv: [ 1, 0 ], },
+      { pos: [ 0, 1, 1 ], uv: [ 0, 1 ], },
+      { pos: [ 1, 1, 1 ], uv: [ 1, 1 ], },
     ],
   },
 ];

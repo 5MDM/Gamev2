@@ -1,33 +1,97 @@
-import {newBoxGeometry, loadImgFromAssets} from "../../lib/framework";
-import {MeshBasicMaterial, Mesh, Material} from "three";
-import blocks from "../../../game/blocks.json";
+// This file will be to used to make
+// an UV map using all the blocks
 
-export const blockGeometry = newBoxGeometry(1);
+const c: HTMLCanvasElement = 
+document.createElement("canvas");
 
-async function mm(e: string) {
-  return new MeshBasicMaterial({
-    map: await loadImgFromAssets(`game/${e}`),
+const ctx: CanvasRenderingContext2D | null = 
+c.getContext("2d");
+
+if(ctx == undefined)
+ throw new Error("blocks.ts: Could not make context");
+
+const facesY: number = 3;
+var blockSize: number;
+
+export function generateUVMap(): Promise<HTMLCanvasElement> {
+  return new Promise(res => {
+    fetch("/assets/game/blocks.json")
+    .then(e => e.json())
+    .then(async dat => {
+      blockSize = dat.size;
+      
+      c.setAttribute(
+        "width", 
+        (dat.blocks.length * blockSize).toString(),
+      );
+      
+      c.setAttribute(
+        "height",
+        ((facesY + 1) * blockSize).toString(),
+      );
+      
+      for(const block of dat.blocks) await parseBlocks(block);
+      
+      res(c);
+      
+      /*(c.toBlob((blob: Blob | null): void => {
+        if(blob) {
+          const url = URL.createObjectURL(blob);
+          alert(url);
+        }
+      });*/
+    });
   });
 }
 
-export function newBlock(e: Material) {
-  return new Mesh(blockGeometry, e);
+interface BlockData {
+  name: string;
+  texture: string | {
+    top?: string;
+    bottom?: string;
+    sides?: string;
+  };
 }
 
-export const blockData = new Promise
-<{data: MeshBasicMaterial[], name: {[key: string]: number}}>(async res => {
-  const nameArr: {[key: string]: number} = {};
-  const arr = [];
-  
-  for(let i = 0; i <= blocks.length-1; i++) {
-    const block = blocks[i];
-    arr.push(await mm(block.texture));
-    
-    nameArr[block.name] = i;
-  }
-  
-  res({
-    data: arr,
-    name: nameArr,
+var currentX: number = 0;
+var currentY: number = 0;
+
+async function parseBlocks(block: BlockData):
+Promise<void> {
+  const pr: Promise<void> = new Promise(async (res, rej) => {
+    if(typeof block.texture == "string") {
+      const img = new Image();
+      img.src = `/assets/images/game/blocks/${block.texture}`;
+      img.onload = function() {
+        for(let i = 0; i != facesY; i++) {
+          ctx!.drawImage(img, currentX, currentY);
+          currentY += blockSize;
+        }
+        
+        currentY = 0;
+        res();
+      };
+      
+      img.onerror = function(e) {
+        const err = new Error(
+          `block.ts: Could not load texture `
+        + `"${block.texture}"`
+        );
+        
+        console.error(lr(err));
+      }
+    } else {
+      // different sides
+      
+    }
+    //currentX += blockSize;
   });
-});
+  
+  pr.finally(() => currentX += blockSize);
+  
+  return pr;
+}
+
+function lr(e: Error) {
+  return e + "\n" + e.stack;
+}

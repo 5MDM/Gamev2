@@ -1,17 +1,9 @@
-[
-  {
-    "name": "Grass",
-    "tool_type": "shovel",
-    "texture": "grass.png"
-  },
-  {
-    "name": "Stone",
-    "tool_type": "pickaxe",
-    "texture": "stone.png"
-  },
-  {
-    "name": "Sand",
-    "tool_type": "shovel",
-    "texture": "sand.png"
-  }
-]
+{
+  "size": 64,
+  "blocks": [
+    {
+      "name": "Grass",
+      "texture": "grass.png"
+    }
+  ]
+}
