@@ -9,6 +9,17 @@ export class CoordinateMap3D<T> {
   get(x: number, y: number, z: number): T {
     return this.map[`${x},${y},${z}`];
   }
+  
+  forEach(f: (x: number, y: number, z: number) => void): void {
+    for(const i in this.map) {
+      const a: string[] = i.split(",");
+      f(parseInt(a[0]), parseInt(a[1]), parseInt(a[2]));
+    }
+  }
+  
+  remove(x: number, y: number, z: number): void {
+    delete this.map[`${x},${y},${z}`];
+  }
 }
 
 export class CoordinateMap2D<T> {
@@ -20,6 +31,17 @@ export class CoordinateMap2D<T> {
   
   get(x: number, y: number): T {
     return this.map[`${x},${y}`];
+  }
+  
+  forEach(f: (x: number, y: number) => void): void {
+    for(const i in this.map) {
+      const a: string[] = i.split(",");
+      f(parseInt(a[0]), parseInt(a[1]));
+    }
+  }
+  
+  remove(x: number, y: number): void {
+    delete this.map[`${x},${y}`];
   }
 }
 

@@ -50,7 +50,7 @@ export const gameState: GameStateInterface = {
     height: window.innerHeight,
   },
   useFullScreen: !isiOSDevice(),
-  renderDistance: 2
+  renderDistance: 2,
 };
 
 gameState.canvas.width = window.innerWidth - gameState.canvas.paddingWidth;

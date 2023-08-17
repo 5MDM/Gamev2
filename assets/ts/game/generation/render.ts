@@ -1,5 +1,6 @@
 import {gameState} from "../../window";
 import {stopLoop, floorMultiple} from "../../lib/util";
+import {CameraOctreeMap} from "../../lib/camera";
 import {cam} from "../camera";
 import {Scene} from "three";
 import {VoxelWorld} from "./chunk";
@@ -16,23 +17,23 @@ var counter: number = counterOg;
 function deleteIfOutRadius(r: number) {
   r += 1;
   const x = 
-  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 
+  world.CHUNK_SIZE;
   const y = 
-  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 
+  world.CHUNK_SIZE;
   
-  for(const i in cam.octrees?.map) {
-    const coord = i.split(",");
-    const cx = parseInt(coord[0]);
-    const cy = parseInt(coord[1]);
-    
-    if(x < cx || x >= cx + r || y < cy || y >= cy + r) {
-      // delete chunk
-      for(const z in cam.octrees.map[i].blocks)
-        world.scene.remove(cam.octrees.map[i].blocks[z]);
+  cam.octrees!.forEach((cx: number, cy: number): void => {
+    if(x + r < cx
+    || x - r > cx
+    || y + r < cy
+    || y - r > cy) {
+      for(const blocks of cam.octrees!.get(cx, cy).blocks)
+        world.scene.remove(blocks);
       
-      delete cam.octrees.map[i];
+      cam.octrees!.remove(cx, cy);
     }
-  }
+  });
 }
 
 function addInRadius(r: number) {
@@ -66,7 +67,7 @@ export const chunkRenderLoop = stopLoop(() => {
   if(counter-- <= 0) {
     counter = counterOg;
     const {renderDistance} = gameState;
-    //deleteIfOutRadius(renderDistance);
+    deleteIfOutRadius(renderDistance);
     //addInRadius(renderDistance);
   }
 }, false);

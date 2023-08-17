@@ -166,8 +166,8 @@ export class SliderSettingComponent extends BaseSettingComponent {
     onChange: (value: number) => void,
   }) {
     super(opts);
-    this.value = opts.defaultValue || 0;
     this.min = opts.min;
+    this.value = opts.defaultValue || this.min;
     this.max = opts.max;
     this.step = opts.step || 1;
     this.onChange = opts.onChange;
