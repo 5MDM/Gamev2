@@ -38,26 +38,16 @@ function deleteIfOutRadius(r: number) {
 
 function addInRadius(r: number) {
   const x = 
-  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 
+  world.CHUNK_SIZE;
   const y = 
-  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 8;
+  floorMultiple(cam.camera.position.z, world.CHUNK_SIZE) / 
+  world.CHUNK_SIZE;
   
-  /*
-  trees["1,0"] = (loadChunk(1, 0));
-  trees["-1,0"] = (loadChunk(-1, 0));
-  trees["0,1"] = (loadChunk(0, 1));
-  trees["1,1"] = (loadChunk(1, 1));
-  trees["-1,1"] = (loadChunk(-1, 1));
-  trees["0,-1"] = (loadChunk(0, -1));
-  trees["1,-1"] = (loadChunk(1, -1));
-  trees["-1,-1"] = (loadChunk(-1, -1));
-  */
-  
-  for(let yy = y; yy < y+r; yy++) {
-    for(let xx = x; xx < x+r; xx++) {
-      if(cam.octrees == undefined) return;
-      if(cam.octrees.get(xx, yy) == undefined) {
-        //cam.octrees.set(xx, yy, loadChunk(xx, yy))
+  for(let yy = y-r; yy < y+r; yy++) {
+    for(let xx = x-r; xx < x+r; xx++) {
+      if(cam.octrees!.get(xx, yy) == undefined) {
+        cam.octrees!.set(xx, yy, world.loadChunk(xx, yy));
       }
     }
   }
@@ -68,6 +58,6 @@ export const chunkRenderLoop = stopLoop(() => {
     counter = counterOg;
     const {renderDistance} = gameState;
     deleteIfOutRadius(renderDistance);
-    //addInRadius(renderDistance);
+    addInRadius(renderDistance);
   }
 }, false);
