@@ -56,12 +56,39 @@ interface BlockData {
 var currentX: number = 0;
 var currentY: number = 0;
 
+const imageImport = 
+import.meta.glob<{default: string}>
+("../../../images/game/blocks/**");
+
+if(Object.keys(imageImport).length == 0) {
+  const err = new Error(
+    `block.ts: image imports has wrong file URL or is empty`
+  );
+}
+
 async function parseBlocks(block: BlockData):
 Promise<void> {
   const pr: Promise<void> = new Promise(async (res, rej) => {
     if(typeof block.texture == "string") {
       const img = new Image();
-      img.src = `/assets/images/game/blocks/${block.texture}`;
+      
+      const imgURL = await
+      imageImport[
+        `../../../images/game/blocks/${block.texture}`
+      ]();
+      
+      const notFindError = new Error(
+        "block.ts: could not find "
+      + `"${block.texture}"`
+      );
+      
+      if(imgURL == undefined) {
+        console.error(notFindError);
+        rej();
+      } else {
+        img.src = imgURL.default; 
+      }
+      
       img.onload = function() {
         for(let i = 0; i != facesY; i++) {
           ctx!.drawImage(img, currentX, currentY);
