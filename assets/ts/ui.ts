@@ -8,6 +8,10 @@ if(isTouchDevice()) {
   $("#ui > #gui > #v-movement")!.style.display = "flex";
 }
 
+if (window.innerHeight > window.innerWidth) {
+  $("#block-game-message")!.innerText = "This game must be played in horizontal orientation."
+}
+
 export function updateCanvasSize() {
   const width = window.innerWidth - gameState.canvas.paddingWidth;
   const height = window.innerHeight - gameState.canvas.paddingHeight;
@@ -29,5 +33,8 @@ export function updateCanvasSize() {
 
 window.addEventListener("resize", async () => {
   await wait(50);
+  if (window.innerHeight > window.innerWidth) {
+    $("#block-game-message")!.innerText = "This game must be played in horizontal orientation."
+  }
   updateCanvasSize();
 })

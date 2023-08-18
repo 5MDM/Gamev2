@@ -90,34 +90,40 @@
   -ms-transform: translateY(50%);
   transform: translateY(50%);
   right: 15px;
+  padding: 1px;
 }
 
 .setting-toggle.enabled {
-  background-color: aquamarine;
+  background: aquamarine content-box;
+  border-color: aquamarine;
 }
 
 #settings .slider {
   display: block;
   -webkit-appearance: none;
-  margin: auto;
-  width: 80%;
-  border: 3px solid gray;
-  background-color: #202020;
-  opacity: 0.6;
+  appearance: none;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 15px;
+  margin-right: 15px;
+  width: 175px;
+  height: 3px;
+  background-color: #d6d6d6;
+  border-radius: 0px;
 }
 
 #settings .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 30px;
-  height: 30px;
-  border: 3px solid #d6d6d6;
+  width: 5px;
+  height: 25px;
+  background-color: white;
   padding: 5px;
 }
 
 #settings .slider::-moz-range-thumb {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #d6d6d6;
+  width: 5px;
+  height: 25px;
+  background-color: white;
   padding: 5px;
 }

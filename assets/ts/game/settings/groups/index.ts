@@ -1,9 +1,12 @@
 import {$} from "../../../lib/util";
 
-import {developer} from "./developer";
 import {video} from "./video";
+import {developer} from "./developer";
 
-[developer, video]
+[
+  video,
+  developer,
+]
 .forEach(group => {
   group.addToDOM($("#sidebar")!, $("#content")!)
 })

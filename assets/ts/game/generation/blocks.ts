@@ -1,6 +1,8 @@
 // This file will be to used to make
 // an UV map using all the blocks
 
+import { imageImports } from "../../window";
+
 const c: HTMLCanvasElement = 
 document.createElement("canvas");
 
@@ -15,8 +17,7 @@ var blockSize: number;
 
 export function generateUVMap(): Promise<HTMLCanvasElement> {
   return new Promise(res => {
-    fetch("/assets/game/blocks.json")
-    .then(e => e.json())
+    import("../../../game/blocks.json")
     .then(async dat => {
       blockSize = dat.size;
       
@@ -56,16 +57,6 @@ interface BlockData {
 var currentX: number = 0;
 var currentY: number = 0;
 
-const imageImport = 
-import.meta.glob<{default: string}>
-("../../../images/game/blocks/**");
-
-if(Object.keys(imageImport).length == 0) {
-  const err = new Error(
-    `block.ts: image imports has wrong file URL or is empty`
-  );
-}
-
 async function parseBlocks(block: BlockData):
 Promise<void> {
   const pr: Promise<void> = new Promise(async (res, rej) => {
@@ -73,8 +64,8 @@ Promise<void> {
       const img = new Image();
       
       const imgURL = await
-      imageImport[
-        `../../../images/game/blocks/${block.texture}`
+      imageImports[
+        `game/blocks/${block.texture}`
       ]();
       
       const notFindError = new Error(
