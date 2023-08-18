@@ -3,8 +3,7 @@ import type {AnyCamera} from "../../lib/camera";
 import {$, $$} from "../../lib/util";
 import {setDebugObj} from "./debug";
 import "./pause";
-import {Octree} from "../../lib/quadrant";
-import {gameState} from "../../window.js";
+import RangeTouch from "rangetouch";
 import {CameraOctreeMap} from "../../lib/camera"
 import {CoordinateMap2D} from "../generation/voxel-block";
 
@@ -53,8 +52,8 @@ interface SettingComponentAddEventListenerOpts {
   once?: boolean,
   signal?: AbortSignal
 }
-interface SettingComponentListeners {
-  listener: (() => void),
+interface SettingComponentListeners<T = void> {
+  listener: ((a: T) => void),
   opts?: SettingComponentAddEventListenerOpts
 }
 export class BaseSettingComponent {
@@ -77,7 +76,7 @@ export class ToggleSettingComponent extends BaseSettingComponent {
   public onenable?: () => void;
   public ondisable?: () => void;
   declare public value: boolean;
-  public type: "toggle" = "toggle";
+  public type = "toggle" as const;
   listeners: {enable: SettingComponentListeners[], disable: SettingComponentListeners[]} = {
     enable: [],
     disable: []
@@ -90,9 +89,12 @@ export class ToggleSettingComponent extends BaseSettingComponent {
     super(opts);
     this.value = opts.defaultValue || false;
   }
-  addEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
-    if (type === "enable") this.listeners.enable.push({listener, opts});
-    else this.listeners.disable.push({listener, opts});
+  addEventListener<T extends keyof ToggleSettingComponent["listeners"]>(
+    type: T,
+    listener: this["listeners"][T][number]["listener"],
+    opts?: SettingComponentAddEventListenerOpts
+    ) {
+    this.listeners[type].push({listener: listener as () => void, opts});
   }
   removeEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
     const listeners = this.listeners[type];
@@ -141,19 +143,15 @@ export class ToggleSettingComponent extends BaseSettingComponent {
 }
 
 export class SliderSettingComponent extends BaseSettingComponent {
-  public onenable?: () => void;
-  public ondisable?: () => void;
-  
   declare public value: number;
   public min: number;
   public max: number;
   public step: number;
-  public onChange: (value: number) => void;
+  public onchange: (value: number) => void;
   
-  public type: "slider" = "slider";
-  listeners: {enable: SettingComponentListeners[], disable: SettingComponentListeners[]} = {
-    enable: [],
-    disable: []
+  public type = "slider" as const;
+  listeners: {change: SettingComponentListeners<number>[]} = {
+    change: []
   }
   
   constructor(opts: {
@@ -163,20 +161,23 @@ export class SliderSettingComponent extends BaseSettingComponent {
     min: number,
     max: number,
     step?: number,
-    onChange: (value: number) => void,
+    onchange: (value: number) => void,
   }) {
     super(opts);
     this.min = opts.min;
     this.value = opts.defaultValue || this.min;
     this.max = opts.max;
     this.step = opts.step || 1;
-    this.onChange = opts.onChange;
+    this.onchange = opts.onchange;
   }
-  addEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
-    if (type === "enable") this.listeners.enable.push({listener, opts});
-    else this.listeners.disable.push({listener, opts});
+  addEventListener<T extends keyof SliderSettingComponent["listeners"]>(
+    type: T,
+    listener: this["listeners"][T][number]["listener"],
+    opts?: SettingComponentAddEventListenerOpts
+    ) {
+    this.listeners[type].push({listener: listener as () => void, opts});
   }
-  removeEventListener(type: "enable" | "disable", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
+  removeEventListener(type: "change", listener: () => void, opts?: SettingComponentAddEventListenerOpts) {
     const listeners = this.listeners[type];
     const found = listeners.find(l => l.listener == listener
       && l.opts?.once == opts?.once
@@ -189,24 +190,29 @@ export class SliderSettingComponent extends BaseSettingComponent {
     const span = document.createElement("span");
     span.innerText = this.name;
     
-    const slider = <HTMLInputElement>$$("input", {
+    const slider = $$("input", {
       attrs: {
         class: "slider",
         type: "range",
-        min: this.min.toString(),
-        max: this.max.toString(),
-        value: this.value.toString(),
-        step: this.step.toString(),
+        min: `${this.min}`,
+        max: `${this.max}`,
+        value: `${this.value}`,
+        step: `${this.step}`,
       },
     });
+    new RangeTouch(slider);
     
-    const count = $$("p", {
-      children: ": " + this.value.toString(),
+    const count = $$("span", {
+      style: {
+        margin: "auto",
+        "margin-right": "0"
+      }
     });
+    count.innerText = slider.value;
     
     slider.addEventListener("input", () => {
-      count.innerText = ": " + slider.value.toString();
-      this.onChange(parseInt(slider.value));
+      count.innerText = slider.value;
+      this.onchange(parseInt(slider.value));
     });
     
     return $$("div", {

@@ -17,6 +17,7 @@
     "vite-plugin-checker": "^0.6.1"
   },
   "dependencies": {
+    "rangetouch": "^2.0.1",
     "three": "^0.155.0",
     "typescript": "^5.1.6"
   }
