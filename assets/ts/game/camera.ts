@@ -13,6 +13,7 @@ cam.onPointerMove = function(e) {
     cam.ry + (e.y * 0.01),
     Math.PI / 3,
   );
+  
 };
 
 var up = false;

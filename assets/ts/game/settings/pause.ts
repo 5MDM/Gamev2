@@ -14,6 +14,7 @@ function pause({ resumeText = "Resume Game", resumeTimer = 0, timerFinishedCallb
   $("#v-movement")!.style.display = "none";
   $("#movement")!.style.display = "none";
   $("#pause-btn")!.style.display = "none";
+  $("#ui > #hotbar")!.style.display = "none";
   if (resumeTimer > 0) {
     lockProgressBar.style.width = "0%";
     resumeButton.style.backgroundColor = "#202020";
@@ -48,6 +49,7 @@ function resume() {
     $("#v-movement")!.style.display = "flex";
     $("#movement")!.style.display = "flex";
     $("#pause-btn")!.style.display = "flex";
+    $("#ui > #hotbar")!.style.display = "flex";
   }
 }
 var resumeButtonEnabled = true;

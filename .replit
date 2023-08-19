@@ -1,4 +1,4 @@
-hidden=[".config"]
+hidden=[".config", ".git", ".github", ".vscode", "tsconfig.json", "vite.config.ts", "start.sh", ".gitignore", ".README.md", "LICENSE"]
 entrypoint = "index.ts"
 run = ". ./start.sh"
 

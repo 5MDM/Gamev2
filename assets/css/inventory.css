@@ -1,0 +1,26 @@
+#ui > #hotbar {
+  position: fixed;
+  display: flex;
+  flex-direction: row;
+  bottom: 20px;
+  width: 100%;
+  height: max(45px, 8vh);
+  margin: auto;
+  justify-content: center;
+}
+
+#ui > #hotbar > .hotbar-slot {
+  border: 3px solid #5c5c5c;
+  border-right: none;
+  width: max(45px, 8vh);
+  background-color: hsla(0, 10%, 10%, 0.7);
+}
+
+#ui > #hotbar > .hotbar-slot:last-child {
+  border-right: 3px solid #5c5c5c;
+}
+
+#ui > #hotbar > .hotbar-slot > img {
+  width: 100%;
+  height: 100%;
+}
