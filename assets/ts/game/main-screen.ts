@@ -9,6 +9,7 @@ import {setDebugScene} from "../lib/quadrant";
 import {CoordinateMap2D} from "./generation/voxel-block";
 import "./settings/groups";
 import {CameraOctreeMap} from "../lib/camera";
+import "./ui/hotbar";
 import "./ui/inventory";
 
 export const scene = new Scene();

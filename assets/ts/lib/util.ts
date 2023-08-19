@@ -262,3 +262,10 @@ export function floorMultiple(num: number, multiple: number): number {
 export function rand(max: number): number {
   return Math.floor(Math.random() * max);
 }
+
+export function logError(e: string): Error {
+  const err = new Error(e);
+  console.error(`${err}\n${err.stack}`);
+  
+  return err;
+}

@@ -1,4 +1,7 @@
 #ui > #hotbar {
+  --border-width: 3px;
+  --border-color: #5c5c5c;
+  --border: var(--border-width) solid var(--border-color);
   position: fixed;
   display: flex;
   flex-direction: row;
@@ -10,17 +13,18 @@
 }
 
 #ui > #hotbar > .hotbar-slot {
-  border: 3px solid #5c5c5c;
-  border-right: none;
+  border: var(--border);
   width: max(45px, 8vh);
   background-color: hsla(0, 10%, 10%, 0.7);
-}
-
-#ui > #hotbar > .hotbar-slot:last-child {
-  border-right: 3px solid #5c5c5c;
+  pointer-events: auto;
 }
 
 #ui > #hotbar > .hotbar-slot > img {
   width: 100%;
   height: 100%;
+}
+
+#ui > #inventory {
+  border: 2px solid red;
+  display: none;
 }
