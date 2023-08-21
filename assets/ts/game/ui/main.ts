@@ -1,0 +1,2 @@
+import "./hotbar";
+import "./inventory";
