@@ -49,6 +49,7 @@ export interface $$Opts {
   listeners?: string,
   up?: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void | (({e, el}: {e: PointerEvent, el: HTMLElement}) => void)[],
   down?: ({e, el}: {e: PointerEvent, el: HTMLElement}) => void | (({e, el}: {e: PointerEvent, el: HTMLElement}) => void)[],
+  text?: string,
 }
 
 export function $$<N extends keyof HTMLElementTagNameMap>(name: N | string, opts?: $$Opts): HTMLElementTagNameMap[N] {
@@ -61,6 +62,9 @@ export function $$<N extends keyof HTMLElementTagNameMap>(name: N | string, opts
   
   if(opts.style)
     el.setAttribute("style", parseCSS(opts.style));
+  
+  if(opts.text)
+    el.innerText = opts.text;
   
   if(opts.children) {
     forAll(opts.children, e => {
