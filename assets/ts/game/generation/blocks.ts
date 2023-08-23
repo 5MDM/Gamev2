@@ -15,25 +15,40 @@ if(ctx == undefined)
 const facesY: number = 3;
 var blockSize: number;
 
-export function generateUVMap(): Promise<HTMLCanvasElement> {
+interface generateUVMapParameter {
+  canvas: HTMLCanvasElement;
+  width: number;
+  height: number;
+}
+
+export function generateUVMap(): 
+Promise<generateUVMapParameter> {
   return new Promise(res => {
     import("../../../game/blocks.json")
     .then(async dat => {
       blockSize = dat.size;
       
+      const width = dat.blocks.length * blockSize;
+      const height = (facesY + 1) * blockSize;
+      
       c.setAttribute(
         "width", 
-        (dat.blocks.length * blockSize).toString(),
+        width.toString(),
       );
       
       c.setAttribute(
         "height",
-        ((facesY + 1) * blockSize).toString(),
+        height.toString(),
       );
       
-      for(const block of dat.blocks) await parseBlocks(block);
+      for(const block of dat.blocks) 
+        await parseBlocks(block);
       
-      res(c);
+      res({
+        canvas: c,
+        width,
+        height,
+      });
       
       /*(c.toBlob((blob: Blob | null): void => {
         if(blob) {

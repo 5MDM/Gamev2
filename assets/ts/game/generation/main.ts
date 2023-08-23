@@ -19,21 +19,21 @@ export const blockArray = new Promise<void>(res => {
   finishGeneration = res;
 });
 
-
 export function generateWorld(scene: Scene): Promise<CoordinateMap2D<CameraOctreeMap>> {
   return new Promise<CoordinateMap2D<CameraOctreeMap>>(res => {
     generateUVMap()
-    .then(t => {
-      const texture = new CanvasTexture(t);
+    .then(({canvas, width, height}) => {
+      const texture = new CanvasTexture(canvas);
       texture.colorSpace = SRGBColorSpace;
+      
       const world = new VoxelWorld({
         chunkSize: CHUNK_SIZE,
         scene,
         uv: {
           imageTextures: texture,
           size: 64,
-          imageWidth: 64,
-          imageHeight: 256,
+          imageWidth: width,
+          imageHeight: height,
         },
       });
       
