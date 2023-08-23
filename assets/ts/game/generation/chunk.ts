@@ -1,6 +1,6 @@
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple, rand} from "../../lib/util.js";
-import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture} from "three";
+import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapLinearFilter} from "three";
 import {seed, getElevation} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";
@@ -49,6 +49,10 @@ export class VoxelWorld {
     
     const light = new AmbientLight(0x404040, 100);
     this.scene.add(light);
+    
+    this.imageTextures.magFilter = NearestFilter;
+    this.imageTextures.minFilter = NearestMipmapLinearFilter;
+    
     return this;
   }
   

@@ -50,12 +50,15 @@ Promise<generateUVMapParameter> {
         height,
       });
       
-      /*(c.toBlob((blob: Blob | null): void => {
+      /*c.toBlob((blob: Blob | null): void => {
         if(blob) {
           const url = URL.createObjectURL(blob);
           alert(url);
         }
       });*/
+    })
+    .catch(err => {
+      console.error("bad JSON");
     });
   });
 }
@@ -97,7 +100,13 @@ Promise<void> {
       
       img.onload = function() {
         for(let i = 0; i != facesY; i++) {
-          ctx!.drawImage(img, currentX, currentY);
+          ctx!.drawImage(
+            img,
+            currentX,
+            currentY,
+            blockSize,
+            blockSize,
+          );
           currentY += blockSize;
         }
         

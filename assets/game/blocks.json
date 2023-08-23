@@ -4,6 +4,14 @@
     {
       "name": "Grass",
       "texture": "grass.png"
+    },
+    {
+      "name": "Stone",
+      "texture": "stone.png"
+    },
+    {
+      "name": "Sand",
+      "texture": "sand.png"
     }
   ]
 }

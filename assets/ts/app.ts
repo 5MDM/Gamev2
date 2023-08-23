@@ -20,6 +20,8 @@ export function setCurrentCamera(cam: Camera) {
 export const renderer = new WebGLRenderer({
   canvas: $("#c")!,
   alpha: true,
+  precision: "lowp",
+  powerPreference: "high-performance",
 });
 
 export function renderLoop() {

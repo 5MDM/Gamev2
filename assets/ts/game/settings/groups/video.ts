@@ -34,7 +34,7 @@ bodyPaddingToggle.addEventListener("disable", () => {
 const slider = new SliderSettingComponent({
   id: "render-distance",
   name: "Render Distance",
-  min: 1,
+  min: 0,
   max: 10,
   defaultValue: gameState.renderDistance,
   onchange(value) {
