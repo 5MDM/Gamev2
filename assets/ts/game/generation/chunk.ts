@@ -1,5 +1,5 @@
 import {Octree} from "../../lib/quadrant";
-import {round, stopLoop, floorMultiple, rand} from "../../lib/util.js";
+import {round, stopLoop, floorMultiple, rand, randRange} from "../../lib/util.js";
 import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter} from "three";
 import {seed, getElevation} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
@@ -35,7 +35,7 @@ type Biome = "plains" | "desert";
 export class VoxelWorld {
   CHUNK_SIZE: number;
   scene: Scene;
-  voxelFaceMap: CoordinateMap3D<boolean>;
+  voxelFaceMap: CoordinateMap3D<number>;
   imageTextures: Texture;
   tileWidthRatio: number;
   tileHeightRatio: number;
@@ -43,18 +43,22 @@ export class VoxelWorld {
   constructor(o: VoxelContructorOpts) {
     this.CHUNK_SIZE = o.chunkSize;
     this.scene = o.scene;
-    this.voxelFaceMap = new CoordinateMap3D<boolean>;
+    this.voxelFaceMap = new CoordinateMap3D<number>;
     this.imageTextures = o.uv.imageTextures;
     this.tileWidthRatio = o.uv.size / o.uv.imageWidth;
     this.tileHeightRatio = o.uv.size / o.uv.imageHeight;
     
-    const light = new AmbientLight(0x404040, 100);
+    const light = new AmbientLight(0x404040, 50);
     this.scene.add(light);
     
     this.imageTextures.magFilter = NearestFilter;
     this.imageTextures.minFilter = NearestMipmapNearestFilter;
-    this.imageTextures.anisotropy = 
-    renderer.capabilities.getMaxAnisotropy();
+    
+    // set to true and uncomment these 
+    // once mipmaps are manually generated
+    this.imageTextures.generateMipmaps = false;
+    //this.imageTextures.anisotropy =
+    //renderer.capabilities.getMaxAnisotropy();
     
     return this;
   }
@@ -124,7 +128,6 @@ export class VoxelWorld {
     );
     
     geometry.setIndex(indices);
-    //geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     
     const mesh = new Mesh(geometry, material);
@@ -141,46 +144,25 @@ export class VoxelWorld {
   }
   
   protected loadVoxel(o: {xc: number, yc: number, tree: Octree, array: XYZ[]}): void {
+    const self = this;
     const elev = getElevation(o.xc, o.yc) - 5;
-    const pos: XYZ = {x: o.xc, y: elev, z: o.yc};
     
-    this.addBlockToTree(o.tree, pos);
-    o.array.push(pos);
+    function addBlock(uv: number, yLevel?: number): void {
+      const newPos: XYZ = {
+        x: o.xc,
+        y: elev + (yLevel || 0),
+        z: o.yc,
+      };
+      
+      self.voxelFaceMap.set(newPos.x, newPos.y, newPos.z, uv);
+      self.addBlockToTree(o.tree, newPos);
+      o.array.push(newPos);
+    }
     
-    this.voxelFaceMap.set(pos.x, pos.y, pos.z, true);
+    addBlock(0);
+    addBlock(1, -1);
+    addBlock(1, -2);
   }
-  
-  /*protected add_blocks(o: ChunkData): Mesh[] {
-    const blockArr: Mesh[] = [];
-    const elev = getElevation(o.xc, o.yc) - 5;
-    function setPos(block: Mesh) {
-      block.position.x = o.xc+0.4;
-      block.position.z = o.yc+0.4;
-    }
-    
-    function addBlock(e: Material, y?: number) {
-      const block = newBlock(e);
-      blockArr.push(block);
-      
-      setPos(block);
-      block.position.y = y || elev;
-      //addBlockToTree(block, o.tree);
-      
-      return block;
-    }
-    
-    switch (o.biome) {
-      case "plains":
-        const grass = addBlock(grassM);
-        break;
-      case "desert":
-        const sand = addBlock(sandM);
-    }
-    
-    const stone = addBlock(stoneM, elev - 1);
-    
-    return blockArr;
-  }*/
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {
     tree.insert({
@@ -214,9 +196,9 @@ export class VoxelWorld {
     normals:   number[];
     uvs:       number[];
   }): void {
+    const uvVoxel = 
+    this.voxelFaceMap.get(pos.x, pos.y, pos.z);
     
-    // TODO
-    const uvVoxel = 0;
     for(const {dir, corners, uvRow} of faces) {
       const neighbor = this.voxelFaceMap.get(
         pos.x + dir[0],

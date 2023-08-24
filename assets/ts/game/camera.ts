@@ -111,7 +111,7 @@ if(isTouchDevice()) {
         cam.enableGravity();
         $("#v-movement > #up")!.style.visibility = "hidden";
         $("#v-movement > #down")!.style.visibility = "hidden";
-        $("#v-movement > #shift")!.src = (await imageImports["game/small_arrow.png"]()).default;
+        $("#v-movement > #shift")!.src = (await imageImports["game/small-arrow.png"]()).default;
         vup = false;
         vdown = false;
       }
