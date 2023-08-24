@@ -1,9 +1,10 @@
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple, rand} from "../../lib/util.js";
-import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapLinearFilter} from "three";
+import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter} from "three";
 import {seed, getElevation} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";
+import {renderer} from "../../app";
 
 interface VoxelContructorOpts {
   chunkSize: number;
@@ -51,7 +52,9 @@ export class VoxelWorld {
     this.scene.add(light);
     
     this.imageTextures.magFilter = NearestFilter;
-    this.imageTextures.minFilter = NearestMipmapLinearFilter;
+    this.imageTextures.minFilter = NearestMipmapNearestFilter;
+    this.imageTextures.anisotropy = 
+    renderer.capabilities.getMaxAnisotropy();
     
     return this;
   }
