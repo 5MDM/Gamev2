@@ -10,6 +10,12 @@ import {generateUVMap} from "./blocks";
 
 export const CHUNK_SIZE = 16;
 
+export function loopThroughChunkYAxis(start: number, f: (y: number) => void) {
+  const end = start + CHUNK_SIZE;
+  for(let y = start; y != end; y++) f(y);
+}
+
+cam.camera.position.y = CHUNK_SIZE;
 cam.camera.position.x = CHUNK_SIZE / 2;
 cam.camera.position.z = CHUNK_SIZE / 2;
 

@@ -1,10 +1,11 @@
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple, rand, randRange} from "../../lib/util.js";
 import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter} from "three";
-import {seed, getElevation} from "./seed";
+import {seed, getElevation, XYZ} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";
 import {renderer} from "../../app";
+import {loadVoxelChunk} from "./chunks/load-chunk";
 
 interface VoxelContructorOpts {
   chunkSize: number;
@@ -22,12 +23,6 @@ interface ChunkData {
   yc: number;
   tree: Octree;
   biome: Biome;
-}
-
-interface XYZ {
-  x: number;
-  y: number;
-  z: number;
 }
 
 type Biome = "plains" | "desert";
@@ -63,26 +58,27 @@ export class VoxelWorld {
     return this;
   }
   
-  loadChunk(chunkX: number, chunkY: number): {
+  loadChunk(chunkX: number, chunkZ: number, chunkY?: number): {
     tree: Octree;
     blocks: Mesh[];
   } {
+    chunkY ||= -1;
     const x = chunkX * this.CHUNK_SIZE;
     const y = chunkY * this.CHUNK_SIZE;
-    var biome: Biome = "plains";
+    const z = chunkZ * this.CHUNK_SIZE;
     
     const tree = new Octree({
       width: this.CHUNK_SIZE,
-      height: 5,
+      height: this.CHUNK_SIZE,
       depth: this.CHUNK_SIZE,
       x: x,
-      y: -7,
-      z: y,
+      y: y,
+      z: z,
     });
     
     const blocksToIterate: XYZ[] = []; 
-    this.loopChunk(x, y, (xc, yc) => {
-      this.loadVoxel({xc, yc, tree, array: blocksToIterate});
+    this.loopChunk(x, z, (xc, zc) => {
+      this.loadVoxel({xc, zc, y, tree, array: blocksToIterate});
     });
     
     const positions: number[] = [];
@@ -91,7 +87,6 @@ export class VoxelWorld {
     const uvs:       number[] = [];
     
     for(const pos of blocksToIterate) {
-      //voxelFaceMap.set()
       this.findFaces({
         pos,
         positions,
@@ -143,15 +138,16 @@ export class VoxelWorld {
     return {tree, blocks};
   }
   
-  protected loadVoxel(o: {xc: number, yc: number, tree: Octree, array: XYZ[]}): void {
+  protected loadVoxel(o: {xc: number, zc: number, y: number, tree: Octree, array: XYZ[]}): void {
+    // It will load from y to y ± CHUNK_SIZE
     const self = this;
-    const elev = getElevation(o.xc, o.yc) - 5;
+    const elev = getElevation(o.xc, o.zc) - 5;
     
-    function addBlock(uv: number, yLevel?: number): void {
+    function addBlock(uv: number, yy: number): void {
       const newPos: XYZ = {
         x: o.xc,
-        y: elev + (yLevel || 0),
-        z: o.yc,
+        y: yy, // needs fixes
+        z: o.zc,
       };
       
       self.voxelFaceMap.set(newPos.x, newPos.y, newPos.z, uv);
@@ -159,9 +155,7 @@ export class VoxelWorld {
       o.array.push(newPos);
     }
     
-    addBlock(0);
-    addBlock(1, -1);
-    addBlock(1, -2);
+    loadVoxelChunk(addBlock, o.y);
   }
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {

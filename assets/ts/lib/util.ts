@@ -278,3 +278,10 @@ export function logError(e: string): Error {
   
   return err;
 }
+
+export function throwError(e: string): never {
+  const err = new Error(e);
+  console.error(`${err.stack}`);
+  
+  throw err;
+}

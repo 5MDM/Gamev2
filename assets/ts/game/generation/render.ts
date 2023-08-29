@@ -57,7 +57,7 @@ export const chunkRenderLoop = stopLoop(() => {
   if(counter-- <= 0) {
     counter = counterOg;
     const {renderDistance} = gameState;
-    deleteIfOutRadius(renderDistance);
-    addInRadius(renderDistance);
+    /*deleteIfOutRadius(renderDistance);
+    addInRadius(renderDistance);*/
   }
 }, false);
