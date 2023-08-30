@@ -155,7 +155,7 @@ export class VoxelWorld {
       o.array.push(newPos);
     }
     
-    loadVoxelChunk(addBlock, o.y);
+    loadVoxelChunk(addBlock, o.y, o.xc, o.zc);
   }
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {

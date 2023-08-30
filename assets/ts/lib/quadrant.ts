@@ -1,14 +1,6 @@
 import {Vector3, Box3, Mesh, Box3Helper, Scene, Color} from "three";
 
 var debugMode = false;
-var crashCounter = 0;
-var objLimit = 5000000;
-function increment() {
-  if(++crashCounter > objLimit)
-  throw new Error(
-    "Octree: too many objects"
-  );
-}
 
 var scene: Scene;
 
@@ -80,8 +72,12 @@ class Box {
     this.width = width;
     this.height = height;
     this.depth = depth;
-    increment();
+    //increment();
     return this;
+  }
+  
+  delete(): void {
+    //crashCounter--;
   }
   
   /**
@@ -278,7 +274,7 @@ export class Octree {
     } else {
       if(!this.box) {
         this.box = box;
-        renderBox(box, new Color(0xfff000));
+        
         return true;
       } else {
         console.warn("Why is the box even full");
@@ -376,6 +372,7 @@ export class Octree {
   
   delete(): void {
     for(const child of this.children) child.delete();
+    this.box?.delete();
     this.box = null;
   }
 }

@@ -9,7 +9,7 @@ export function getElevation(x: number, y: number) {
     return getCoord(x*a, y*a);
   }
   
-  return Math.floor(e(0.05) * 2) / 2;
+  return Math.floor(e(0.05));
 }
 
 export interface XYZ {

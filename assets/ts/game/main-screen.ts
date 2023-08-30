@@ -15,7 +15,7 @@ export const scene = new Scene();
 setCurrentScene(scene);
 setCurrentCamera(cam.camera);
 setTimeScene(scene, cam.camera);
-//setDebugScene(scene);
+setDebugScene(scene);
 
 const worldPr = generateWorld(scene);
 worldPr.then(main);
