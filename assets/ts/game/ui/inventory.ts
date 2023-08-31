@@ -1,5 +1,6 @@
 import {$, $$, $$Opts, logError, parseCSS, throwError} from "../../lib/util";
 import {imageImports} from "../../window";
+import {blocksJson} from "../generation/blocks";
 
 interface SidebarSlot {
   name: string;
@@ -11,6 +12,7 @@ interface Target {
   columns: number;
   el: string;
   amount?: number;
+  loopBlocks?: boolean;
 }
 
 class Inventory {
@@ -21,6 +23,8 @@ class Inventory {
   public onDown: ((el: HTMLElement) => void);
   public selected?: number = undefined;
   public selectedEl?: HTMLElement = undefined;
+  public currentPage: HTMLElement;
+  public selectedSlot?: HTMLElement = undefined;
   
   constructor(o: {
     targets: Target[];
@@ -34,12 +38,35 @@ class Inventory {
     this.sidebar = <HTMLElement[]>o.sidebar;
     this.onDown = o.down;
     this.onUp = o.up;
+    this.currentPage = 
+    this.#getTargetFromEl(this.sidebar[0]);
+    
     this.#generate();
     
     return this;
   }
   
-  #generate() {
+  getSlot(x: number, y: number): HTMLElement {
+    const el = <HTMLElement>
+    this.currentPage.querySelector(`#pos-${x}-${y}`);
+    
+    if(el === null) throwError(
+      `inventory.ts: Couldn't find slot (${x}, ${y})`
+    );
+    
+    return el;
+  }
+  
+  setSlot(x: number, y: number): void {
+    
+  }
+  
+  async #generate() {
+    const json: {
+      name: string;
+      texture: string;
+    }[] = (await blocksJson).default.blocks;
+    
     for(const i of this.targets) {
       const e = <HTMLElement>$("#ui > #inventory #" + i.el);
       e.style.gridTemplateColumns = 
@@ -51,15 +78,60 @@ class Inventory {
       || i.amount > i.rows * i.columns)
         i.amount = i.rows * i.columns;
       
-      for(let z = 0; z != i.amount; z++)
-        e.appendChild(Inventory.createSlot());
+      let am = i.amount;
+      let blocksI = 0;
+      
+      outerLoop: for(let y = 0; y < i.rows; y++) {
+        for(let x = 0; x < i.columns; x++) {
+          if(am-- <= 0) break outerLoop;
+          
+          const slotEl: HTMLElement = 
+          <HTMLElement> Inventory.createSlot({
+            attrs: {
+              id: `pos-${x}-${y}`,
+            },
+          });
+          
+          if(i.loopBlocks
+          && blocksI < json.length) {
+            const currentBlock = json[blocksI++];
+            console.log(currentBlock)
+            
+            const img = $$("img", {
+              attrs: {
+                alt: currentBlock.name,
+                src:             `/assets/images/game/blocks/${currentBlock.texture}`,
+                "data-block": blocksI.toString(),
+                class: "block-img",
+              }
+            });
+            
+            //img.addEventListener()
+            
+            slotEl.appendChild(img);
+          }
+          
+          slotEl.addEventListener("pointerup", e => {
+            if(this.selectedSlot) 
+              this.selectedSlot.classList
+              .remove("selected-slot");
+            
+            this.selectedSlot = slotEl;
+            this.selectedSlot.classList
+            .add("selected-slot");
+          });
+          
+          e.appendChild(slotEl);
+        }
+      }
     }
     
     for(let i in this.sidebar) {
       const el = this.sidebar[i];
       if(parseInt(i) == 0) {
         this.onDown(el);
-        this.#getTargetFromEl(el).style.display = "grid";
+        this.currentPage.style.display = "grid";
+        
         this.selected = 0;
         this.selectedEl = el;
       }
@@ -75,16 +147,9 @@ class Inventory {
         this.selected = parseInt(i);
         this.selectedEl = el;
         this.onDown(el);
-        this.#getTargetFromEl(el).style.display = "grid";
+        this.currentPage = this.#getTargetFromEl(el);
+        this.currentPage.style.display = "grid";
       });
-      
-      /*el.addEventListener("pointerup", () => {
-        if(this.selected != parseInt(i)) {
-          this.onUp(el);
-          this.#getTargetFromEl(this.selectedEl!)
-          .style.display = "none";
-        }
-      });*/
       
       this.sidebarTarget.appendChild(el);
     }
@@ -138,6 +203,7 @@ const inventory = new Inventory({
       rows: 9,
       columns: 9,
       el: "blocks",
+      loopBlocks: true,
     },
   ],
   sidebarTarget: $("#ui > #inventory #sidebar")!,

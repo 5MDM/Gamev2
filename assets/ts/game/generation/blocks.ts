@@ -21,10 +21,13 @@ interface generateUVMapParameter {
   height: number;
 }
 
+export const blocksJson = 
+import("../../../game/blocks.json");
+
 export function generateUVMap(): 
 Promise<generateUVMapParameter> {
   return new Promise(res => {
-    import("../../../game/blocks.json")
+    blocksJson
     .then(async dat => {
       blockSize = dat.size;
       
