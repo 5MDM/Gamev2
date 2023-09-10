@@ -1,5 +1,8 @@
 import {$, $$, $$Opts} from "../../lib/util";
 import {imageImports} from "../../window";
+import {blocksJson} from "../generation/blocks";
+
+const json = await blocksJson;
 
 type ListenFunction = 
 ((el: HTMLElement, nextEl?: HTMLElement) => void);
@@ -29,9 +32,10 @@ class Hotbar {
   }
   
   #generate(): void {
-    for(let i in this.slots) {
+    for(const i in this.slots) {
       const el: HTMLElement =
       <HTMLElement>this.slots[i];
+      el.setAttribute("id", `slot-${i}`);
       
       if(el.id != "hotbar-menu") {
         const nextEl = <HTMLElement>this.slots[parseInt(i)+1];
@@ -58,6 +62,26 @@ class Hotbar {
   static createSlot(opts?: $$Opts): Element {
     const el: Element = $$("div", opts);
     el.classList.add("hotbar-slot");
+    el.addEventListener("dragover", e => e.preventDefault());
+    el.addEventListener("drop", evt => {
+      const e = (evt as DragEvent);
+      e.preventDefault();
+      
+      const blockId: number = 
+      parseInt(e.dataTransfer!.getData("block"))-1;
+      
+      const blockURL = json.blocks[blockId].texture;
+      
+      imageImports["game/blocks/" + blockURL]()
+      .then(e => {
+        el.appendChild($$("img", {
+          attrs: {
+            alt: "Block",
+            src: e.default,
+          }
+        }));
+      });
+    });
     
     return el;
   }

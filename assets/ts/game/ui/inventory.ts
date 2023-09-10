@@ -95,7 +95,7 @@ class Inventory {
           if(i.loopBlocks
           && blocksI < json.length) {
             const currentBlock = json[blocksI++];
-            console.log(currentBlock)
+            const blockId = blocksI;
             
             const img = $$("img", {
               attrs: {
@@ -103,10 +103,16 @@ class Inventory {
                 src:             `/assets/images/game/blocks/${currentBlock.texture}`,
                 "data-block": blocksI.toString(),
                 class: "block-img",
+                id: `img-${x}-${y}`,
+                draggable: "true",
               }
             });
             
-            //img.addEventListener()
+            img.addEventListener("dragstart", e => {
+              e.dataTransfer!
+              .setData("block", blockId.toString());
+              e.dataTransfer!.dropEffect = "move";
+            });
             
             slotEl.appendChild(img);
           }
