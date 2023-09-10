@@ -32,6 +32,17 @@
     <script type="module" defer src="/assets/ts/module-loader.ts"></script>
   </head>
   <body>
+    <div id="error-overlay">
+      <p id="error-txt">There's an unknown error</p>
+      <p id="error-stack">Unknown stack</p>
+      <hr>
+      <div class="no-select">
+        <p>Copy error:</p>
+        <button id="copy-error">
+          <img src="/assets/images/clipboard.png" alt="copy" width="50" height="50">
+        </button>
+      </div>
+    </div>
     <div id="block-game-overlay">
       <h1 id="block-game-message">-</h1>
     </div>
