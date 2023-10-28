@@ -78,23 +78,32 @@
   display: none;
 }
 
+/*
+  inventory-main: Parent div
+  inventory-grid: Main inventory
+  inventory-slot: global slot
+*/
+
 #ui > #inventory #inventory-main .inventory-slot {
   width: 80px;
   height: 80px;
   background-color: #333333;
   border: 4px inset gray;
+
+  
   margin: 5px;
 }
-
+/*
 #ui > #inventory #inventory-main .selected-slot {
-  background-color: white;
+  background-color: #adadad;
   border: 4px outset #80d4dd;
-}
+}*/
 
-#ui > #inventory #inventory-main .inventory-slot > .block-img {
+#ui > #inventory #inventory-main .block-img {
   width: 100%;
   height: 100%;
   pointer-events: auto;
+  margin: auto;
 }
 
 #ui > #inventory #inventory-main .inventory-slot:active {
@@ -104,4 +113,14 @@
 #ui > #inventory #inventory-main #blocks .inventory-slot {
   width: 60px;
   height: 60px;
+}
+
+#ui > #inventory #inventory-main #inventory-grid .inventory-slot {
+  width: 80px;
+  height: 80px;
+}
+
+#ui > #inventory #inventory-main #inventory-grid .inventory-slot img {
+  width: 72px;
+  height: 72px;
 }

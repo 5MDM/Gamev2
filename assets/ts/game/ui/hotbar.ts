@@ -67,19 +67,35 @@ class Hotbar {
       const e = (evt as DragEvent);
       e.preventDefault();
       
+      if(el.firstChild) return;
+      
+      const removeEl = 
+      e.dataTransfer!.getData("id");
+      if(removeEl) $(removeEl)!.remove();
+      
       const blockId: number = 
-      parseInt(e.dataTransfer!.getData("block"))-1;
+      parseInt(e.dataTransfer!.getData("block"));
       
       const blockURL = json.blocks[blockId].texture;
       
       imageImports["game/blocks/" + blockURL]()
       .then(e => {
-        el.appendChild($$("img", {
+        const img = $$("img", {
           attrs: {
             alt: "Block",
             src: e.default,
           }
-        }));
+        });
+        
+        img.addEventListener("dragstart", e => {
+          e.dataTransfer!
+          .setData("block", blockId.toString());
+          e.dataTransfer!
+          .setData("id", `.hotbar-slot#${el.id} > img`);
+          e.dataTransfer!.dropEffect = "move";
+        });
+        
+        el.appendChild(img);
       });
     });
     

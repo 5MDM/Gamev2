@@ -13,6 +13,7 @@ interface Target {
   el: string;
   amount?: number;
   loopBlocks?: boolean;
+  droppable: boolean;
 }
 
 class Inventory {
@@ -95,26 +96,70 @@ class Inventory {
           if(i.loopBlocks
           && blocksI < json.length) {
             const currentBlock = json[blocksI++];
-            const blockId = blocksI;
+            const blockId = blocksI-1;
             
-            const img = $$("img", {
-              attrs: {
-                alt: currentBlock.name,
-                src:             `/assets/images/game/blocks/${currentBlock.texture}`,
-                "data-block": blocksI.toString(),
-                class: "block-img",
-                id: `img-${x}-${y}`,
-                draggable: "true",
-              }
+            imageImports
+            ["game/blocks/" + currentBlock.texture]()
+            .then(e => {
+              const img = $$("img", {
+                attrs: {
+                  alt: currentBlock.name,
+                  src: e.default,
+                  "data-block": blocksI.toString(),
+                  class: "block-img",
+                  id: `img-${x}-${y}`,
+                  draggable: "true",
+                }
+              });
+              
+              img.addEventListener("dragstart", e => {
+                e.dataTransfer!
+                .setData("block", blockId.toString());
+                e.dataTransfer!.dropEffect = "move";
+              });
+
+              slotEl.appendChild(img);
+            })
+          }
+          
+          if(i.droppable) {
+            slotEl.addEventListener
+            ("dragover", e => e.preventDefault());
+
+            slotEl.addEventListener("drop", evt => {
+              const e = (evt as DragEvent);
+              e.preventDefault();
+              
+              if(slotEl.firstChild) return;
+
+              const removeEl = 
+              e.dataTransfer!.getData("id");
+              if(removeEl) $(removeEl)!.remove();
+
+              const blockId: number = 
+              parseInt(e.dataTransfer!.getData("block"));
+
+              const blockURL = json[blockId].texture; 
+              imageImports["game/blocks/" + blockURL]()
+              .then(e => {
+                const img = $$("img", {
+                  attrs: {
+                    alt: "Block",
+                    src: e.default,
+                  }
+                });
+
+                img.addEventListener("dragstart", e => {
+                  e.dataTransfer!
+                  .setData("block", blockId.toString());
+                  e.dataTransfer!
+                  .setData("id", `#${i.el} #${slotEl.id} > img`);
+                  e.dataTransfer!.dropEffect = "move";
+                });
+
+                slotEl.appendChild(img);
+              });
             });
-            
-            img.addEventListener("dragstart", e => {
-              e.dataTransfer!
-              .setData("block", blockId.toString());
-              e.dataTransfer!.dropEffect = "move";
-            });
-            
-            slotEl.appendChild(img);
           }
           
           slotEl.addEventListener("pointerup", e => {
@@ -201,15 +246,17 @@ computed.getPropertyValue("--slot-bg");
 const inventory = new Inventory({
   targets: [
     {
-      rows: 9,
-      columns: 6,
+      rows: 6,
+      columns: 8,
       el: "inventory-grid",
+      droppable: true,
     },
     {
       rows: 9,
       columns: 9,
       el: "blocks",
       loopBlocks: true,
+      droppable: false,
     },
   ],
   sidebarTarget: $("#ui > #inventory #sidebar")!,
