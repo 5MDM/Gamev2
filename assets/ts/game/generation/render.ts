@@ -31,13 +31,13 @@ function deleteIfOutRadius(r: number) {
       for(const blocks of cam.octrees!.get(cx, cy).blocks)
         world.scene.remove(blocks);
       
-      cam.octrees!.get(cx, cy).tree.delete();
+      cam.octrees!.get(cx, cy).tree?.delete();
       cam.octrees!.remove(cx, cy);
     }
   });
 }
 
-function addInRadius(r: number) {
+function addInRadius(r: number, sim: number) {
   const x = 
   floorMultiple(cam.camera.position.x, world.CHUNK_SIZE) / 
   world.CHUNK_SIZE;
@@ -52,6 +52,26 @@ function addInRadius(r: number) {
       }
     }
   }
+  
+  
+  for(let yy = y-sim; yy < y+sim; yy++) {
+    for(let xx = x-sim; xx < x+sim; xx++) {
+      if(cam.octrees!.get(xx, yy).hasPhysics == false) {
+        cam.octrees!
+        .set(xx, yy, world.loadChunk(xx, yy));
+        
+        cam.octrees!
+        .setProperty(xx, yy, "hasPhysics", true);
+        
+        cam.octrees!
+        .setProperty(
+          xx, yy, "tree", 
+          world.loadPhysics(xx, yy)
+        );
+      }
+    }
+  }
+  
 }
 
 export const chunkRenderLoop = stopLoop(() => {
@@ -59,6 +79,6 @@ export const chunkRenderLoop = stopLoop(() => {
     counter = counterOg;
     const {renderDistance} = gameState;
     deleteIfOutRadius(renderDistance);
-    addInRadius(renderDistance);
+    addInRadius(renderDistance, 2);
   }
 }, false);

@@ -35,7 +35,7 @@ const slider = new SliderSettingComponent({
   id: "render-distance",
   name: "Render Distance",
   min: 0,
-  max: 5,
+  max: 9,
   defaultValue: gameState.renderDistance,
   onchange(value) {
     gameState.renderDistance = value;

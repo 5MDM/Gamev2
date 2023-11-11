@@ -1,6 +1,6 @@
 hidden=[".config", ".git", ".github", ".vscode", "tsconfig.json", "vite.config.ts", "start.sh", ".gitignore", ".README.md", "LICENSE"]
 entrypoint = "index.ts"
-run = ". ./start.sh"
+run = "echo hi"
 
 # hosting is currently hardcoded for this language
 # [hosting]

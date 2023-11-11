@@ -1,13 +1,14 @@
 import {Octree} from "../../lib/quadrant";
-import {round, stopLoop, floorMultiple, rand, randRange} from "../../lib/util.js";
+import {round, stopLoop, floorMultiple, rand, randRange, throwError} from "../../lib/util.js";
 import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter} from "three";
 import {seed, getElevation, XYZ} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";
 import {renderer} from "../../app";
 import {loadVoxelChunk} from "./chunks/load-chunk";
+import {CameraOctreeMap} from "../../lib/camera";
 
-interface VoxelContructorOpts {
+export interface VoxelContructorOpts {
   chunkSize: number;
   scene: Scene;
   uv: {
@@ -16,6 +17,12 @@ interface VoxelContructorOpts {
     imageWidth: number;
     imageHeight: number;
   };
+}
+
+export interface LoadChunkOpts {
+  chunkX: number;
+  chunkZ: number;
+  chunkY?: number;
 }
 
 interface ChunkData {
@@ -34,6 +41,7 @@ export class VoxelWorld {
   imageTextures: Texture;
   tileWidthRatio: number;
   tileHeightRatio: number;
+  // worker: Worker;
   
   constructor(o: VoxelContructorOpts) {
     this.CHUNK_SIZE = o.chunkSize;
@@ -55,18 +63,21 @@ export class VoxelWorld {
     //this.imageTextures.anisotropy =
     //renderer.capabilities.getMaxAnisotropy();
     
+    /*this.worker = new Worker("chunk-worker.ts");
+    this.worker.postMessage({
+      type: "constructor",
+      payload: o,
+    });*/
+    
     return this;
   }
   
-  loadChunk(chunkX: number, chunkZ: number, chunkY?: number): {
-    tree: Octree;
-    blocks: Mesh[];
-  } {
+  loadPhysics(chunkX: number, chunkZ: number, chunkY?: number): Octree {
     chunkY ||= -1;
     const x = chunkX * this.CHUNK_SIZE;
     const y = chunkY * this.CHUNK_SIZE;
     const z = chunkZ * this.CHUNK_SIZE;
-    
+
     const tree = new Octree({
       width: this.CHUNK_SIZE,
       height: this.CHUNK_SIZE,
@@ -76,9 +87,23 @@ export class VoxelWorld {
       z: z,
     });
     
+    
+    this.loopChunk(x, z, (xc, zc) => {
+      this.loadVoxel({xc, zc, y, tree, physics: true});
+    });
+    
+    return tree;
+  }
+  
+  loadChunk(chunkX: number, chunkZ: number, chunkY?: number): CameraOctreeMap {
+    chunkY ||= -1;
+    const x = chunkX * this.CHUNK_SIZE;
+    const y = chunkY * this.CHUNK_SIZE;
+    const z = chunkZ * this.CHUNK_SIZE;
+    
     const blocksToIterate: XYZ[] = []; 
     this.loopChunk(x, z, (xc, zc) => {
-      this.loadVoxel({xc, zc, y, tree, array: blocksToIterate});
+      this.loadVoxel({xc, zc, y, array: blocksToIterate, physics: false});
     });
     
     const positions: number[] = [];
@@ -135,15 +160,15 @@ export class VoxelWorld {
     
     this.scene.add(mesh);
     
-    return {tree, blocks};
+    return {tree: null, blocks, hasPhysics: false};
   }
   
-  protected loadVoxel(o: {xc: number, zc: number, y: number, tree: Octree, array: XYZ[]}): void {
+  protected loadVoxel(o: {xc: number, zc: number, y: number, tree?: Octree, array?: XYZ[], physics: boolean}): void {
     // It will load from y to y ± CHUNK_SIZE
     const self = this;
     const elev = getElevation(o.xc, o.zc) - 5;
     
-    function addBlock(uv: number, yy: number): void {
+    /*function addBlock(uv: number, yy: number): void {
       const newPos: XYZ = {
         x: o.xc,
         y: yy, // needs fixes
@@ -153,9 +178,39 @@ export class VoxelWorld {
       self.voxelFaceMap.set(newPos.x, newPos.y, newPos.z, uv);
       self.addBlockToTree(o.tree, newPos);
       o.array.push(newPos);
+    }*/
+    
+    function addBlock(uv: number, yy: number): void {
+      const newPos: XYZ = {
+        x: o.xc,
+        y: yy, // needs fixes
+        z: o.zc,
+      };
+
+      self.voxelFaceMap.set(newPos.x, newPos.y, newPos.z, uv);
+      o.array!.push(newPos);
     }
     
-    loadVoxelChunk(addBlock, o.y, o.xc, o.zc);
+    function addPhysics(uv: number, yy: number) {
+      if(o.tree == undefined) 
+        return throwError("chunk.ts: o.tree is undefined with a physics request");
+      
+      const newPos: XYZ = {
+        x: o.xc,
+        y: yy, // needs fixes
+        z: o.zc,
+      };
+      
+      self.addBlockToTree(o.tree, newPos);
+    }
+    
+    if(o.physics) {
+      loadVoxelChunk(addPhysics, o.y, o.xc, o.zc);
+    } else {
+      if(o.array === undefined) 
+        return throwError("chunk.ts: array is undefined");
+      loadVoxelChunk(addBlock, o.y, o.xc, o.zc);
+    }
   }
   
   protected addBlockToTree(tree: Octree, pos: XYZ): void {

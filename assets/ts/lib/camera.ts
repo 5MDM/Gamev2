@@ -414,8 +414,9 @@ export class MovementCamera extends ControlCamera {
  * @extends {MovementCamera}
  */
 export interface CameraOctreeMap {
-  tree: Octree;
+  tree: Octree | null;
   blocks: Mesh[];
+  hasPhysics: boolean;
 }
 
 export class PhysicsCamera extends MovementCamera {
@@ -498,6 +499,7 @@ export class PhysicsCamera extends MovementCamera {
     if(!this.playerObj) return false;
     for(const treeF in this.octrees.map) {
       const tree = this.octrees.map[treeF];
+      if(tree.tree == null) continue;
       const col = 
       tree.tree.get(this.playerObj, {
         width: 0.2,

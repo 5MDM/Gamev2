@@ -6,6 +6,10 @@ export class CoordinateMap3D<T> {
     this.map[`${x},${y},${z}`] = e;
   }
   
+  setProperty(x: number, y: number, z: number, property: string, e: any) {
+    (this.map[`${x},${y},${z}`] as any)[property] = e;
+  }
+  
   get(x: number, y: number, z: number): T {
     return this.map[`${x},${y},${z}`];
   }
@@ -27,6 +31,10 @@ export class CoordinateMap2D<T> {
   
   set(x: number, y: number, e: T) {
     this.map[`${x},${y}`] = e;
+  }
+  
+  setProperty(x: number, y: number, property: string, e: any) {
+    (this.map[`${x},${y}`] as any)[property] = e;
   }
   
   get(x: number, y: number): T {
