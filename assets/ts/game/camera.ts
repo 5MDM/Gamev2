@@ -2,9 +2,15 @@ import {PhysicsCamera} from "../lib/camera";
 import {$, addEventListeners, clamp, stopLoop} from "../lib/util";
 import {imageImports, isTouchDevice, gameState} from "../window";
 
-export const cam = new PhysicsCamera({mouseSensitivity: 100});
-cam.bind($("#c")!);
-cam.setDefault(0, 0);
+export const cam = new PhysicsCamera({
+  mouseSensitivity: 100,
+  canvas: $("#c")!,
+  width: innerWidth,
+  height: innerHeight,
+});
+//cam.setDefault(0, 0);
+//this.cam.rx = 0;
+//this.cam.ry = 0;
 
 cam.onPointerMove = function(e) {
   cam.rx += e.x * 0.01;
@@ -27,12 +33,12 @@ const playerSpeed = 0.07;
 stopLoop(({delta}) => {
   if(gameState.paused) return;
   var s = playerSpeed * delta;
-  if(up) cam.moveUp(s);
+  if(up) cam.moveForward(s);
   if(left) cam.moveLeft(s);
-  if(down) cam.moveDown(s);
+  if(down) cam.moveBackward(s);
   if(right) cam.moveRight(s);
-  if(vup) cam.moveAbove(s + 0.03);
-  if(vdown) cam.moveBelow(s + 0.03);
+  if(vup) cam.moveUp(s + 0.03);
+  if(vdown) cam.moveDown(s + 0.03);
 });
 
 if(isTouchDevice()) {

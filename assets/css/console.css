@@ -1,0 +1,7 @@
+#ui > #console {
+  display: none;
+  background-color: rgba(50, 50, 50, 0.8);
+  width: 100%;
+  height: max(25vh, 200px);
+  border: 1px solid red;
+}

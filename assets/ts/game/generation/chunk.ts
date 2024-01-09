@@ -1,6 +1,6 @@
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple, rand, randRange, throwError} from "../../lib/util.js";
-import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter} from "three";
+import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter, Box3Helper, Vector3, Box3} from "three";
 import {seed, getElevation, XYZ} from "./seed";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";

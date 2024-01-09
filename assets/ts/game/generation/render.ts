@@ -31,6 +31,10 @@ function deleteIfOutRadius(r: number) {
       for(const blocks of cam.octrees!.get(cx, cy).blocks)
         world.scene.remove(blocks);
       
+      if(cam.octrees!.get(cx, cy).hasPhysics) {
+        console.log(cam.octrees!.get(cx, cy))
+      }
+      
       cam.octrees!.get(cx, cy).tree?.delete();
       cam.octrees!.remove(cx, cy);
     }
@@ -79,6 +83,6 @@ export const chunkRenderLoop = stopLoop(() => {
     counter = counterOg;
     const {renderDistance} = gameState;
     deleteIfOutRadius(renderDistance);
-    addInRadius(renderDistance, 2);
+    addInRadius(renderDistance, 1);
   }
 }, false);

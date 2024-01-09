@@ -103,3 +103,11 @@ addEventListener("keydown", e => {
       console.log(gameState)
   }
 });
+
+export function enableConsole() {
+  $("#ui > #console")!.style.display = "flex";
+}
+
+export function disableConsole() {
+  $("#ui > #console")!.style.display = "none";
+}

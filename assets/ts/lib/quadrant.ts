@@ -277,7 +277,7 @@ export class Octree {
         
         return true;
       } else {
-        console.warn("Why is the box even full");
+        // overlapping box
       }
     }
 

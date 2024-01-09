@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="/assets/css/debug.css">
     <link rel="stylesheet" href="/assets/css/inventory.css">
     
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script type="module" defer src="/assets/ts/module-loader.ts"></script>
   </head>
   <body>
@@ -53,16 +54,7 @@
           <div id="side"></div>
           <div id="sidebar"></div>
           <div id="content">
-            <!-- <div id="dev-content">
-              <div class="setting" id="debug-toggle">
-                Debug Overlay
-                <span id="debug" class="setting-toggle"></span>
-              </div>
-            </div> -->
             <div id="video-content">
-              <!-- <div class="setting" id="video-toggle">
-                
-              </div> -->
             </div>
           </div>
         </div>
@@ -77,6 +69,7 @@
         <img id="loading" alt="loading" src="/assets/images/loading.gif">
       </div>
       <div id="ui">
+        <div id="console"></div>
         <div id="gui">
           <img src="/assets/images/game/pause.png" alt="pause" id="pause-btn">
           <div id="debug-ui">

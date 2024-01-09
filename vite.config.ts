@@ -1,5 +1,5 @@
-import {defineConfig} from "vite";
-import {checker} from "vite-plugin-checker";
+import {defineConfig} from "vite"
+import react from "@vitejs/plugin-react-swc";
 
 export default defineConfig({
   build: {
@@ -7,9 +7,9 @@ export default defineConfig({
     assetsInlineLimit: 0
   },
   plugins: [
-    checker({
-      typescript: true,
-    })
+    react({
+      devTarget: "es2022",
+    }),
   ],
   base: "/Gamev2/"
 })
