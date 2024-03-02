@@ -168,18 +168,6 @@ export class VoxelWorld {
     const self = this;
     const elev = getElevation(o.xc, o.zc) - 5;
     
-    /*function addBlock(uv: number, yy: number): void {
-      const newPos: XYZ = {
-        x: o.xc,
-        y: yy, // needs fixes
-        z: o.zc,
-      };
-      
-      self.voxelFaceMap.set(newPos.x, newPos.y, newPos.z, uv);
-      self.addBlockToTree(o.tree, newPos);
-      o.array.push(newPos);
-    }*/
-    
     function addBlock(uv: number, yy: number): void {
       const newPos: XYZ = {
         x: o.xc,

@@ -1,5 +1,4 @@
 import {$, stopLoop, round} from "../../lib/util";
-import {FormComponentOpts, parseForm} from "./form";
 import {MathUtils, Mesh, Vector3} from "three";
 import {gameState} from "../../window";
 import {AnyCamera, CameraOctreeMap} from "../../lib/camera";
@@ -12,10 +11,8 @@ var listen: (id: string) => void;
 
 const debugEl = $("#ui > #gui > #debug-ui")!;
 
-export function setDebugObj(o: {camera: AnyCamera, player: Mesh}) {
-  cam = o.camera;
-  // playerObj = o.player;
-  // trees = o.octrees;
+export function setDebugObj(camera: AnyCamera) {
+  cam = camera;
 }
 
 export function getDevEl(id: string) {
@@ -38,12 +35,12 @@ const devLoop = stopLoop(({delta}) => {
   const {x, y, z} = cam.camera.position;
   devPos.innerText = 
   `(${Math.floor(x)}, ${Math.floor(y)}, ${Math.floor(z)})`;
-  
+
   const ma = 1000000;
   xe.innerText = `${round(x, ma)}`;
   ye.innerText = `${round(y, ma)}`;
   ze.innerText = `${round(z, ma)}`;
-  
+
   const currentTime = performance.now();
   gameState.fps = 1000 / (currentTime - lastTime);
   lastTime = currentTime;
@@ -52,14 +49,14 @@ const devLoop = stopLoop(({delta}) => {
     fpsCounter = 60;
   }
   deltaTime.innerText = `${round(delta, 10)}`;
-  
+
   const direction = new Vector3();
   cam.camera.getWorldDirection(direction);
-  
+
   const za = MathUtils.radToDeg(
     Math.atan2(direction.z, direction.x)
   );
-  
+
   if(za >= -45 && za < 45) {
     facing.innerText = "East";
   } else if(za >= 45 && za < 135) {

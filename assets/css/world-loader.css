@@ -1,0 +1,52 @@
+
+#world-loader {
+  display: flex;
+  justify-content: center;
+  width: var(--w);
+  height: var(--h);
+}
+
+#world-loader > * {
+  width: 90%;
+  height: 80%;
+  margin: auto;
+}
+
+#world-loader #panel-bg {
+  width: 100%;
+  height: 100%;
+  background-image: url("/assets/images/background.png");
+  background-size: 100px;
+  animation: world-loader-move-background 20s linear infinite;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+#world-loader #panel {
+  border: 4px solid gray;
+}
+
+#world-loader #panel-content {
+  width: calc(90% - 8px);
+  position: fixed;
+  top: calc(10% + 4px);
+  display: flex;
+  flex-direction: column;
+}
+
+#world-loader #panel-content button {
+  height: 40px;
+  background: silver;
+  border: none;
+  color: black;
+}
+
+@keyframes world-loader-move-background {
+  from {
+    background-position: 0 0;
+  }
+  
+  to {
+    background-position: 100% 50%;
+  }
+}

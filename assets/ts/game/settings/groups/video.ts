@@ -1,50 +1,62 @@
 import {updateCanvasSize} from "../../../ui";
 import {gameState} from "../../../window";
-import {SettingGroup, ToggleSettingComponent, SliderSettingComponent} from "../main";
+import {SettingGroup} from "../main";
+import {ToggleSetting, SliderSetting} from "html-settings-ui";
 
-const fullScreenToggle = new ToggleSettingComponent({
+const fullScreenToggle = new ToggleSetting({
   id: "fullscreen",
   name: "Use Fullscreen",
-  defaultValue: gameState.useFullScreen
-})
-fullScreenToggle.addEventListener("enable", () => {
-  gameState.useFullScreen = true;
-})
-fullScreenToggle.addEventListener("disable", () => {
-  gameState.useFullScreen = false;
-})
+  isToggled: gameState.useFullScreen,
+});
 
-const bodyPaddingToggle = new ToggleSettingComponent({
+fullScreenToggle.triggerElement
+.addEventListener("pointerup", () => {
+  
+  if(fullScreenToggle.isToggled) {
+    gameState.useFullScreen = true;
+  } else {
+    gameState.useFullScreen = false;
+  }
+  
+});
+
+const bodyPaddingToggle = new ToggleSetting({
   id: "body-padding",
   name: "Body Padding",
-  defaultValue: false
-})
-bodyPaddingToggle.addEventListener("enable", () => {
-  gameState.canvas.paddingWidth = 10;
-  gameState.canvas.paddingHeight = 50;
-  updateCanvasSize();
+  isToggled: false,
 });
 
-bodyPaddingToggle.addEventListener("disable", () => {
-  gameState.canvas.paddingWidth = 0;
-  gameState.canvas.paddingHeight = 0;
-  updateCanvasSize();
+bodyPaddingToggle.triggerElement
+.addEventListener("pointerup", () => {
+  
+  if(bodyPaddingToggle.isToggled) {
+    gameState.canvas.paddingWidth = 10;
+    gameState.canvas.paddingHeight = 50;
+    updateCanvasSize();
+  } else {
+    gameState.canvas.paddingWidth = 0;
+    gameState.canvas.paddingHeight = 0;
+    updateCanvasSize();
+  }
+  
 });
 
-const slider = new SliderSettingComponent({
+const slider = new SliderSetting({
   id: "render-distance",
   name: "Render Distance",
   min: 0,
   max: 9,
   defaultValue: gameState.renderDistance,
-  onchange(value) {
-    gameState.renderDistance = value;
-  },
 });
 
-const group = new SettingGroup({id: "video", name: "Video"})
-  .addComponent(fullScreenToggle)
-  .addComponent(bodyPaddingToggle)
-  .addComponent(slider);
+slider.triggerElement
+.addEventListener("input", () => {
+  gameState.renderDistance = (slider.triggerElement as any).value;
+});
+
+const group = new SettingGroup("Video", "video")
+.addComponent(fullScreenToggle)
+.addComponent(bodyPaddingToggle)
+.addComponent(slider);
 
 export {group as video}

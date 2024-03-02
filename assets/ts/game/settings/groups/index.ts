@@ -9,4 +9,4 @@ import {developer} from "./developer";
 ]
 .forEach(group => {
   group.addToDOM($("#sidebar")!, $("#content")!)
-})
+});

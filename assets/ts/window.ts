@@ -63,7 +63,12 @@ export const imageImports: {[key: string]: () => Promise<{default: string}>} = O
     )
   )
 
-addEventListener("touchend", e => e.preventDefault());
+// disable this for the console to work
+export function windowTouchendListener(e: any): void {
+  e.preventDefault();
+}
+
+addEventListener("touchend", windowTouchendListener);
 
 document.documentElement.style
 .setProperty("--w", window.innerWidth + "px");

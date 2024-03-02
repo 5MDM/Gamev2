@@ -1,7 +1,12 @@
 import {round} from "../../lib/util";
 import {createNoise2D} from "../../lib/perlin"
 
-export const seed = round(Math.random(), 10000);
+export var seed = round(Math.random(), 10000);
+
+export function setSeed(n: number): void {
+  seed = n;
+}
+
 const getCoord = createNoise2D(() => seed);
 
 export function getElevation(x: number, y: number) {

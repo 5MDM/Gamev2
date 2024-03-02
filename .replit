@@ -1,6 +1,6 @@
 hidden=[".config", ".git", ".github", ".vscode", "tsconfig.json", "vite.config.ts", "start.sh", ".gitignore", ".README.md", "LICENSE", "pnpm-lock.yaml", ".local"]
 entrypoint = "index.ts"
-run = "pnpm dev"
+run = "pnpm preview"
 
 # hosting is currently hardcoded for this language
 # [hosting]

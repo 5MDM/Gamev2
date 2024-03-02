@@ -1,25 +1,37 @@
 import {disableDevTools, enableDevTools, enableConsole, disableConsole} from "../debug";
-import {SettingGroup, ToggleSettingComponent} from "../main";
+import {SettingGroup} from "../main";
+import {ToggleSetting} from "html-settings-ui"
+import {windowTouchendListener} from "../../../window"
 
-const debugToggle = new ToggleSettingComponent({
-  id: "debug",
+const debugToggle = new ToggleSetting({
   name: "Debug Overlay",
-  defaultValue: false
-})
-debugToggle.addEventListener("enable", enableDevTools)
-debugToggle.addEventListener("disable", disableDevTools)
+  id: "debug",
+});
 
-const consoleFixToggle = new ToggleSettingComponent({
-    id: "devtools-toggle",
-    name: "Enable devtools console",
-    defaultValue: false
-  });
+debugToggle.triggerElement.addEventListener("pointerup", () => {
+  if(debugToggle.isToggled) {
+    enableDevTools();
+  } else {
+    disableDevTools();
+  }
+});
 
-consoleFixToggle.addEventListener("enable", enableConsole)
-consoleFixToggle.addEventListener("disable", disableConsole)
+const fixConsole = new ToggleSetting({
+  name: "Fix Eruda Console (Warning: unstable)",
+  id: "fix-console",
+});
 
-const group = new SettingGroup({id: "dev", name: "Developer"})
+fixConsole.triggerElement.addEventListener("pointerup", () => {
+  if(fixConsole.isToggled) {
+    removeEventListener("touchend", windowTouchendListener);
+  } else {
+    addEventListener("touchend", windowTouchendListener);
+  }
+});
+
+const group = 
+new SettingGroup("Developer", "dev")
 .addComponent(debugToggle)
-.addComponent(consoleFixToggle);
+.addComponent(fixConsole);
 
 export {group as developer}

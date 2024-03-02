@@ -3,13 +3,13 @@
   margin: 0;
   box-sizing: border-box;
 }
-/
+
 html {
   background-color: black;
   touch-action: pan-x pan-y;
   overflow: hidden;
 }
-*/
+
 #loading-c {
   display: flex;
   justify-content: center;

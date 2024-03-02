@@ -64,7 +64,7 @@ export function $$<N extends keyof HTMLElementTagNameMap>(name: N | string, opts
     el.setAttribute("style", parseCSS(opts.style));
   
   if(opts.text)
-    el.innerText = opts.text;
+    el.textContent = opts.text;
   
   if(opts.children) {
     forAll(opts.children, e => {
@@ -285,3 +285,5 @@ export function throwError(e: string): never {
   
   throw err;
 }
+
+export function NOOP() {}
