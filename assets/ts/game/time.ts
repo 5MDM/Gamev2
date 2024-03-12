@@ -1,8 +1,9 @@
 import {stopLoop, $, HSL} from "../lib/util";
 import {getDevEl} from "./settings/debug";
 import {gameState} from "../window";
-import {PerspectiveCamera, Scene, Sprite, SpriteMaterial} from "three";
+import {PerspectiveCamera, Scene, Sprite, SpriteMaterial, MeshBasicMaterial, Color, BackSide, Mesh, SphereGeometry, ShaderMaterial} from "three";
 import {loadImgFromAssets, RADIAN_HALF} from "../lib/framework";
+import { radians } from "three/examples/jsm/nodes/Nodes.js";
 
 var scene: Scene;
 var cam: PerspectiveCamera;
@@ -12,18 +13,19 @@ export function setTimeScene(s: Scene, c: PerspectiveCamera) {
   main();
 }
 
+const tSpeed: number = 0.4;
+const colorDifference: Color = new Color(0.014 * tSpeed, 0.044 * tSpeed, 0.05 * tSpeed);
+
 var isDay = true;
 var sunset = false;
 var sunrise = false;
-const color = new HSL(210, 100, 70);
-const c = $("#c")!;
 
 const orbitRadius = 100;
-const orbitSpeed = 0.0002;
+const orbitSpeed = 0.004;
 var sunAngle = 0;
 var moonAngle = RADIAN_HALF * 2;
 
-const counterOg = 50;
+const counterOg = 10;
 var counter = counterOg;
 
 const moon = new Sprite(new SpriteMaterial({
@@ -52,7 +54,6 @@ const loop = stopLoop(({delta}) => {
       tickNight(trueDelta);
     }
     
-    c.style.backgroundColor = color.toCSS();
     if(gameState.devToolsEnabled) {
       getDevEl("time")!.innerText = 
       `${Math.floor(sunAngle * 20)}`;
@@ -74,25 +75,16 @@ const loop = stopLoop(({delta}) => {
 
 const transitionSpeed = 2;
 function tickDay(delta: number) {
-  if(sunAngle >= RADIAN_HALF * 1.5) {
+  if(sunAngle >= RADIAN_HALF * 1.5
+  && sunAngle <= RADIAN_HALF * 2) {
     sunset = true;
   }
   
   if(sunset) {
-    if(color.l <= 40) {
-      if(color.h <= 262) {
-        color.h += 2 * delta * transitionSpeed;
-        color.l -= delta * transitionSpeed;
-      } else {
-        if(color.l > 0) {
-          color.l -= delta * transitionSpeed;
-        } else {
-          isDay = false;
-          sunset = false;
-        }
-      }
-    } else {
-      color.l -= delta * transitionSpeed;
+    skyColor.top.sub(colorDifference);
+    if(skyColor.top.b <= 0.2) {
+      sunset = false;
+      isDay = false;
     }
   }
 }
@@ -104,21 +96,19 @@ function tickNight(delta: number) {
   }
   
   if(sunrise) {
-    if(color.h > 210) {
-      color.h -= 2 * delta * transitionSpeed;
-      color.l += delta * transitionSpeed;
-    } else {
-      if(color.l < 70) {
-        color.l += delta * transitionSpeed;
-      } else {
-        sunrise = false;
-        isDay = true;
-      }
+    skyColor.top.add(colorDifference);
+    if(skyColor.top.b >= skyColor.ogTop.b) {
+      isDay = true;
+      sunrise = false;
     }
   }
 }
 
 function tickSun(delta = 1) {
+  if(sunAngle >= RADIAN_HALF * 4) {
+    sunAngle -= RADIAN_HALF * 4;
+  }
+
   sun.position.x = 
   cam.position.x + orbitRadius * Math.cos(sunAngle);
   
@@ -130,6 +120,10 @@ function tickSun(delta = 1) {
 }
 
 function tickMoon(delta = 1) {
+  if(moonAngle >= RADIAN_HALF * 4) {
+    moonAngle -= RADIAN_HALF * 4;
+  }
+
   moon.position.x = 
   cam.position.x + orbitRadius * Math.cos(moonAngle);
   
@@ -140,7 +134,79 @@ function tickMoon(delta = 1) {
   moonAngle += orbitSpeed * delta;
 }
 
+var sphere: Mesh;
+const skyColor: {top: Color; bottom: Color; ogTop: Color; ogBottom: Color} = {
+  ogBottom: new Color("purple"),
+  bottom: new Color("purple"),
+  ogTop: new Color(0x7ABAC6),
+  top: new Color(0x7ABAC6),
+};
+
+function addSkySphere() {
+  const geometry = new SphereGeometry(400, 32, 32);
+  geometry.computeBoundingBox();
+
+  const material = new ShaderMaterial({
+    side: BackSide,
+    uniforms: {
+      color1: {
+        value: skyColor.bottom,
+      },
+      color2: {
+        value: skyColor.top,
+      },
+      bboxMin: {
+        value: geometry.boundingBox!.min
+      },
+      bboxMax: {
+        value: geometry.boundingBox!.max
+      },
+      gScale: {
+        value: 1
+      },
+    },
+    
+    vertexShader: `
+      uniform vec3 bboxMin;
+      uniform vec3 bboxMax;
+      
+      varying vec2 vUv;
+      
+      void main() {
+        vUv.y = (position.y - bboxMin.y) / (bboxMax.y - bboxMin.y);
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+      }
+    `,
+    
+    fragmentShader: `
+      uniform vec3 color1;
+      uniform vec3 color2;
+      uniform float gScale;
+      
+      varying vec2 vUv;
+      
+      void main() {
+        float scale = vUv.y * gScale;
+        vec3 color = mix(color1, color2, scale);
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `,
+  });
+  
+  sphere = new Mesh(
+    geometry,
+    material,
+  );
+  
+  sphere.position.x = cam.position.x;
+  sphere.position.y = cam.position.y;
+  sphere.position.z = cam.position.z;
+  scene.add(sphere);
+}
+
 function main() {
+  addSkySphere();
+  scene.add(sphere);
   tickSun();
   tickMoon();
   scene.add(sun);
