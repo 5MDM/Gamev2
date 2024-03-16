@@ -91,6 +91,9 @@ export class PhysicsCamera extends MovementCamera {
    * @param {number} [o.max=1000] - The far clipping plane for the camera
    * @param {number} [o.mouseSensitivity=100] - The mouse sensitivity of the camera movement
    */
+
+  playerRadius: number = 1;
+
   constructor(o: CameraConstructor) {
     super(o);
   }
@@ -134,6 +137,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   bindPlayer(obj: import("three").Mesh): PhysicsCamera {
     this.playerObj = obj;
+    this.playerObj.geometry.computeBoundingSphere();
+    this.playerRadius = Math.round(this.playerObj.geometry.boundingSphere!.radius * 100) / 100;
     return this;
   }
   
@@ -148,13 +153,10 @@ export class PhysicsCamera extends MovementCamera {
     for(const treeF in this.octrees.map) {
       const tree = this.octrees.map[treeF];
       if(tree.tree == null) continue;
-      const col = 
-      tree.tree.get(this.playerObj, {
-        width: 0.2,
-        height: 5,
-        depth: 0.2,
-      });
       
+      const col = 
+      tree.tree.get(this.playerObj);
+
       if(col.length != 0) return true;
     }
     

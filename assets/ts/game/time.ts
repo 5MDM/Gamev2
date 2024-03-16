@@ -13,7 +13,7 @@ export function setTimeScene(s: Scene, c: PerspectiveCamera) {
   main();
 }
 
-const tSpeed: number = 0.4;
+const tSpeed: number = 0.1;
 const colorDifference: Color = new Color(0.014 * tSpeed, 0.044 * tSpeed, 0.05 * tSpeed);
 
 var isDay = true;
@@ -21,7 +21,7 @@ var sunset = false;
 var sunrise = false;
 
 const orbitRadius = 100;
-const orbitSpeed = 0.004;
+const orbitSpeed = 0.0008;
 var sunAngle = 0;
 var moonAngle = RADIAN_HALF * 2;
 
