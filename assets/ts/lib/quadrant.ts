@@ -1,4 +1,5 @@
 import {Vector3, Box3, Mesh, Box3Helper, Scene, Color} from "three";
+import {Box} from "./global-objects";
 
 var debugMode = false;
 
@@ -28,161 +29,6 @@ function renderBox(e: Box, color: Color) {
 }
 
 /**
- * A class that represents a three-dimensional rectangular region with a center point and dimensions
- */
-class Box {
-  /**
-   * The x-coordinate of the center of the box
-   */
-  x: number;
-  /**
-   * The y-coordinate of the center of the box
-   */
-  y: number;
-  /**
-   * The z-coordinate of the center of the box
-   */
-  z: number;
-  /**
-   * The width of the box
-   */
-  width: number;
-  /**
-   * The height of the box
-   */
-  height: number;
-  /**
-   * The depth of the box
-   */
-  depth: number;
-  /**
-   * Creates a new Box instance with the given parameters
-   * @param param0 - The parameters for the box
-   * @param param0.x - The x-coordinate of the center of the box
-   * @param param0.y - The y-coordinate of the center of the box
-   * @param param0.z - The z-coordinate of the center of the box
-   * @param param0.width - The width of the box
-   * @param param0.height - The height of the box
-   * @param param0.depth - The depth of the box
-   */
-  constructor({x, y, z, width, height, depth}: { x: number; y: number; z: number; width: number; height: number; depth: number; }) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-    this.width = width;
-    this.height = height;
-    this.depth = depth;
-    //increment();
-    return this;
-  }
-  
-  delete(): void {
-    //crashCounter--;
-  }
-  
-  /**
-   * Checks if the box intersects with another box and logs the reason if not
-   * @param e - The other box to check for intersection
-   * @returns True if the boxes intersect, false otherwise
-   */
-  intersectsBoxDebug(e: Box): boolean {
-    const x1 = this.x;
-    const y1 = this.y;
-    const z1 = this.z;
-    const w1 = this.width;
-    const h1 = this.height;
-    const d1 = this.depth;
-    
-    const x2 = e.x;
-    const y2 = e.y;
-    const z2 = e.z;
-    const w2 = e.width;
-    const h2 = e.height;
-    const d2 = e.depth;
-    
-    function check(arr: boolean[]) {
-      for(const i in arr) {
-        if(!arr[i]) {
-          switch(parseInt(i)) {
-            case 0: 
-            console.log(`0: ${x1} < ${x2} + ${w2}`); break;
-            case 1:
-            console.log(`1: ${x1} + ${w1} > ${x2}`); break;
-            case 2:
-            console.log(`2: ${y1} < ${y2} + ${h2}`); break;
-            case 3:
-            console.log(`3: ${y1} + ${h1} > ${y2}`); break;
-            case 4:
-            console.log(`4: ${z1} < ${z2} + ${d2}`); break;
-            case 5:
-            console.log(`5: ${z1} + ${d1} > ${z2}`); break;
-          }
-        }
-      }
-    }
-    
-    if(x1 < x2 + w2 
-    && x1 + w1 > x2 
-    && y1 < y2 + h2 
-    && y1 + h1 > y2 
-    && z1 < z2 + d2 
-    && z1 + d1 > z2) {
-      return true;
-    }
-    
-    check([
-      x1 < x2 + w2,
-      x1 + w1 > x2,
-      y1 < y2 + h2,
-      y1 + h1 > y2,
-      z1 < z2 + d2,
-      z1 + d1 > z2,
-    ]);
-    
-    return false;
-  }
-  
-  /**
-   * Checks if the box intersects with another box
-   * @param e - The other box to check for intersection
-   * @returns True if the boxes intersect, false otherwise
-   */
-  intersectsBox(e: Box | {
-    x: number,
-    y: number,
-    z: number,
-    width: number,
-    height: number,
-    depth: number
-  }): boolean {
-    const x1 = this.x;
-    const y1 = this.y;
-    const z1 = this.z;
-    const w1 = this.width;
-    const h1 = this.height;
-    const d1 = this.depth;
-    
-    const x2 = e.x;
-    const y2 = e.y;
-    const z2 = e.z;
-    const w2 = e.width;
-    const h2 = e.height;
-    const d2 = e.depth;
-    
-    if(x1 < x2 + w2 
-    && x1 + w1 > x2 
-    && y1 < y2 + h2 
-    && y1 + h1 > y2 
-    && z1 < z2 + d2 
-    && z1 + d1 > z2) {
-      return true;
-    }
-    
-    return false;
-  }
-}
-
-/**
  * A class that represents an octree data structure for efficient spatial partitioning and collision detection
  */
 export class Octree {
@@ -209,7 +55,7 @@ export class Octree {
    * @param bounds.depth - The depth of the bounding box
    */
   constructor(bounds: { x: number; y: number; z: number; width: number; height: number; depth: number }) {
-    this.bounds = new Box(bounds);
+    this.bounds = new Box(bounds.x, bounds.y, bounds.z, bounds.width, bounds.height, bounds.depth);
     this.children = [];
     this.box = null;
   }
@@ -263,7 +109,7 @@ export class Octree {
    * @returns True if the insertion was successful, false otherwise
    */
   insert(b: { x: number; y: number; z: number; width: number; height: number; depth: number; }): boolean {
-    const box = new Box(b);
+    const box = new Box(b.x, b.y, b.z, b.width, b.height, b.depth);
     if(!this.bounds.intersectsBox(box)) return false;
     
     if(this.bounds.width > 1) {
@@ -296,7 +142,7 @@ export class Octree {
     width: number,
     height: number,
     depth: number
-  }, size?: {width: number, height: number, depth: number}): Array<Box> {
+  }/*, size?: {width: number, height: number, depth: number}*/): Array<Box> {
     var e: {
       x: number,
       y: number,
@@ -311,9 +157,9 @@ export class Octree {
         x: a.position.x,
         y: a.position.y,
         z: a.position.z,
-        width: size!.width,
-        height: size!.height,
-        depth: size!.depth,
+        width: a.geometry.boundingSphere!.radius,
+        height: a.geometry.boundingSphere!.radius,
+        depth: a.geometry.boundingSphere!.radius,
       };
     } else {
       e = a;
@@ -331,6 +177,15 @@ export class Octree {
     }
     
     return found;
+  }
+
+  getSphereCollision(sphere: {x: number; y: number; z: number; r: number}): Box[] {
+    const arr: Box[] = [];
+
+    if(!this.bounds.intersectsSphere(sphere)) return arr;
+
+
+    return arr;
   }
   
   getPoint(a: Box | Mesh | {

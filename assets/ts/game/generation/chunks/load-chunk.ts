@@ -1,4 +1,5 @@
-import {getElevation, XYZ} from "../seed";
+import {getElevation} from "../seed";
+import {XYZ} from "../../../lib/global-objects";
 import {CHUNK_SIZE, loopThroughChunkYAxis} from "../main";
 
 export function loadVoxelChunk(

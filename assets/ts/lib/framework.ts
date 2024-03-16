@@ -1,4 +1,4 @@
-import {PerspectiveCamera, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, Texture, Color} from "three";
+import {PerspectiveCamera, SphereGeometry, BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, SRGBColorSpace, Texture, Color, DoubleSide} from "three";
 import {gameState, imageImports} from "../window";
 
 /**
@@ -72,6 +72,20 @@ export function newBox(o: {
   return new Mesh(geo, mat);
 }
 
+export function newSphere(o: {
+  radius: number;
+}): Mesh {
+  const geo = new SphereGeometry(
+    o.radius
+  );
+
+  const mat = new MeshBasicMaterial({
+    side: DoubleSide,
+  });
+
+  return new Mesh(geo, mat);
+}
+
 /**
  * Loads an image from a given URL or path and returns a promise that resolves with the texture object
  * @param {string} img - The URL or path of the image to load
@@ -113,3 +127,5 @@ export async function loadImgFromAssets(img: string): Promise<Texture> {
   const path = (await pr()).default;
   return await loadImg(path);
 }
+
+

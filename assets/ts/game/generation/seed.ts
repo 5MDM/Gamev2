@@ -16,9 +16,9 @@ export function getElevation(x: number, y: number) {
   
   return Math.floor(e(0.01) * 20) / 2;
 }
-
+/*
 export interface XYZ {
   x: number;
   y: number;
   z: number;
-}
+}*/

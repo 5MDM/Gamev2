@@ -1,7 +1,8 @@
 import {Octree} from "../../lib/quadrant";
 import {round, stopLoop, floorMultiple, rand, randRange, throwError} from "../../lib/util.js";
-import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter, Box3Helper, Vector3, Box3} from "three";
-import {seed, getElevation, XYZ} from "./seed";
+import {Mesh, Scene, Material, MeshLambertMaterial, BufferGeometry, BufferAttribute, MeshBasicMaterial, AmbientLight, Texture, DoubleSide, CanvasTexture, NearestFilter, NearestMipmapNearestFilter, Box3Helper, Vector3, Box3, FrontSide} from "three";
+import {seed, getElevation} from "./seed";
+import {XYZ} from "../../lib/global-objects.js";
 import {CoordinateMap3D, faces} from "./voxel-block";
 import {loadImgFromAssets} from "../../lib/framework";
 import {renderer} from "../../app";
@@ -126,7 +127,7 @@ export class VoxelWorld {
     const material = 
     new MeshLambertMaterial({
       map: this.imageTextures,
-      side: DoubleSide,
+      side: FrontSide,
       transparent: true,
     });
     
@@ -206,9 +207,9 @@ export class VoxelWorld {
       x: pos.x,
       y: pos.y,
       z: pos.z,
-      width: 1,
-      height: 1,
-      depth: 1,
+      width: 32,
+      height: 33,
+      depth: 32,
     });
   }
   
