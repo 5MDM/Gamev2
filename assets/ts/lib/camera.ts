@@ -2,11 +2,11 @@ import { supportsPointerLock } from "../window";
 import {newCamera, RADIAN_HALF} from "./framework";
 import {Octree} from "./quadrant";
 import {clamp, stopLoop} from "./util";
-import {Quaternion, Vector3, PerspectiveCamera, Mesh} from "three";
+import {Quaternion, Vector3, PerspectiveCamera, Mesh, SphereGeometry, Sphere as threeSphere} from "three";
 import {ControlCamera, MovementCamera} from "threejs-3d-camera";
 import {CoordinateMap2D} from "../game/generation/voxel-block";
-
-
+import {Sphere, Box} from "./global-objects";
+import {BLOCK_SIZE} from "../game/generation/chunk-settings";
 
 /**
  * Sets the quaternions for the x-axis and z-axis rotations from the given angles
@@ -137,6 +137,7 @@ export class PhysicsCamera extends MovementCamera {
    */
   bindPlayer(obj: import("three").Mesh): PhysicsCamera {
     this.playerObj = obj;
+    this.playerObj.geometry.computeBoundingBox();
     this.playerObj.geometry.computeBoundingSphere();
     this.playerRadius = Math.round(this.playerObj.geometry.boundingSphere!.radius * 100) / 100;
     return this;
@@ -147,29 +148,79 @@ export class PhysicsCamera extends MovementCamera {
    * @returns {boolean} 
    *         True if there is a collision, false otherwise
    */
-  collided(): boolean {
+  collided(): false | Box[] {
     if(!this.octrees) return false;
     if(!this.playerObj) return false;
     for(const treeF in this.octrees.map) {
       const tree = this.octrees.map[treeF];
       if(tree.tree == null) continue;
       
-      const col = 
-      tree.tree.get(this.playerObj);
+      const col: Box[] = 
+      tree.tree.getUsingBox({
+        x: this.playerObj.position.x,
+        y: this.playerObj.position.y,
+        z: this.playerObj.position.z,
+        width: this.playerRadius,
+        height: this.playerRadius,
+        depth: this.playerRadius,
+      });
 
-      if(col.length != 0) return true;
+      if(col.length != 0) return col;
     }
     
     return false;
   }
   
+  protected findMTV(e: Box): void {
+    const playerBounds = this.playerObj!.geometry.boundingBox!;
+    if(playerBounds == undefined) throw new Error(
+      "camera.ts: player bounds wasn't calculated"
+    );
+
+    const playerPosition = this.playerObj!.position.clone();
+    const staticPosition = new Vector3(e.x, e.y, e.z);
+
+    const playerSize = BLOCK_SIZE;
+    const staticSize = new Vector3(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+    //.copy(staticBoundingBox.max).sub(staticBoundingBox.min);
+
+    /*const overlap = new Vector3().copy(playerPosition).sub(staticPosition);
+    overlap.x = Math.abs(overlap.x) - (playerSize.x + staticSize.x) / 2;
+    overlap.y = Math.abs(overlap.y) - (playerSize.y + staticSize.y) / 2;
+    overlap.z = Math.abs(overlap.z) - (playerSize.z + staticSize.z) / 2;
+
+    const shortestAxis = overlap.clone().normalize();
+    const resolutionVector = shortestAxis.multiplyScalar(Math.max(overlap.x, overlap.y, overlap.z));*/
+    const overlap = new Vector3().copy(playerPosition).sub(staticPosition);
+    const resolutionVector = overlap.normalize().multiplyScalar(playerSize);
+
+    this.playerObj!.position.add(resolutionVector);
+  }
+
+  public test = 500;
+
+  protected handleCollision(): boolean {
+    if(this.test-- < 0) {
+      //return false;
+    }
+    const collided: Box[] | false = this.collided();
+
+    if(collided) {
+      for(const collision of collided) this.findMTV(collision);
+      return true;
+    }
+
+    return collided;
+  }
+
   /**
    * Moves the camera forward on the same y-axis
    * @param {number} [s=0.05] - The movement speed
    */
   moveForward(s: number = 0.05) {
     super.moveForward(s);
-    if(this.collided()) super.moveDown(s);
+    this.handleCollision();
+    //if(this.collided()) super.moveBackward(s);
   }
   
   /**
@@ -178,7 +229,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   moveLeft(s: number = 0.05) {
     super.moveLeft(s);
-    if(this.collided()) super.moveRight(s);
+    this.handleCollision();
+    //if(this.collided()) super.moveRight(s);
   }
   
   /**
@@ -187,7 +239,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   moveBackward(s: number = 0.05) {
     super.moveBackward(s);
-    if(this.collided()) super.moveForward(s);
+    this.handleCollision();
+    //if(this.collided()) super.moveForward(s);
   }
   
   /**
@@ -196,7 +249,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   moveRight(s: number = 0.05) {
     super.moveRight(s);
-    if(this.collided()) super.moveLeft(s);
+    this.handleCollision();
+    //if(this.collided()) super.moveLeft(s);
   }
   
   /**
@@ -205,7 +259,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   moveUp(s: number = 0.04) {
     super.moveUp(s);
-    if(this.collided()) {
+    if(this.handleCollision()) {
+    //if(this.collided()) {
       super.moveDown(s);
       this.gravityInertia = 0;
       this.canJump = true;
@@ -218,7 +273,8 @@ export class PhysicsCamera extends MovementCamera {
    */
   moveDown(s: number = 0.04) {
     super.moveDown(s);
-    if(this.collided()) super.moveUp(s);
+    this.handleCollision();
+    //if(this.collided()) super.moveUp(s);
   }
   
   /**

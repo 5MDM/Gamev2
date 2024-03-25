@@ -1,6 +1,7 @@
 import {getElevation} from "../seed";
 import {XYZ} from "../../../lib/global-objects";
-import {CHUNK_SIZE, loopThroughChunkYAxis} from "../main";
+import {CHUNK_SIZE} from "../chunk-settings";
+import {loopThroughChunkYAxis} from "../main";
 
 export function loadVoxelChunk(
   addBlock: (uv: number, yy: number) => void,

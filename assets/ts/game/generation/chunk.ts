@@ -8,6 +8,7 @@ import {loadImgFromAssets} from "../../lib/framework";
 import {renderer} from "../../app";
 import {loadVoxelChunk} from "./chunks/load-chunk";
 import {CameraOctreeMap} from "../../lib/camera";
+import {BLOCK_SIZE, CHUNK_SIZE} from "./chunk-settings";
 
 export interface VoxelContructorOpts {
   chunkSize: number;
@@ -207,9 +208,9 @@ export class VoxelWorld {
       x: pos.x,
       y: pos.y,
       z: pos.z,
-      width: 32,
-      height: 33,
-      depth: 32,
+      width: BLOCK_SIZE,
+      height: BLOCK_SIZE,
+      depth: BLOCK_SIZE,
     });
   }
   

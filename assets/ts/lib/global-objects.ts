@@ -1,4 +1,4 @@
-import {Mesh, SphereGeometry} from "three";
+import {BoxGeometry, Mesh, SphereGeometry, Sphere as threeSphere, Box3, Vector3} from "three";
 
 var devMode = false;
 
@@ -6,6 +6,12 @@ export interface XYZ {
   x: number;
   y: number;
   z: number;
+}
+
+export interface BoxOpts extends XYZ {
+  width: number;
+  height: number;
+  depth: number;
 }
 
 class Shape {
@@ -34,6 +40,7 @@ export class Box extends Shape {
   width: number;
   height: number;
   depth: number;
+  boundRef?: Box3;
 
   /**
    * Creates a new Box instance with the given parameters
@@ -46,7 +53,7 @@ export class Box extends Shape {
    * @param param0.depth - The depth of the box
    */
 
-  constructor(x: number, y: number, z: number, width: number, height: number, depth: number) {
+  constructor(x: number, y: number, z: number, width: number, height: number, depth: number, boundRef?: Box3) {
     super(x, y, z);
     this.width = width;
     this.height = height;
@@ -54,9 +61,16 @@ export class Box extends Shape {
     //increment();
     return this;
   }
+
+  getDistanceToSphere(e: threeSphere): number {
+    const v = new Vector3();
+    const distance: Vector3 = this.boundRef!.clampPoint(e.center, v);
+    return v.distanceToSquared(e.center);
+  }
   
   delete(): void {
     //crashCounter--;
+    this.boundRef = undefined;
   }
 
   intersectsSphere(sphere: {
@@ -150,14 +164,7 @@ export class Box extends Shape {
    * @param e - The other box to check for intersection
    * @returns True if the boxes intersect, false otherwise
    */
-  intersectsBox(e: Box | {
-    x: number,
-    y: number,
-    z: number,
-    width: number,
-    height: number,
-    depth: number
-  }): boolean {
+  intersectsBox(e: Box | BoxOpts): boolean {
     const x1 = this.x;
     const y1 = this.y;
     const z1 = this.z;
@@ -182,6 +189,36 @@ export class Box extends Shape {
     }
     
     return false;
+  }
+
+  containsBox(e: Box | BoxOpts): boolean {
+    const x = this.x;
+    const y = this.y;
+    const z = this.z;
+    const w = this.width;
+    const h = this.height;
+    const d = this.depth;
+
+    return (x <= e.x 
+    && x + w >= e.x + e.width 
+    && y <= e.y 
+    && y + h >= e.y + e.height 
+    && z <= e.z 
+    && z + d >= e.z + e.depth
+    );
+  }
+
+  public static fromGeometry(e: BoxGeometry): Box {
+    const s = e.boundingBox;
+    if(s == undefined) throw new Error("global-objects.ts: bounding box wasn't calculated");
+
+    return new Box(0, 0, 0, s.max.x - s.min.x, s.max.y - s.min.y, s.max.z - s.min.z, s);
+  }
+
+  public static fromMesh(e: Mesh): Box {
+    const m = Box.fromGeometry(e.geometry as BoxGeometry);
+    m.setPos(e.position.x, e.position.y, e.position.z);
+    return m;
   }
 }
 

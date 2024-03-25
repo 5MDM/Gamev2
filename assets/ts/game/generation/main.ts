@@ -7,8 +7,7 @@ import {setRenderChunkData} from "./render";
 import {CoordinateMap2D} from "./voxel-block";
 import {loadImgFromAssets, loadImg} from "../../lib/framework";
 import {generateUVMap} from "./blocks";
-
-export const CHUNK_SIZE = 16;
+import {CHUNK_SIZE} from "./chunk-settings";
 
 export function loopThroughChunkYAxis(start: number, f: (y: number) => void) {
   const end = start + CHUNK_SIZE;

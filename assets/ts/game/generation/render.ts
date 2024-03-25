@@ -78,11 +78,20 @@ function addInRadius(r: number, sim: number) {
   
 }
 
+var chunkRenderingEnabled = true;
+export function disableChunkRendering(): void {
+  chunkRenderingEnabled = false;
+}
+
+export function enableChunkRendering(): void {
+  chunkRenderingEnabled = true;
+}
+
 export const chunkRenderLoop = stopLoop(() => {
   if(counter-- <= 0) {
     counter = counterOg;
     const {renderDistance} = gameState;
     deleteIfOutRadius(renderDistance);
-    addInRadius(renderDistance, 1);
+    if(chunkRenderingEnabled) addInRadius(renderDistance, 1);
   }
 }, false);

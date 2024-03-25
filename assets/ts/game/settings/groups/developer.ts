@@ -2,6 +2,7 @@ import {disableDevTools, enableDevTools, enableConsole, disableConsole} from "..
 import {SettingGroup} from "../main";
 import {ToggleSetting} from "html-settings-ui"
 import {windowTouchendListener} from "../../../window"
+import {disableChunkRendering, enableChunkRendering} from "../../generation/render";
 
 const debugToggle = new ToggleSetting({
   name: "Debug Overlay",
@@ -29,9 +30,25 @@ fixConsole.triggerElement.addEventListener("pointerup", () => {
   }
 });
 
+const freezeChunkRendering = new ToggleSetting({
+  name: "Freeze Chunk Rendering",
+  id: "freeze-rendering",
+});
+
+freezeChunkRendering.triggerElement.addEventListener("pointerup", () => {
+  if(freezeChunkRendering.isToggled) {
+    disableChunkRendering();
+  } else {
+    enableChunkRendering();
+  }
+});
+
+
+
 const group = 
 new SettingGroup("Developer", "dev")
 .addComponent(debugToggle)
-.addComponent(fixConsole);
+.addComponent(fixConsole)
+.addComponent(freezeChunkRendering);
 
 export {group as developer}

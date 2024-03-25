@@ -1,5 +1,5 @@
 import {Vector3, Box3, Mesh, Box3Helper, Scene, Color} from "three";
-import {Box} from "./global-objects";
+import {Box, BoxOpts} from "./global-objects";
 
 var debugMode = false;
 
@@ -39,7 +39,7 @@ export class Octree {
   /**
    * The array of children octrees that subdivide the parent octree
    */
-  children: Array<Octree>;
+  children: Octree[];
   /**
    * The box object that is inserted into the octree
    */
@@ -54,7 +54,7 @@ export class Octree {
    * @param bounds.height - The height of the bounding box
    * @param bounds.depth - The depth of the bounding box
    */
-  constructor(bounds: { x: number; y: number; z: number; width: number; height: number; depth: number }) {
+  constructor(bounds: BoxOpts) {
     this.bounds = new Box(bounds.x, bounds.y, bounds.z, bounds.width, bounds.height, bounds.depth);
     this.children = [];
     this.box = null;
@@ -108,7 +108,7 @@ export class Octree {
    * @param b.depth - The depth of the box
    * @returns True if the insertion was successful, false otherwise
    */
-  insert(b: { x: number; y: number; z: number; width: number; height: number; depth: number; }): boolean {
+  insert(b: BoxOpts): boolean {
     const box = new Box(b.x, b.y, b.z, b.width, b.height, b.depth);
     if(!this.bounds.intersectsBox(box)) return false;
     
@@ -129,100 +129,21 @@ export class Octree {
 
     return false;
   }
-  
-  /**
-   * Returns an array of boxes that intersect with a given box or mesh object in the octree
-   * @param a - The box or mesh object to check for intersection
-   * @returns An array of boxes that intersect with the given object in the octree
-   */
-  get(a: Box | Mesh | {
-    x: number,
-    y: number,
-    z: number,
-    width: number,
-    height: number,
-    depth: number
-  }/*, size?: {width: number, height: number, depth: number}*/): Array<Box> {
-    var e: {
-      x: number,
-      y: number,
-      z: number,
-      width: number,
-      height: number,
-      depth: number
-    };
-    if(a instanceof Mesh) {
-      // hardcoded
-      e = {
-        x: a.position.x,
-        y: a.position.y,
-        z: a.position.z,
-        width: a.geometry.boundingSphere!.radius,
-        height: a.geometry.boundingSphere!.radius,
-        depth: a.geometry.boundingSphere!.radius,
-      };
-    } else {
-      e = a;
-    }
-    
+
+  getUsingBox(a: Box | BoxOpts): Box[] {
     const found: Box[] = [];
-    if(!this.bounds.intersectsBox(e)) return found;
+
+    if(!this.bounds.intersectsBox(a)) return found;
+
     if(this.bounds.width == 1) {
-      if(this.bounds.intersectsBox(e)
+      if(this.bounds.intersectsBox(a)
       && this.box != null) found.push(this.box);
     } else {
-      for(const child of this.children) {
-        found.push(...child.get(e));
-      }
+      for(const child of this.children)
+        found.push(...child.getUsingBox(a));
     }
-    
+
     return found;
-  }
-
-  getSphereCollision(sphere: {x: number; y: number; z: number; r: number}): Box[] {
-    const arr: Box[] = [];
-
-    if(!this.bounds.intersectsSphere(sphere)) return arr;
-
-
-    return arr;
-  }
-  
-  getPoint(a: Box | Mesh | {
-    x: number,
-    y: number,
-    z: number,
-  }): Box | null {
-    var e: {
-      x: number,
-      y: number,
-      z: number,
-      width: number,
-      height: number,
-      depth: number
-    };
-    if(a instanceof Mesh) {
-      // hardcoded
-      e = {
-        x: a.position.x,
-        y: a.position.y,
-        z: a.position.z,
-        width: 1,
-        height: 1,
-        depth: 1,
-      };
-    } else {
-      e = {
-        x: a.x,
-        y: a.y,
-        z: a.z,
-        width: 1,
-        height: 1,
-        depth: 1,
-      };
-    }
-    
-    return this.get(e)?.[0];
   }
   
   delete(): void {
