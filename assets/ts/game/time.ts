@@ -201,12 +201,12 @@ function addSkySphere() {
   sphere.position.x = cam.position.x;
   sphere.position.y = cam.position.y;
   sphere.position.z = cam.position.z;
-  scene.add(sphere);
+  //scene.add(sphere);
 }
 
 function main() {
   addSkySphere();
-  scene.add(sphere);
+  //scene.add(sphere);
   tickSun();
   tickMoon();
   scene.add(sun);
